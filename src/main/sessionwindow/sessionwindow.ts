@@ -546,7 +546,9 @@ export class SessionWindow implements IDisposable {
           workingDirectory: sessionConfig.resolvedWorkingDirectory,
           filesToOpen: [...sessionConfig.filesToOpen]
         });
+      }, 15000);
       }
+      
     );
 
     this._evm.registerEventHandler(
@@ -586,6 +588,7 @@ export class SessionWindow implements IDisposable {
         this._selectRemoteServerUrl();
       }
     );
+
 
     this._evm.registerEventHandler(
       EventTypeMain.SetRemoteServerOptions,

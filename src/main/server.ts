@@ -85,9 +85,9 @@ function createLaunchScript(
 
   let launchCmd = launchArgs.join(' ');
 
-  if (serverInfo.serverArgs) {
-    launchCmd += ` ${serverInfo.serverArgs}`;
-  }
+  // if (serverInfo.serverArgs) {
+  //   launchCmd += ` ${serverInfo.serverArgs}`;
+  // }
 
   let script: string;
 
