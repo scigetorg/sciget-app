@@ -10,6 +10,7 @@ import { request as httpRequest } from 'http';
 import { request as httpsRequest } from 'https';
 import { IDisposable, IEnvironmentType, IPythonEnvironment } from './tokens';
 import {
+  Config,
   getEnvironmentPath,
   getFreePort,
   getSchemasDir,
@@ -18,7 +19,7 @@ import {
 } from './utils';
 import {
   KeyValueMap,
-  serverLaunchArgsDefault,
+  // serverLaunchArgsDefault,
   serverLaunchArgsFixed,
   SettingType,
   userSettings,
@@ -51,58 +52,46 @@ function createLaunchScript(
   token: string
 ): string {
   const isWin = process.platform === 'win32';
-  const envPath = getEnvironmentPath(serverInfo.environment);
 
   // note: traitlets<5.0 require fully specified arguments to
   // be followed by equals sign without a space; this can be
   // removed once jupyter_server requires traitlets>5.0
-  const launchArgs = ['python', '-m', 'jupyterlab'];
+  const launchArgs = ['docker run --shm-size=1gb -it --privileged --name neurodesktop -v ~/neurodesktop-storage:/neurodesktop-storage -p 8080:8080'];
+  launchArgs.push(`${isWin ? '' : '-e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)"'}`)
 
-  const strPort = port.toString();
+  const config = Config.loadConfig(path.join(__dirname, '..'));
+  const tag = config.ConfigToml.version;
+  console.debug(`!!! tag ${tag}`);
 
   for (const arg of serverLaunchArgsFixed) {
-    launchArgs.push(arg.replace('{port}', strPort).replace('{token}', token));
+    launchArgs.push(arg.replace('{tag}', tag).replace('{tag}', tag));
+    console.debug(`!!! launchArgs ${launchArgs}`);
   }
 
-  if (!serverInfo.overrideDefaultServerArgs) {
-    for (const arg of serverLaunchArgsDefault) {
-      launchArgs.push(arg);
-    }
-  }
+  // if (!serverInfo.overrideDefaultServerArgs) {
+  //   for (const arg of serverLaunchArgsDefault) {
+  //     launchArgs.push(arg);
+  //   }
+  // }
 
   let launchCmd = launchArgs.join(' ');
 
-  if (serverInfo.serverArgs) {
-    launchCmd += ` ${serverInfo.serverArgs}`;
-  }
+  // if (serverInfo.serverArgs) {
+  //   launchCmd += ` ${serverInfo.serverArgs}`;
+  // }
 
   let script: string;
-  const isConda =
-    serverInfo.environment.type === IEnvironmentType.CondaRoot ||
-    serverInfo.environment.type === IEnvironmentType.CondaEnv;
 
   if (isWin) {
-    if (isConda) {
       script = `
-        CALL ${baseCondaPath}\\condabin\\activate.bat
-        CALL conda activate ${envPath}
         CALL ${launchCmd}`;
-    } else {
-      script = `
-        CALL ${envPath}\\activate.bat
-        CALL ${launchCmd}`;
-    }
   } else {
-    if (isConda) {
       script = `
-        source "${baseCondaPath}/bin/activate"
-        conda activate "${envPath}"
-        ${launchCmd}`;
-    } else {
-      script = `
-        source "${envPath}/bin/activate"
-        ${launchCmd}`;
-    }
+      if [[ "$(docker image inspect vnmd/neurodesktop:${tag} --format='exists' 2> /dev/null)" == "exists" ]]; then
+        docker start neurodesktop
+      else 
+        ${launchCmd}
+      fi`;
   }
 
   const ext = isWin ? 'bat' : 'sh';
@@ -192,7 +181,7 @@ export class JupyterServer {
         this._info.port = this._options.port || (await getFreePort());
         this._info.token = this._options.token || this._generateToken();
         this._info.url = new URL(
-          `http://localhost:${this._info.port}/lab?token=${this._info.token}`
+          `http://localhost:8080/#/?username=user&password=password/`
         );
 
         let baseCondaPath: string = '';
@@ -281,11 +270,11 @@ export class JupyterServer {
           }
         };
 
-        console.debug(
-          `Server launch parameters:\n  [script]: ${launchScriptPath}\n  [options]: ${JSON.stringify(
-            execOptions
-          )}`
-        );
+        // console.debug(
+        //   `Server launch parameters:\n  [script]: ${launchScriptPath}\n  [options]: ${JSON.stringify(
+        //     execOptions
+        //   )}`
+        // );
 
         this._nbServer = execFile(launchScriptPath, execOptions);
 

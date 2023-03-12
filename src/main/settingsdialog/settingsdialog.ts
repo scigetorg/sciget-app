@@ -10,8 +10,8 @@ import {
   CtrlWBehavior,
   KeyValueMap,
   LogLevel,
-  serverLaunchArgsDefault,
-  serverLaunchArgsFixed,
+  // serverLaunchArgsDefault,
+  // serverLaunchArgsFixed,
   StartupMode,
   ThemeType
 } from '../config/settings';
@@ -361,12 +361,7 @@ export class SettingsDialog {
               }
 
               function updateServerLaunchCommandPreview() {
-                let launchCommand = 'python -m jupyterlab ${serverLaunchArgsFixed.join(
-                  ' '
-                )}';
-                if (!overrideDefaultServerArgs.checked) {
-                  launchCommand += ' ${serverLaunchArgsDefault.join(' ')}';
-                }
+                let launchCommand = 'docker run --shm-size=1gb -it --privileged --name neurodesktop -v ~/neurodesktop-storage:/neurodesktop-storage -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" -p 8080:8080 -h neurodesktop-20221216 vnmd/neurodesktop:20221216';
 
                 if (additionalServerArgs.value) {
                   launchCommand += ' ' + additionalServerArgs.value;

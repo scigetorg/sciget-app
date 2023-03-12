@@ -59,21 +59,23 @@ export enum SettingType {
 }
 
 export const serverLaunchArgsFixed = [
-  '--no-browser',
-  '--expose-app-in-browser',
-  `--ServerApp.port={port}`,
-  // use our token rather than any pre-configured password
-  '--ServerApp.password=""',
-  `--ServerApp.token="{token}"`,
-  '--LabApp.quit_button=False'
+  '-h neurodesktop-{tag} vnmd/neurodesktop:{tag}'
+  // '--no-browser',
+  // '--expose-app-in-browser',
+  // `--ServerApp.port={port}`,
+  // // use our token rather than any pre-configured password
+  // '--ServerApp.password=""',
+  // `--ServerApp.token="{token}"`,
+  // '--LabApp.quit_button=False'
+  // '-p 8000:8000'
 ];
 
-export const serverLaunchArgsDefault = [
-  // do not use any config file
-  '--JupyterApp.config_file_name=""',
-  // enable hidden files (let user decide whether to display them)
-  '--ContentsManager.allow_hidden=True'
-];
+// export const serverLaunchArgsDefault = [
+//   // do not use any config file
+//   '--JupyterApp.config_file_name=""',
+//   // enable hidden files (let user decide whether to display them)
+//   '--ContentsManager.allow_hidden=True'
+// ];
 
 export class Setting<T> {
   constructor(defaultValue: T, options?: Setting.IOptions) {

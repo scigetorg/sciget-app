@@ -43,6 +43,8 @@ export class LabView implements IDisposable {
     const sessionConfig = this._sessionConfig;
     this._wsSettings = new WorkspaceSettings(sessionConfig.workingDirectory);
     this._jlabBaseUrl = `${sessionConfig.url.protocol}//${sessionConfig.url.host}${sessionConfig.url.pathname}`;
+    console.debug(`jlabBaseUrl: ${this._jlabBaseUrl}`);
+
     /*
     using a dedicated partition causes PDF rendering issues (object blob in iframe).
     use temporary dedicated partition only for unpersisted remote connections

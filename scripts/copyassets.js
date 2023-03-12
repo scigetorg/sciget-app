@@ -58,8 +58,12 @@ function copyAssests() {
     path.join(dest, '../app-assets', 'progress-logo.svg')
   );
   fs.copySync(
-    path.join(srcDir, 'assets', 'jupyterlab-wordmark.svg'),
-    path.join(dest, '../app-assets', 'jupyterlab-wordmark.svg')
+    path.join(srcDir, 'assets', 'neurodesk.svg'),
+    path.join(dest, '../app-assets', 'neurodesk.svg')
+  );
+  fs.copySync(
+    'neurodesktop.toml',
+    path.join(dest, 'neurodesktop.toml')
   );
 
   const toolkitPath = path.join(
