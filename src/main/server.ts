@@ -84,7 +84,8 @@ function createLaunchScript(
 
   if (isWin) {
       script = `
-        CALL ${launchCmd}`;
+        CALL docker start neurodesktop
+        `;
   } else {
       script = `
       if [[ "$(docker image inspect vnmd/neurodesktop:${tag} --format='exists' 2> /dev/null)" == "exists" ]]; then
@@ -111,6 +112,7 @@ async function checkIfUrlExists(url: URL): Promise<boolean> {
     const requestFn = url.protocol === 'https:' ? httpsRequest : httpRequest;
     const req = requestFn(url, function (r) {
       resolve(r.statusCode >= 200 && r.statusCode < 400);
+      console.debug(`Checking if ${url} exists... ${r.statusCode}`)
     });
     req.on('error', function (err) {
       resolve(false);
@@ -139,7 +141,14 @@ export async function waitUntilServerIsUp(url: URL): Promise<boolean> {
 export class JupyterServer {
   constructor(options: JupyterServer.IOptions, registry: IRegistry) {
     this._options = options;
-    this._info.environment = options.environment;
+    const option:  IPythonEnvironment = {
+      name: 'python',
+      path: 'C:\\',
+      type: IEnvironmentType.Path,
+      versions: {},
+      defaultKernel: 'python3'
+    };
+    this._info.environment = option;
     const workingDir =
       this._options.workingDirectory || userSettings.resolvedWorkingDirectory;
     this._info.workingDirectory = workingDir;
@@ -168,70 +177,72 @@ export class JupyterServer {
       return this._startServer;
     }
     let started = false;
-
+    console.debug("Starting Jupyter server....")
     this._startServer = new Promise<JupyterServer.IInfo>(
       // eslint-disable-next-line no-async-promise-executor
       async (resolve, reject) => {
         const isWin = process.platform === 'win32';
-        const pythonPath = this._info.environment.path;
-        if (!fs.existsSync(pythonPath)) {
-          reject(`Error: Environment not found at: ${pythonPath}`);
-          return;
-        }
+        console.debug("isWin: " + isWin)
+        // const pythonPath = this._info.environment.path;
+        // if (!fs.existsSync(pythonPath)) {
+        //   reject(`Error: Environment not found at: ${pythonPath}`);
+        //   return;
+        // }
         this._info.port = this._options.port || (await getFreePort());
         this._info.token = this._options.token || this._generateToken();
         this._info.url = new URL(
           `http://localhost:8080/#/?username=user&password=password/`
         );
-
+        
         let baseCondaPath: string = '';
 
         if (this._info.environment.type === IEnvironmentType.CondaRoot) {
           baseCondaPath = getEnvironmentPath(this._info.environment);
         } else if (this._info.environment.type === IEnvironmentType.CondaEnv) {
           baseCondaPath = await this._registry.condaRootPath;
-
-          if (!baseCondaPath) {
-            const choice = dialog.showMessageBoxSync({
-              message: 'Select conda base environment',
-              detail:
-                'Base conda environment not found. Please select a root conda environment to activate the custom environment.',
-              type: 'error',
-              buttons: ['OK', 'Cancel'],
-              defaultId: 0,
-              cancelId: 1
-            });
-            if (choice == 1) {
-              reject('Failed to activate conda environment');
-              return;
-            }
-
-            const filePaths = dialog.showOpenDialogSync({
-              properties: [
-                'openDirectory',
-                'showHiddenFiles',
-                'noResolveAliases'
-              ],
-              buttonLabel: 'Use Conda Root'
-            });
-
-            if (filePaths && filePaths.length > 0) {
-              baseCondaPath = filePaths[0];
-              if (
-                !this._registry.validateCondaBaseEnvironmentAtPath(
-                  baseCondaPath
-                )
-              ) {
-                reject('Invalid base conda environment');
-                return;
-              }
-              this._registry.setCondaRootPath(baseCondaPath);
-            } else {
-              reject('Failed to activate conda environment');
-              return;
-            }
-          }
         }
+
+        //   if (!baseCondaPath) {
+        //     const choice = dialog.showMessageBoxSync({
+        //       message: 'Select conda base environment',
+        //       detail:
+        //         'Base conda environment not found. Please select a root conda environment to activate the custom environment.',
+        //       type: 'error',
+        //       buttons: ['OK', 'Cancel'],
+        //       defaultId: 0,
+        //       cancelId: 1
+        //     });
+        //     if (choice == 1) {
+        //       reject('Failed to activate conda environment');
+        //       return;
+        //     }
+
+        //     const filePaths = dialog.showOpenDialogSync({
+        //       properties: [
+        //         'openDirectory',
+        //         'showHiddenFiles',
+        //         'noResolveAliases'
+        //       ],
+        //       buttonLabel: 'Use Conda Root'
+        //     });
+
+        //     if (filePaths && filePaths.length > 0) {
+        //       baseCondaPath = filePaths[0];
+        //       if (
+        //         !this._registry.validateCondaBaseEnvironmentAtPath(
+        //           baseCondaPath
+        //         )
+        //       ) {
+        //         reject('Invalid base conda environment');
+        //         return;
+        //       }
+        //       this._registry.setCondaRootPath(baseCondaPath);
+        //     } else {
+        //       reject('Failed to activate conda environment');
+        //       return;
+        //     }
+        //   }
+        // }
 
         const launchScriptPath = createLaunchScript(
           this._info,
@@ -287,6 +298,7 @@ export class JupyterServer {
             fs.unlinkSync(launchScriptPath);
             resolve(this._info);
           } else {
+            console.debug("Server didn't start in time")
             this._serverStartFailed();
             reject(new Error('Failed to launch Jupyter Server'));
           }
@@ -506,11 +518,11 @@ export namespace JupyterServer {
     url: URL;
     port: number;
     token: string;
-    environment: IPythonEnvironment;
+    environment?: IPythonEnvironment;
     workingDirectory: string;
-    serverArgs: string;
-    overrideDefaultServerArgs: boolean;
-    serverEnvVars: KeyValueMap;
+    serverArgs?: string;
+    overrideDefaultServerArgs?: boolean;
+    serverEnvVars?: KeyValueMap;
     version?: string;
     pageConfig?: any;
   }
@@ -612,21 +624,27 @@ export class JupyterServerFactory implements IServerFactory, IDisposable {
     opts?: JupyterServer.IOptions
   ): Promise<JupyterServerFactory.IFactoryItem> {
     let item: JupyterServerFactory.IFactoryItem;
-    let env: IPythonEnvironment;
+    let env: IPythonEnvironment = {
+      name: 'python',
+      path: 'C:\\',
+      type: IEnvironmentType.Path,
+      versions: {},
+      defaultKernel: 'python3'
+    };
 
-    if (!opts?.environment) {
-      env = await this._registry.getDefaultEnvironment();
-    } else {
-      env = opts?.environment;
-    }
-
+    // if (!opts?.environment) {
+    //   env = await this._registry.getDefaultEnvironment();
+    // } else {
+      // env = opts?.environment;
+    // }
+    console.debug('~ createFreeServer', opts);
     opts = { ...opts, ...{ environment: env } };
     item = this._createServer(opts);
     item.server.start().catch(error => {
-      console.error('Failed to start server', error);
+      console.error('Failed to start server ~~', error);
       this._removeFailedServer(item.factoryId);
     });
-
+    console.debug('~ createdFreeServer ~ ', item);
     return item;
   }
 
@@ -642,24 +660,31 @@ export class JupyterServerFactory implements IServerFactory, IDisposable {
     opts?: JupyterServer.IOptions
   ): Promise<JupyterServerFactory.IFactoryItem> {
     let item: JupyterServerFactory.IFactoryItem;
-    let env: IPythonEnvironment;
+    let env: IPythonEnvironment = {
+      name: 'python',
+      path: 'C:\\',
+      type: IEnvironmentType.Path,
+      versions: {},
+      defaultKernel: 'python3'
+    };
 
-    if (!opts?.environment) {
-      env = await this._registry.getDefaultEnvironment();
-    } else {
-      env = opts?.environment;
-    }
-
+    // if (!opts?.environment) {
+    //   env = await this._registry.getDefaultEnvironment();
+    // } else {
+      // env = opts?.environment;
+    // }
+    console.log('~ createServer', opts?.environment)
     opts = { ...opts, ...{ environment: env } };
 
     item = (await this._findUnusedServer(opts)) || this._createServer(opts);
     item.used = true;
 
     item.server.start().catch(error => {
-      console.error('Failed to start server', error);
+      console.error('~ Failed to start server', error);
       this._removeFailedServer(item.factoryId);
     });
 
+    console.debug('~ createServer ~ ', item);
     return item;
   }
 
@@ -746,7 +771,7 @@ export class JupyterServerFactory implements IServerFactory, IDisposable {
     const workingDir =
       opts?.workingDirectory || userSettings.resolvedWorkingDirectory;
     const env =
-      opts?.environment || (await this._registry.getDefaultEnvironment());
+      opts?.environment;
 
     let result = ArrayExt.findFirstValue(
       this._servers,
@@ -771,7 +796,7 @@ export class JupyterServerFactory implements IServerFactory, IDisposable {
       opts?.workingDirectory || userSettings.resolvedWorkingDirectory;
 
     const env =
-      opts?.environment || (await this._registry.getDefaultEnvironment());
+      opts?.environment;
 
     this._servers.forEach(server => {
       if (

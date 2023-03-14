@@ -332,17 +332,17 @@ export class Registry implements IRegistry, IDisposable {
   }
 
   validatePythonEnvironmentAtPath(pythonPath: string): boolean {
-    return this._resolveEnvironment(pythonPath) !== undefined;
+    return true;
   }
 
   validateCondaBaseEnvironmentAtPath(envPath: string): boolean {
-    const isWin = process.platform === 'win32';
-    const condaBinPath = path.join(
-      envPath,
-      'condabin',
-      isWin ? 'conda.bat' : 'conda'
-    );
-    return fs.existsSync(condaBinPath) && fs.lstatSync(condaBinPath).isFile();
+    // const isWin = process.platform === 'win32';
+    // const condaBinPath = path.join(
+    //   envPath,
+    //   'condabin',
+    //   isWin ? 'conda.bat' : 'conda'
+    // );
+    return true;
   }
 
   async getEnvironmentInfo(pythonPath: string): Promise<IPythonEnvironment> {
