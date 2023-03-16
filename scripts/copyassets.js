@@ -61,10 +61,7 @@ function copyAssests() {
     path.join(srcDir, 'assets', 'neurodesk.svg'),
     path.join(dest, '../app-assets', 'neurodesk.svg')
   );
-  fs.copySync(
-    'neurodesktop.toml',
-    path.join(dest, 'neurodesktop.toml')
-  );
+  fs.copySync('neurodesktop.toml', path.join(dest, 'neurodesktop.toml'));
 
   const toolkitPath = path.join(
     '../node_modules',

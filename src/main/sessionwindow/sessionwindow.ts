@@ -151,8 +151,7 @@ export class SessionWindow implements IDisposable {
       serverOptions.environment = this._registry.getEnvironmentByPath(
         pythonPath
       );
-    }
-    else {
+    } else {
       let option: IPythonEnvironment = {
         name: 'python',
         path: 'C:\\',
@@ -162,7 +161,7 @@ export class SessionWindow implements IDisposable {
       };
       serverOptions.environment = option;
     }
-    console.debug('serverOptions ', serverOptions); 
+    console.debug('serverOptions ', serverOptions);
 
     const server = await this.serverFactory.createServer(serverOptions);
     this._server = server;
@@ -200,7 +199,7 @@ export class SessionWindow implements IDisposable {
           this._sessionConfig.persistSessionData,
           this._sessionConfig.partition
         );
-      } 
+      }
     } else {
       this._updateContentView();
     }
@@ -528,7 +527,7 @@ export class SessionWindow implements IDisposable {
             false
           );
         }
-      
+
         this._contentViewType = ContentViewType.Lab;
         this._updateContentView();
         this._updateSessionWindowPositionConfig();
@@ -547,7 +546,6 @@ export class SessionWindow implements IDisposable {
           filesToOpen: [...sessionConfig.filesToOpen]
         });
       }
-      
     );
 
     this._evm.registerEventHandler(
@@ -587,7 +585,6 @@ export class SessionWindow implements IDisposable {
         this._selectRemoteServerUrl();
       }
     );
-
 
     this._evm.registerEventHandler(
       EventTypeMain.SetRemoteServerOptions,

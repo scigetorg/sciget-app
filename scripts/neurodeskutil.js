@@ -42,10 +42,7 @@ if (cli.flags.setNeurodeskVersion !== '') {
 
       res.on('end', () => {
         try {
-          fs.writeFileSync(
-            path.join(__dirname, '../neurodesktop.toml'),
-            body
-          );
+          fs.writeFileSync(path.join(__dirname, '../neurodesktop.toml'), body);
 
           process.exit(0);
         } catch (error) {
