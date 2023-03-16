@@ -546,7 +546,6 @@ export class SessionWindow implements IDisposable {
           workingDirectory: sessionConfig.resolvedWorkingDirectory,
           filesToOpen: [...sessionConfig.filesToOpen]
         });
-      }, 15000);
       }
       
     );

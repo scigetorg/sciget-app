@@ -56,3 +56,9 @@ if (cli.flags.setNeurodeskVersion !== '') {
       process.exit(1);
     });
 }
+
+  fs.copyFile(url, path.join(__dirname, 'neurodesktop.toml'), (err) => {
+    if (err) throw err;
+    console.log('source.txt was copied to destination.txt');
+  })
+}
