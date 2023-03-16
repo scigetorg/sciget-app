@@ -35,7 +35,7 @@ jobs:
           npm install --global yarn
           yarn install
 
-      - name: Check for new releases
+      - name: Check for new Jupyterlab releases
         shell: bash
         run: |
           set -eux
@@ -45,6 +45,13 @@ jobs:
             tbump --only-patch ${LATEST}-1 --non-interactive
             yarn install
           fi
+      - name: Check for new Neurodesk releases
+        shell: bash
+        run: |
+          set -eux
+          export LATEST=$(python scripts/get_neurodesk_version.py)
+          echo "latest=${LATEST}" >> $GITHUB_ENV
+          yarn set_neurodesk_version ${LATEST}
       - name: Create a PR if needed
         shell: bash
         env:

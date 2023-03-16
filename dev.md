@@ -2,23 +2,9 @@
 
 ## Build dependencies
 
-- [conda](https://docs.conda.io)
-
-  You can install `conda` as part of a [Miniforge](https://github.com/conda-forge/miniforge) installer.
-
-- [(conda) Constructor](https://github.com/conda/constructor) to bundle JupyterLab Desktop Server into the stand-alone application. You can install Constructor using:
-
-  ```bash
-  conda install -c conda-forge constructor
-  ```
-
 - nodejs
 
-  You can install from https://nodejs.org/en/download/ or run:
-
-  ```bash
-  conda install -c conda-forge nodejs
-  ```
+  You can install from https://nodejs.org/en/download/
 
 - yarn
 
@@ -47,14 +33,6 @@ JupyterLab Desktop bundles JupyterLab front-end and a conda environment as Jupyt
   yarn build
   ```
 
-- Create the JupyterLab Desktop Server installer using
-
-  ```bash
-  yarn create_env_installer:<platform>
-  ```
-
-  Installer will be created in one of `env_installer/JupyterLabDesktopAppServer<version>-MacOSX-x86_64.sh`, `env_installer/JupyterLabDesktopAppServer-<version>-Linux-x86_64.sh`, `env_installer/JupyterLabDesktopAppServer-<version>-Windows-x86_64.exe` based on your platform
-
 - Now you can launch the JupyterLab Desktop locally using:
 
   ```bash
@@ -69,12 +47,6 @@ JupyterLab Desktop bundles JupyterLab front-end and a conda environment as Jupyt
 
   ```bash
   yarn run clean && yarn build
-  ```
-
-- Create JupyterLab Desktop Server installer
-
-  ```bash
-  yarn create_env_installer:<platform>
   ```
 
 - Create JupyterLab Desktop installer which will also bundle JupyterLab Desktop Server installer.

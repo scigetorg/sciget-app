@@ -504,32 +504,31 @@ export class SessionWindow implements IDisposable {
         this._wsSettings = new WorkspaceSettings(
           sessionConfig.workingDirectory
         );
-        setTimeout(async () => {
-          try {
-            await this._createServerForSession();
-            appData.addSessionToRecents({
-              workingDirectory: this._sessionConfig.resolvedWorkingDirectory,
-              filesToOpen: [...this._sessionConfig.filesToOpen]
-            });
-          } catch (error) {
-            this._showProgressView(
-              'Failed to create session!',
-              `
-              <div class="message-row">${error}</div>
-              <div class="message-row">
-                <a href="javascript:void(0);" onclick="sendMessageToMain('${EventTypeMain.ShowWelcomeView}')">Go to Welcome Page</a>
-              </div>
-              <div class="message-row">
-                <a href="javascript:void(0);" onclick="sendMessageToMain('${EventTypeMain.InstallBundledPythonEnv}')">Install / update Python environment using the bundled installer</a>
-              </div>
-              <div class="message-row">
-                <a href="javascript:void(0);" onclick="sendMessageToMain('${EventTypeMain.ShowServerSettings}')">Change the default Python environment</a>
-              </div>
-            `,
-              false
-            );
-          }
-        
+        try {
+          await this._createServerForSession();
+          appData.addSessionToRecents({
+            workingDirectory: this._sessionConfig.resolvedWorkingDirectory,
+            filesToOpen: [...this._sessionConfig.filesToOpen]
+          });
+        } catch (error) {
+          this._showProgressView(
+            'Failed to create session!',
+            `
+            <div class="message-row">${error}</div>
+            <div class="message-row">
+              <a href="javascript:void(0);" onclick="sendMessageToMain('${EventTypeMain.ShowWelcomeView}')">Go to Welcome Page</a>
+            </div>
+            <div class="message-row">
+              <a href="javascript:void(0);" onclick="sendMessageToMain('${EventTypeMain.InstallBundledPythonEnv}')">Install / update Python environment using the bundled installer</a>
+            </div>
+            <div class="message-row">
+              <a href="javascript:void(0);" onclick="sendMessageToMain('${EventTypeMain.ShowServerSettings}')">Change the default Python environment</a>
+            </div>
+          `,
+            false
+          );
+        }
+      
         this._contentViewType = ContentViewType.Lab;
         this._updateContentView();
         this._updateSessionWindowPositionConfig();
@@ -547,7 +546,6 @@ export class SessionWindow implements IDisposable {
           workingDirectory: sessionConfig.resolvedWorkingDirectory,
           filesToOpen: [...sessionConfig.filesToOpen]
         });
-      }, 15000);
       }
       
     );
