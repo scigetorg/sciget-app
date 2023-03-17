@@ -27,8 +27,8 @@ import {
 } from './config/settings';
 import { randomBytes } from 'crypto';
 
-const SERVER_LAUNCH_TIMEOUT = 60000; // milliseconds
-const SERVER_RESTART_LIMIT = 3; // max server restarts
+const SERVER_LAUNCH_TIMEOUT = 600000; // milliseconds
+const SERVER_RESTART_LIMIT = 5; // max server restarts
 
 function createTempFile(
   fileName = 'temp',
@@ -88,20 +88,40 @@ function createLaunchScript(
 
   if (isWin) {
     script = `
-        CALL if ($(docker image inspect vnmd/neurodesktop:${tag} --format="exists" 2> $null) -eq "exists") {
-          CALL docker start neurodesktop
-        } 
-        CALL else {
-          CALL ${launchCmd}
-        }
-        `;
+        SET ERRORCODE=0
+        FOR /F "usebackq delims=" %%i IN (docker image inspect vnmd/neurodesktop:${tag} --format='exists' 2^>nul) DO SET IMAGE_EXISTS=%%i
+        if "%IMAGE_EXISTS%"=="exists" (
+            echo "Image exists"
+            FOR /F "usebackq delims=" %%i IN (docker container inspect -f "{{.State.Status}}" neurodesktop) DO SET CONTAINER_STATUS=%%i
+                if not "%CONTAINER_STATUS%"=="running" (
+                    if "%CONTAINER_STATUS%"=="exited" (
+                        docker start neurodesktop
+                    ) else if "%CONTAINER_STATUS%"=="paused" (
+                        docker start neurodesktop
+                    ) else (
+                        ${launchCmd}
+                    )
+                )
+        ) else (
+            docker pull vnmd/neurodesktop:${tag}
+            ${launchCmd}
+        )
+      `;
   } else {
     script = `
-      if [[ "$(docker image inspect vnmd/neurodesktop:${tag} --format='exists' 2> /dev/null)" == "exists" ]]; then
-        docker start neurodesktop
-      else 
-        ${launchCmd}
-      fi`;
+        if [[ "$(docker image inspect vnmd/neurodesktop:${tag} --format='exists' 2> /dev/null)" == "exists" ]]; then 
+          if [[ "$( docker container inspect -f '{{.State.Status}}' neurodesktop )" != "running" ]]; then 
+            if [[ "$( docker container inspect -f '{{.State.Status}}' neurodesktop )" == "exited" || "paused"]]; then
+                docker start neurodesktop
+            else
+              ${launchCmd}
+            fi
+          fi
+        else
+          docker pull vnmd/neurodesktop:${tag}
+          ${launchCmd}
+        fi
+        `;
   }
 
   const ext = isWin ? 'bat' : 'sh';
@@ -287,7 +307,8 @@ export class JupyterServer {
             JUPYTERLAB_WORKSPACES_DIR:
               process.env.JLAB_DESKTOP_WORKSPACES_DIR || jlabWorkspacesDir,
             ...serverEnvVars
-          }
+          },
+          timeout: 500000000
         };
 
         // console.debug(
@@ -313,9 +334,10 @@ export class JupyterServer {
           }
         });
 
-        this._nbServer.on('stdout', stdout => {
-          console.log('exit: ' + stdout);
-          if (stdout == 'neurodesktop') {
+        this._nbServer.on('exit', (code, signal) => {
+          const _code: number | null  = code;
+          console.log('child process exited with ' + `code ${code} and signal ${signal}`);
+          if (_code === 0) {
             /* On Windows, JupyterLab server sometimes crashes randomly during websocket
               connection. As a result of this, users experience kernel connections failures.
               This crash only happens when server is launched from electron app. Since we
