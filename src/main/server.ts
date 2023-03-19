@@ -27,8 +27,8 @@ import {
 } from './config/settings';
 import { randomBytes } from 'crypto';
 
-const SERVER_LAUNCH_TIMEOUT = 600000; // milliseconds
-const SERVER_RESTART_LIMIT = 5; // max server restarts
+const SERVER_LAUNCH_TIMEOUT = 900000; // milliseconds
+const SERVER_RESTART_LIMIT = 6; // max server restarts
 
 function createTempFile(
   fileName = 'temp',
@@ -111,7 +111,7 @@ function createLaunchScript(
     script = `
         if [[ "$(docker image inspect vnmd/neurodesktop:${tag} --format='exists' 2> /dev/null)" == "exists" ]]; then 
           if [[ "$( docker container inspect -f '{{.State.Status}}' neurodesktop )" != "running" ]]; then 
-            if [[ "$( docker container inspect -f '{{.State.Status}}' neurodesktop )" == "exited" || "paused"]]; then
+            if [[ "$(docker container inspect -f '{{.State.Status}}' neurodesktop)" == "exited" || "$(docker container inspect -f '{{.State.Status}}' neurodesktop)" == "paused" ]]; then
                 docker start neurodesktop
             else
               ${launchCmd}
@@ -335,8 +335,10 @@ export class JupyterServer {
         });
 
         this._nbServer.on('exit', (code, signal) => {
-          const _code: number | null  = code;
-          console.log('child process exited with ' + `code ${code} and signal ${signal}`);
+          const _code: number | null = code;
+          console.log(
+            'child process exited with ' + `code ${code} and signal ${signal}`
+          );
           if (_code === 0) {
             /* On Windows, JupyterLab server sometimes crashes randomly during websocket
               connection. As a result of this, users experience kernel connections failures.

@@ -150,10 +150,10 @@
     "url": "http://jupyter.org"
   },
   "bugs": {
-    "url": "https://github.com/jupyterlab/jupyterlab-desktop/issues"
+    "url": "https://github.com/NeuroDesk/neurodesk-desktop/issues"
   },
-  "homepage": "https://github.com/jupyterlab/jupyterlab-desktop#readme",
-  "repository": "https://github.com/jupyterlab/jupyterlab-desktop",
+  "homepage": "https://github.com/NeuroDesk/neurodesk-desktop#readme",
+  "repository": "https://github.com/NeuroDesk/neurodesk-desktop",
   "license": "BSD-3-Clause",
   "devDependencies": {
     "@jupyter-notebook/web-components": "0.9.1",
