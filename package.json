@@ -1,7 +1,7 @@
 {
-  "name": "jupyterlab-desktop",
+  "name": "neurodesktop-desktop",
   "version": "4.0.0-1",
-  "description": "JupyterLab Desktop",
+  "description": "Neurodesktop Desktop",
   "main": "./build/out/main/main.js",
   "scripts": {
     "start": "electron .",
@@ -25,9 +25,9 @@
     "dist:win": "yarn build && electron-builder --win --publish never",
     "dockerdist:linux": "docker run --rm -ti -v ${PWD}:/project -v ${PWD##*/}-node-modules:/project/node_modules -v ~/.electron:/root/.electron electronuserland/builder:wine /bin/bash -c \"yarn && yarn dist:linux\"",
     "dockerdist:win": "docker run --rm -ti -v ${PWD}:/project -v ${PWD##*/}-node-modules:/project/node_modules -v ~/.electron:/root/.electron electronuserland/builder:wine /bin/bash -c \"yarn && yarn dist:win\"",
-    "create_env_installer:linux": "rimraf ./env_installer/JupyterLab*.sh && constructor ./env_installer --platform=linux-64 --output-dir ./env_installer",
-    "create_env_installer:mac": "rimraf ./env_installer/JupyterLab*.sh && constructor ./env_installer --platform=osx-64 --output-dir ./env_installer",
-    "create_env_installer:win": "rimraf ./env_installer/JupyterLab*.exe && constructor ./env_installer --platform=win-64 --output-dir ./env_installer",
+    "create_env_installer:linux": "rimraf ./env_installer/Neurodesktop*.sh && constructor ./env_installer --platform=linux-64 --output-dir ./env_installer",
+    "create_env_installer:mac": "rimraf ./env_installer/Neurodesktop*.sh && constructor ./env_installer --platform=osx-64 --output-dir ./env_installer",
+    "create_env_installer:win": "rimraf ./env_installer/Neurodesktop*.exe && constructor ./env_installer --platform=win-64 --output-dir ./env_installer",
     "check_version_match": "node scripts/buildutil.js --check-version-match",
     "set_jupyterlab_version": "node scripts/buildutil.js --set-jupyterlab-version",
     "set_neurodesk_version": "node scripts/neurodeskutil.js --set-neurodesk-version",
@@ -43,8 +43,8 @@
     "stylelint:check": "stylelint \"**/*.css\""
   },
   "build": {
-    "appId": "org.jupyter.jupyterlab-desktop",
-    "productName": "JupyterLab",
+    "appId": "org.neurodesk.neurodesktop-desktop",
+    "productName": "Neurodesktop",
     "artifactName": "${productName}.${ext}",
     "directories": {
       "buildResources": "dist-resources"
@@ -54,10 +54,10 @@
     },
     "files": [
       "!**/*.d.ts",
-      "!env_installer/JupyterLab*.*"
+      "!env_installer/Neurodesktop*.*"
     ],
     "extraResources": [
-      "env_installer/JupyterLabDesktopAppServer-*[.sh,.exe]",
+      "env_installer/NeurodesktopDesktopAppServer-*[.sh,.exe]",
       "build/schemas"
     ],
     "afterSign": "scripts/notarize.js",
