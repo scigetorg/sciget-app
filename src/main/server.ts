@@ -347,7 +347,7 @@ export class JupyterServer {
         this._nbServer.stderr.on('data', (data: string) => {
           console.debug(`stderr: ${data}`);
         });
-        
+
         this._nbServer.on('exit', (code, signal) => {
           const _code: number | null = code;
           console.log(
