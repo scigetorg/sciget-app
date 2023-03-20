@@ -88,21 +88,27 @@ function createLaunchScript(
 
   if (isWin) {
     script = `
+        setlocal enabledelayedexpansion
         SET ERRORCODE=0
-        FOR /F "usebackq delims=" %%i IN (docker image inspect vnmd/neurodesktop:${tag} --format='exists' 2^>nul) DO SET IMAGE_EXISTS=%%i
+        SET IMAGE_EXISTS=
+        FOR /F "usebackq delims=" %%i IN (\`docker image inspect vnmd/neurodesktop:${tag} --format="exists" 2^>nul\`) DO SET IMAGE_EXISTS=%%i
         if "%IMAGE_EXISTS%"=="exists" (
             echo "Image exists"
-            FOR /F "usebackq delims=" %%i IN (docker container inspect -f "{{.State.Status}}" neurodesktop) DO SET CONTAINER_STATUS=%%i
-                if not "%CONTAINER_STATUS%"=="running" (
-                    if "%CONTAINER_STATUS%"=="exited" (
-                        docker start neurodesktop
-                    ) else if "%CONTAINER_STATUS%"=="paused" (
-                        docker start neurodesktop
-                    ) else (
-                        ${launchCmd}
-                    )
+            FOR /F "usebackq delims=" %%i IN (\`docker container inspect -f "{{.State.Status}}" neurodesktop\`) DO SET CONTAINER_STATUS=%%i
+            if not "!CONTAINER_STATUS!"=="running" (
+                if "!CONTAINER_STATUS!"=="exited" (
+                    echo "Container exited"
+                    docker start neurodesktop
+                ) else if "!CONTAINER_STATUS!"=="paused" (
+                    echo "Container paused"
+                    docker start neurodesktop
+                ) else (
+                    echo "Container does not exist"
+                    ${launchCmd}
                 )
+            )
         ) else (
+            echo "Image does not exist"
             docker pull vnmd/neurodesktop:${tag}
             ${launchCmd}
         )
@@ -334,6 +340,14 @@ export class JupyterServer {
           }
         });
 
+        this._nbServer.stdout.on('data', (data: string) => {
+          console.debug(`stdout: ${data}`);
+        });
+
+        this._nbServer.stderr.on('data', (data: string) => {
+          console.debug(`stderr: ${data}`);
+        });
+        
         this._nbServer.on('exit', (code, signal) => {
           const _code: number | null = code;
           console.log(
