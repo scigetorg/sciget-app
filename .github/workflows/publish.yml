@@ -157,8 +157,8 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.JLAB_APP_TOKEN }}
-          file: dist/JupyterLab-x64.dmg
-          asset_name: JupyterLab-Setup-macOS-x64.dmg
+          file: dist/Neurodesktop-x64.dmg
+          asset_name: Neurodesktop-Setup-macOS-x64.dmg
           tag: v${{ steps.package-info.outputs.version}}
           overwrite: true
 
@@ -167,8 +167,8 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.JLAB_APP_TOKEN }}
-          file: dist/JupyterLab-arm64.dmg
-          asset_name: JupyterLab-Setup-macOS-arm64.dmg
+          file: dist/Neurodesktop-arm64.dmg
+          asset_name: Neurodesktop-Setup-macOS-arm64.dmg
           tag: v${{ steps.package-info.outputs.version}}
           overwrite: true
 
