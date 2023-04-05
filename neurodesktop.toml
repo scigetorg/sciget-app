@@ -1,4 +1,4 @@
-version = "20221215"
+version = "20221216"
 
 rdpport="-p 3390:3389"
 vncport="-p 5901:5901"
@@ -8,7 +8,7 @@ vncflag="--vnc"
 base="""sudo docker run \\
   --shm-size=1gb -it --privileged --name neurodesktop \\
   -v ~/neurodesktop-storage:/neurodesktop-storage \\
-  -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)"\\
+  -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" \\
   -p 8080:8080"""
 
 [windows]
