@@ -37,7 +37,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onRunningServerListSet: (callback: RunningServerListSetListener) => {
     onRunningServerListSetListener = callback;
   },
-  onRunningStorageServerListSet: (callback: RunningStorageServerListSetListener) => {
+  onRunningStorageServerListSet: (
+    callback: RunningStorageServerListSetListener
+  ) => {
     onRunningStorageServerListSetListener = callback;
   }
 });

@@ -65,7 +65,6 @@ function createLaunchScript(
 
   const config = Config.loadConfig(path.join(__dirname, '..'));
   const tag = config.ConfigToml.version;
-  console.debug(`!!! tag ${tag}`);
 
   for (const arg of serverLaunchArgsFixed) {
     launchArgs.push(arg.replace('{tag}', tag).replace('{tag}', tag));

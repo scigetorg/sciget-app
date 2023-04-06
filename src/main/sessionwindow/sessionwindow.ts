@@ -997,16 +997,12 @@ export class SessionWindow implements IDisposable {
     });
 
     this._registry.getRunningStorageServerList().then(runningServers => {
-      runningServers.push(
-        'https://bhsydney.neurodesk.org/'
+      runningServers.push('https://bhsydney.neurodesk.org/');
+      runningServers.push('https://bhnam.neurodesk.org/');
+      runningServers.push('https://bheurope.neurodesk.org/');
+      this._remoteServerSelectDialog.setRunningStorageServerList(
+        runningServers
       );
-      runningServers.push(
-        'https://bhnam.neurodesk.org/'
-      );
-      runningServers.push(
-        'https://bheurope.neurodesk.org/'
-      );
-      this._remoteServerSelectDialog.setRunningStorageServerList(runningServers);
     });
   }
 

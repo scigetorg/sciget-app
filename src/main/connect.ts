@@ -31,7 +31,7 @@ export async function connectAndGetServerInfo(
     let urlObj: URL;
     try {
       urlObj = new URL(url);
-      console.debug(`CONNECT AND GET SERVER AT ${urlObj}`)
+      console.debug(`CONNECT AND GET SERVER AT ${urlObj}`);
     } catch (error) {
       reject({
         type: 'invalid-url',
