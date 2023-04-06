@@ -119,7 +119,7 @@ export class SessionWindow implements IDisposable {
       minWidth: 400,
       minHeight: 300,
       show: false,
-      title: 'JupyterLab',
+      title: 'Neurodesk',
       titleBarStyle: 'hidden',
       frame: process.platform === 'darwin',
       backgroundColor: this._isDarkTheme ? DarkThemeBGColor : LightThemeBGColor,
@@ -344,7 +344,7 @@ export class SessionWindow implements IDisposable {
       sessionConfig: this._sessionConfig
     });
     this._window.addBrowserView(labView.view);
-
+    this._titleBarView.showServerStatus(true);
     // transfer focus to labView
     this._window.webContents.on('focus', () => {
       labView.view.webContents.focus();
@@ -749,9 +749,7 @@ export class SessionWindow implements IDisposable {
         },
         {
           label: 'Close Session',
-          visible:
-            this._contentViewType === ContentViewType.Lab &&
-            !this._progressViewVisible,
+          visible: true,
           click: () => {
             this._closeSession();
           }
@@ -997,6 +995,19 @@ export class SessionWindow implements IDisposable {
       );
       this._remoteServerSelectDialog.setRunningServerList(runningServers);
     });
+
+    this._registry.getRunningStorageServerList().then(runningServers => {
+      runningServers.push(
+        'https://bhsydney.neurodesk.org/'
+      );
+      runningServers.push(
+        'https://bhnam.neurodesk.org/'
+      );
+      runningServers.push(
+        'https://bheurope.neurodesk.org/'
+      );
+      this._remoteServerSelectDialog.setRunningStorageServerList(runningServers);
+    });
   }
 
   private async _createEnvSelectPopup() {
@@ -1223,7 +1234,7 @@ export class SessionWindow implements IDisposable {
     persistSessionData: boolean,
     partition: string
   ) {
-    this._showProgressView('Connecting to JupyterLab Server');
+    this._showProgressView('Connecting to Neurodesk Server');
 
     try {
       const url = new URL(remoteURL);

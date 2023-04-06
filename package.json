@@ -5,7 +5,7 @@
   "main": "./build/out/main/main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "npm run build && yarn create_env_installer:linux && npm run start",
+    "dev": "yarn build && yarn start",
     "start:windows": "electron . --windows-ui",
     "start:linux": "electron . --linux-ui",
     "start:mac": "electron . --mac-ui",

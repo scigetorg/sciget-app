@@ -15,7 +15,7 @@ export class RemoteServerSelectDialog {
       isDarkTheme: options.isDarkTheme,
       parent: options.parent,
       modal: options.modal,
-      title: 'Connect to existing JupyterLab Server',
+      title: 'Connect to existing Neurodesk Server',
       width: 700,
       height: 400,
       preload: path.join(__dirname, './preload.js')
@@ -41,6 +41,11 @@ export class RemoteServerSelectDialog {
           width: 100%;
           box-shadow: none;
         }
+        #storage-server-list {
+          max-width: 100%;
+          width: 100%;
+          box-shadow: none;
+        }
         jp-menu {
           background: none;
         }
@@ -54,8 +59,9 @@ export class RemoteServerSelectDialog {
           white-space: nowrap;
         }
         jp-menu-item.category {
-          color: #777777;
+          color: #1c1c1c;
           cursor: default;
+          font-size: 25px;
           opacity: 1;
           font-weight: bold;
         }
@@ -102,19 +108,12 @@ export class RemoteServerSelectDialog {
         </div>
         <div style="flex-grow: 1; overflow-x: hidden; overflow-y: auto;">
           <jp-menu id="server-list">
-            <jp-menu-item class="category" disabled>Recents</jp-menu-item>
-            <% if (recentServers.length === 0) { %>
-              <jp-menu-item class="recent-server" disabled>No recent connection history yet</jp-menu-item>  
-            <% } %>
-            <% recentServers.forEach((remote, index) => { %>
-              <jp-menu-item class="recent-server" onclick="onRecentServerClicked(event, <%- index %>);"><%- remote.url %>
-                <svg class="delete-button" version="2.0" slot="end" onclick="onDeleteRecentRemoteURLClicked(event, <%- index %>)">
-                  <use href="#circle-xmark" />
-                </svg>
-              </jp-menu-item>
-            <% }); %>
-            <jp-menu-item class="category" id="running-servers-header" disabled>Local JupyterLab Servers</jp-menu-item>
+            <jp-menu-item class="category" id="running-servers-header" disabled>Remote Neurodesk Servers</jp-menu-item>
             <jp-menu-item class="running-server" disabled>Loading...</jp-menu-item>
+          </jp-menu>
+
+          <jp-menu id="storage-server-list">
+            <jp-menu-item class="category" id="running-storage-servers-header" disabled>Remote Persistent Storage Neurodesk Servers</jp-menu-item>
           </jp-menu>
         </div>
         <div class="row">
@@ -129,7 +128,9 @@ export class RemoteServerSelectDialog {
         const serverUrlInput = document.getElementById('server-url');
         const persistSessionDataCheckbox = document.getElementById('persist-session-data');
         const serverList = document.getElementById('server-list');
+        const storageServerList = document.getElementById('storage-server-list');
         const runningServersHeader = document.getElementById('running-servers-header');
+        const runningStorageServersHeader = document.getElementById('running-storage-servers-header');
         
         function onRecentServerClicked(el, index) {
           const server = recentServers[index];
@@ -203,6 +204,35 @@ export class RemoteServerSelectDialog {
           serverList.append(fragment);
         }
 
+        function updateRunningStorageServerList(runningServers) {
+          // clear list
+          storageServerList.querySelectorAll(".running-storage-server").forEach((item) => {
+            item.remove();
+          });
+
+          if (runningServers.length === 0) {
+            const menuItem = document.createElement('jp-menu-item');
+            menuItem.classList.add("running-storage-server");
+            menuItem.disabled = true;
+            menuItem.innerText = 'No locally running JupyterLab server found';
+            storageServerList.append(menuItem);
+            return;
+          }
+
+          const fragment = new DocumentFragment();
+          runningServers.forEach((server, index) => {
+            const menuItem = document.createElement('jp-menu-item');
+            menuItem.classList.add("running-storage-server");
+            menuItem.addEventListener('click', () => {
+              window.electronAPI.setRemoteServerOptions(server.url, persistSessionDataCheckbox.checked);
+            });
+            menuItem.innerText = server.url;
+            fragment.append(menuItem);
+          });
+
+          storageServerList.append(fragment);
+        }
+
         window.electronAPI.onRecentRemoteURLsUpdated((recentServers) => {
           updateRecentRemoteURLs(recentServers);
         });
@@ -212,6 +242,13 @@ export class RemoteServerSelectDialog {
             return { url: server };
           });
           updateRunningServerList(list);
+        });
+
+        window.electronAPI.onRunningStorageServerListSet((runningServers) => {
+          const list = runningServers.map(server => {
+            return { url: server };
+          });
+          updateRunningStorageServerList(list);
         });
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -273,6 +310,15 @@ export class RemoteServerSelectDialog {
       this._window.window.webContents.send(
         EventTypeRenderer.SetRunningServerList,
         runningServers
+      );
+    });
+  }
+
+  setRunningStorageServerList(runningStorageServers: string[]) {
+    this._windowReady.then(() => {
+      this._window.window.webContents.send(
+        EventTypeRenderer.SetRunningStorageServerList,
+        runningStorageServers
       );
     });
   }

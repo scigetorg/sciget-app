@@ -67,6 +67,7 @@ export enum EventTypeRenderer {
   SetCurrentPythonPath = 'set-current-python-path',
   UpdateRecentRemoteURLs = 'update-recent-remote-urls',
   SetRunningServerList = 'set-running-server-list',
+  SetRunningStorageServerList = 'set-running-storage-server-list',
   SetTitle = 'set-title',
   SetActive = 'set-active',
   ShowServerStatus = 'show-server-status',

@@ -107,11 +107,11 @@ console.debug = log.debug;
 const thisYear = new Date().getFullYear();
 
 app.setAboutPanelOptions({
-  applicationName: 'JupyterLab Desktop',
+  applicationName: 'Neurodesk Desktop',
   applicationVersion: app.getVersion(),
   version: app.getVersion(),
-  website: 'https://jupyter.org/about.html',
-  copyright: `© 2015-${thisYear}  Project Jupyter Contributors`
+  website: 'https://www.neurodesk.org/',
+  copyright: `© MIT License ${thisYear}`
 });
 
 // when a file is double clicked or dropped on the app icon on OS,

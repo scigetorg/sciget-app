@@ -152,7 +152,7 @@ Distributed under the terms of the Modified BSD License.
 
   <body class="active <%- isDarkTheme ? 'app-ui-dark' : '' %>">
     <div class="titlebar">
-      <div id="app-title" class="app-title">JupyterLab</div>
+      <div id="app-title" class="app-title">Neurodesk</div>
       <div id="right-widgets">
         <div id="server-button">
           <div id="server-icon">
@@ -194,7 +194,7 @@ Distributed under the terms of the Modified BSD License.
       </div>
     </div>
     <script>
-      const appTitle = document.getElementById('app-title');
+      // const appTitle = document.getElementById('app-title');
       const serverButton = document.getElementById('server-button');
       const serverIcon = document.getElementById('server-icon');
       const serverLabel = document.getElementById('server-label');
@@ -204,9 +204,9 @@ Distributed under the terms of the Modified BSD License.
       const restoreButton = document.getElementById('restore-button');
       const closeButton = document.getElementById('close-button');
 
-      window.electronAPI.onSetTitle((title) => {
-        appTitle.innerText = title;
-      });
+      // window.electronAPI.onSetTitle((title) => {
+      //   appTitle.innerText = title;
+      // });
 
       window.electronAPI.onSetActive((active) => {
         if (active) {
@@ -261,26 +261,14 @@ Distributed under the terms of the Modified BSD License.
       };
 
       const updateStatusItemLocal = (serverInfo) => {
-        const env = serverInfo.environment;
-        serverLabel.innerText = env.name;
-        let packages = [];
-        for (const name in env.versions) {
-          packages.push(`${name}: ${env.versions[name]}`);
-        }
-        serverButton.title = `Local server\n${serverInfo.url}\nroot: ${serverInfo.workingDirectory}\n${env.name} (${
-          env.path
-        })\n${packages.join(', ')}`;
-        serverButton.classList.remove('disabled');
+        serverButton.classList.add('disabled');
+        const connectionType = 'Local';
+        serverLabel.innerText = connectionType
       };
 
       const updateStatusItemRemote = (serverInfo) => {
-        const url = new URL(serverInfo.url);
-        const isLocalUrl =
-          url.hostname === 'localhost' || url.hostname === '127.0.0.1';
-
-        const connectionType = isLocalUrl ? 'Local' : 'Remote';
+        const connectionType = 'Remote';
         serverLabel.innerText = connectionType
-        serverButton.title = `${connectionType} connection\n${serverInfo.url}\nSession data ${serverInfo.persistSessionData ? '': 'not '}persisted`;
         serverButton.classList.add('disabled');
       };
 
@@ -289,6 +277,8 @@ Distributed under the terms of the Modified BSD License.
           if (!serverInfo) {
             return;
           }
+
+          console.debug(serverInfo.type)
           if (serverInfo.type === 'local') {
             updateStatusItemLocal(serverInfo);
           } else {

@@ -11,7 +11,7 @@ export class AboutDialog {
   constructor(options: AboutDialog.IOptions) {
     this._window = new ThemedWindow({
       isDarkTheme: options.isDarkTheme,
-      title: 'About JupyterLab Desktop',
+      title: 'About Neurodesk Desktop',
       width: 400,
       height: 275,
       preload: path.join(__dirname, './preload.js')

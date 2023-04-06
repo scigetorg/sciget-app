@@ -19,7 +19,7 @@ import {
   getBundledPythonPath,
   getEnvironmentPath,
   getUserHomeDir,
-  isPortInUse,
+  // isPortInUse,
   versionWithoutSuffix
 } from './utils';
 import { SettingType, userSettings } from './config/settings';
@@ -44,6 +44,7 @@ export interface IRegistry {
   getRequirements: () => Registry.IRequirement[];
   getEnvironmentInfo(pythonPath: string): Promise<IPythonEnvironment>;
   getRunningServerList(): Promise<string[]>;
+  getRunningStorageServerList(): Promise<string[]>;
   dispose(): Promise<void>;
   environmentListUpdated: ISignal<this, void>;
   clearUserSetPythonEnvs(): void;
@@ -447,37 +448,87 @@ export class Registry implements IRegistry, IDisposable {
           '--json'
         ])
           .then(async output => {
-            const runningServers: string[] = [];
-            const lines = output.split('\n');
-            for (const line of lines) {
-              const jsonStart = line.indexOf('{');
-              if (jsonStart !== -1) {
-                const jsonStr = line.substring(jsonStart);
-                try {
-                  const jsonData = JSON.parse(jsonStr);
-                  // check if server is not created by desktop app and is still running
-                  if (
-                    !jsonData.token.startsWith(SERVER_TOKEN_PREFIX) &&
-                    (await isPortInUse(jsonData.port))
-                  ) {
-                    runningServers.push(
-                      `${jsonData.url}lab?token=${jsonData.token}`
-                    );
-                  }
-                } catch (error) {
-                  console.error(
-                    `Failed to parse running JupyterLab server list`,
-                    error
-                  );
-                }
-              }
-            }
+            // const runningServers: string[] = [];
+            // const lines = output.split('\n');
+            // for (const line of lines) {
+            //   const jsonStart = line.indexOf('{');
+            //   if (jsonStart !== -1) {
+            //     const jsonStr = line.substring(jsonStart);
+            //     try {
+            //       const jsonData = JSON.parse(jsonStr);
+            //       // check if server is not created by desktop app and is still running
+            //       if (
+            //         !jsonData.token.startsWith(SERVER_TOKEN_PREFIX) &&
+            //         (await isPortInUse(jsonData.port))
+            //       ) {
+            //         runningServers.push(
+            //           `${jsonData.url}lab?token=${jsonData.token}`
+            //         );
+            //       }
+            //     } catch (error) {
+            //       console.error(
+            //         `Failed to parse running JupyterLab server list`,
+            //         error
+            //       );
+            //     }
+            //   }
+            // }
 
-            resolve(runningServers);
+            resolve([]);
           })
           .catch(reason => {
             console.debug(
-              `Failed to get running JupyterLab server list`,
+              `Failed to get running Neurodesk server list`,
+              reason
+            );
+            resolve([]);
+          });
+      } else {
+        resolve([]);
+      }
+    });
+  }
+
+  getRunningStorageServerList(): Promise<string[]> {
+    return new Promise<string[]>(resolve => {
+      if (this._defaultEnv) {
+        this._runPythonModuleCommand(this._defaultEnv.path, 'jupyter', [
+          'server',
+          'list',
+          '--json'
+        ])
+          .then(async output => {
+            // const runningServers: string[] = [];
+            // const lines = output.split('\n');
+            // for (const line of lines) {
+            //   const jsonStart = line.indexOf('{');
+            //   if (jsonStart !== -1) {
+            //     const jsonStr = line.substring(jsonStart);
+            //     try {
+            //       const jsonData = JSON.parse(jsonStr);
+            //       // check if server is not created by desktop app and is still running
+            //       if (
+            //         !jsonData.token.startsWith(SERVER_TOKEN_PREFIX) &&
+            //         (await isPortInUse(jsonData.port))
+            //       ) {
+            //         runningServers.push(
+            //           `${jsonData.url}lab?token=${jsonData.token}`
+            //         );
+            //       }
+            //     } catch (error) {
+            //       console.error(
+            //         `Failed to parse running JupyterLab server list`,
+            //         error
+            //       );
+            //     }
+            //   }
+            // }
+
+            resolve([]);
+          })
+          .catch(reason => {
+            console.debug(
+              `Failed to get running Neurodesk server list`,
               reason
             );
             resolve([]);

@@ -31,6 +31,7 @@ export async function connectAndGetServerInfo(
     let urlObj: URL;
     try {
       urlObj = new URL(url);
+      console.debug(`CONNECT AND GET SERVER AT ${urlObj}`)
     } catch (error) {
       reject({
         type: 'invalid-url',
@@ -40,7 +41,7 @@ export async function connectAndGetServerInfo(
     }
 
     const browserOptions: Electron.BrowserWindowConstructorOptions = {
-      title: 'JupyterLab Server Connection',
+      title: 'Neurodesk Server Connection',
       show: options?.showDialog === true
     };
     if (options?.incognito) {
@@ -67,7 +68,7 @@ export async function connectAndGetServerInfo(
       }
       reject({
         type: 'timeout',
-        message: `Failed to connect to JupyterLab server in ${(
+        message: `Failed to connect to Neurodesk server in ${(
           timeout / 1000
         ).toFixed(1)} s`
       } as IConnectError);
@@ -125,7 +126,7 @@ export async function connectAndGetServerInfo(
               window.close();
               reject({
                 type: 'invalid-url',
-                message: 'Not a supported JupyterLab server found'
+                message: 'Not a supported Neurodesk server found'
               } as IConnectError);
               return;
             }

@@ -6,9 +6,11 @@ type RecentRemoteURLsUpdatedListener = (
   recentServers: IRecentRemoteURL[]
 ) => void;
 type RunningServerListSetListener = (runningServers: string[]) => void;
+type RunningStorageServerListSetListener = (runningServers: string[]) => void;
 
 let onRecentRemoteURLsUpdatedListener: RecentRemoteURLsUpdatedListener;
 let onRunningServerListSetListener: RunningServerListSetListener;
+let onRunningStorageServerListSetListener: RunningStorageServerListSetListener;
 
 contextBridge.exposeInMainWorld('electronAPI', {
   getAppConfig: () => {
@@ -34,6 +36,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   onRunningServerListSet: (callback: RunningServerListSetListener) => {
     onRunningServerListSetListener = callback;
+  },
+  onRunningStorageServerListSet: (callback: RunningStorageServerListSetListener) => {
+    onRunningStorageServerListSetListener = callback;
   }
 });
 
@@ -51,6 +56,15 @@ ipcRenderer.on(
   (event, runningServers: string[]) => {
     if (onRunningServerListSetListener) {
       onRunningServerListSetListener(runningServers);
+    }
+  }
+);
+
+ipcRenderer.on(
+  EventTypeRenderer.SetRunningStorageServerList,
+  (event, runningServers: string[]) => {
+    if (onRunningStorageServerListSetListener) {
+      onRunningStorageServerListSetListener(runningServers);
     }
   }
 );
