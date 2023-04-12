@@ -585,9 +585,9 @@ export class WelcomeView {
         //   tooltip = recentSession.filesToOpen.join(', ');
         //   parent = recentSession.workingDirectory;
         // } else {
-          sessionItem = path.join(home, 'neurodesktop-storage');
-          // parent = path.dirname(recentSession.workingDirectory);
-          tooltip = path.join(home, 'neurodesktop-storage');
+        sessionItem = path.join(home, 'neurodesktop-storage');
+        // parent = path.dirname(recentSession.workingDirectory);
+        tooltip = path.join(home, 'neurodesktop-storage');
         // }
 
         // if (parent.startsWith(home)) {
