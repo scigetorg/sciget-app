@@ -367,8 +367,9 @@ export class JupyterApplication implements IApplication, IDisposable {
         isDarkTheme: this._isDarkTheme,
         startupMode: settings.getValue(SettingType.startupMode),
         theme: settings.getValue(SettingType.theme),
-        syncJupyterLabTheme: settings.getValue(SettingType.syncJupyterLabTheme),
-        showNewsFeed: settings.getValue(SettingType.showNewsFeed),
+        // syncJupyterLabTheme: settings.getValue(SettingType.syncJupyterLabTheme),
+        // showNewsFeed: settings.getValue(SettingType.showNewsFeed),
+        // frontEndMode: settings.getValue(SettingType.frontEndMode),
         checkForUpdatesAutomatically: settings.getValue(
           SettingType.checkForUpdatesAutomatically
         ),
@@ -378,13 +379,13 @@ export class JupyterApplication implements IApplication, IDisposable {
         defaultWorkingDirectory: userSettings.getValue(
           SettingType.defaultWorkingDirectory
         ),
-        defaultPythonPath: userSettings.getValue(SettingType.pythonPath),
+        // defaultPythonPath: userSettings.getValue(SettingType.pythonPath),
         logLevel: userSettings.getValue(SettingType.logLevel),
         activateTab: activateTab,
         serverArgs: userSettings.getValue(SettingType.serverArgs),
-        overrideDefaultServerArgs: userSettings.getValue(
-          SettingType.overrideDefaultServerArgs
-        ),
+        // overrideDefaultServerArgs: userSettings.getValue(
+        //   SettingType.overrideDefaultServerArgs
+        // ),
         serverEnvVars: userSettings.getValue(SettingType.serverEnvVars),
         ctrlWBehavior: userSettings.getValue(SettingType.ctrlWBehavior)
       },
@@ -573,7 +574,7 @@ export class JupyterApplication implements IApplication, IDisposable {
       EventTypeMain.LaunchInstallerDownloadPage,
       () => {
         shell.openExternal(
-          'https://github.com/jupyterlab/jupyterlab-desktop/releases'
+          'https://github.com/NeuroDesk/neurodesk-desktop/releases'
         );
       }
     );
@@ -929,7 +930,7 @@ export class JupyterApplication implements IApplication, IDisposable {
 
   checkForUpdates(showDialog: 'on-new-version' | 'always') {
     fetch(
-      'https://github.com/jupyterlab/jupyterlab-desktop/releases/latest/download/latest.yml'
+      'https://github.com/NeuroDesk/neurodesk-desktop/releases/latest/download/latest.yml'
     )
       .then(async response => {
         try {

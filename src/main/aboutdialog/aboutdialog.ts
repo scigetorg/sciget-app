@@ -70,7 +70,7 @@ export class AboutDialog {
           </div>
           <div class="app-title-version">
             <div class="app-title">
-              JupyterLab Desktop
+              Neurodesk Desktop
             </div>
             <div class="app-version">
               Version <%= version %>
@@ -78,11 +78,11 @@ export class AboutDialog {
           </div>
         </div>
         <div class="row about-jupyter-row">
-          <a href="javascript:void(0)" onclick='handleAboutProjectJupyterLink(this);'>About Project Jupyter</a>
+          <a href="javascript:void(0)" onclick='handleAboutProjectJupyterLink(this);'>About Project Neurodesk</a>
         </div>
 
         <div class="row copyright-row">
-          © 2015-<%= thisYear %>  Project Jupyter Contributors
+          © 2020-<%= thisYear %>  Project Neurodesk Contributors
         </div>
 
         <script>

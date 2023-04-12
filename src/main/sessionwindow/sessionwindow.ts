@@ -513,15 +513,13 @@ export class SessionWindow implements IDisposable {
           this._showProgressView(
             'Failed to create session!',
             `
+            <div class="message-row">'Check if Docker is running and try again.</div>
             <div class="message-row">${error}</div>
             <div class="message-row">
+            <a href="https://docs.docker.com/engine/install/">Install / update Docker</a>
+            </div>
+            <div class="message-row">
               <a href="javascript:void(0);" onclick="sendMessageToMain('${EventTypeMain.ShowWelcomeView}')">Go to Welcome Page</a>
-            </div>
-            <div class="message-row">
-              <a href="javascript:void(0);" onclick="sendMessageToMain('${EventTypeMain.InstallBundledPythonEnv}')">Install / update Python environment using the bundled installer</a>
-            </div>
-            <div class="message-row">
-              <a href="javascript:void(0);" onclick="sendMessageToMain('${EventTypeMain.ShowServerSettings}')">Change the default Python environment</a>
             </div>
           `,
             false
@@ -1174,32 +1172,32 @@ export class SessionWindow implements IDisposable {
       );
     }
 
-    pythonPath = this._wsSettings.getValue(SettingType.pythonPath);
+    // pythonPath = this._wsSettings.getValue(SettingType.pythonPath);
 
-    if (pythonPath) {
-      const env = this._registry.addEnvironment(pythonPath);
+    // if (pythonPath) {
+    //   const env = this._registry.addEnvironment(pythonPath);
 
-      if (!env) {
-        // reset python path to default
-        this._wsSettings.setValue(SettingType.pythonPath, '');
+    //   if (!env) {
+    //     // reset python path to default
+    //     this._wsSettings.setValue(SettingType.pythonPath, '');
 
-        this._showProgressView(
-          'Invalid Environment configured for project',
-          `<div class="message-row">Error! Python environment at '${pythonPath}' is not compatible.</div>
-          ${
-            recentSessionIndex !== undefined
-              ? `<div class="message-row"><a href="javascript:void(0);" onclick="sendMessageToMain('${EventTypeMain.OpenRecentSessionWithDefaultEnv}', ${recentSessionIndex})">Reset to default Python environment</a></div>`
-              : ''
-          }
-          <div class="message-row"><a href="javascript:void(0);" onclick="sendMessageToMain('${
-            EventTypeMain.HideProgressView
-          }')">Cancel</a></div>`,
-          false
-        );
+    //     this._showProgressView(
+    //       'Invalid Environment configured for project',
+    //       `<div class="message-row">Error! Python environment at '${pythonPath}' is not compatible.</div>
+    //       ${
+    //         recentSessionIndex !== undefined
+    //           ? `<div class="message-row"><a href="javascript:void(0);" onclick="sendMessageToMain('${EventTypeMain.OpenRecentSessionWithDefaultEnv}', ${recentSessionIndex})">Reset to default Python environment</a></div>`
+    //           : ''
+    //       }
+    //       <div class="message-row"><a href="javascript:void(0);" onclick="sendMessageToMain('${
+    //         EventTypeMain.HideProgressView
+    //       }')">Cancel</a></div>`,
+    //       false
+    //     );
 
-        return;
-      }
-    }
+    //     return;
+    //   }
+    // }
 
     this._sessionConfig = sessionConfig;
     await this._createServerForSession();

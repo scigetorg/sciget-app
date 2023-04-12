@@ -8,6 +8,7 @@ import * as fs from 'fs';
 import { ThemedWindow } from '../dialog/themedwindow';
 import {
   CtrlWBehavior,
+  // FrontEndMode,
   KeyValueMap,
   LogLevel,
   // serverLaunchArgsDefault,
@@ -31,25 +32,26 @@ export class SettingsDialog {
     const {
       startupMode,
       theme,
-      syncJupyterLabTheme,
-      showNewsFeed,
+      // syncJupyterLabTheme,
+      // showNewsFeed,
+      // frontEndMode,
       checkForUpdatesAutomatically,
       defaultWorkingDirectory,
       logLevel,
       serverArgs,
-      overrideDefaultServerArgs,
+      // overrideDefaultServerArgs,
       serverEnvVars,
       ctrlWBehavior
     } = options;
     const installUpdatesAutomaticallyEnabled = process.platform === 'darwin';
     const installUpdatesAutomatically =
       installUpdatesAutomaticallyEnabled && options.installUpdatesAutomatically;
-    let defaultPythonPath = options.defaultPythonPath;
+    // let defaultPythonPath = options.defaultPythonPath;
     const bundledPythonPath = getBundledPythonPath();
 
-    if (defaultPythonPath === '') {
-      defaultPythonPath = bundledPythonPath;
-    }
+    // if (defaultPythonPath === '') {
+    //   defaultPythonPath = bundledPythonPath;
+    // }
     let bundledEnvInstallationExists = false;
     try {
       bundledEnvInstallationExists = fs.existsSync(bundledPythonPath);
@@ -57,9 +59,9 @@ export class SettingsDialog {
       console.error('Failed to check for bundled Python path', error);
     }
 
-    const selectBundledPythonPath =
-      (defaultPythonPath === '' || defaultPythonPath === bundledPythonPath) &&
-      bundledEnvInstallationExists;
+    // const selectBundledPythonPath =
+    //   (defaultPythonPath === '' || defaultPythonPath === bundledPythonPath) &&
+    //   bundledEnvInstallationExists;
 
     let bundledEnvInstallationLatest = true;
 
@@ -217,235 +219,15 @@ export class SettingsDialog {
                 <jp-radio name="theme" value="dark" <%= theme === 'dark' ? 'checked' : '' %>>Dark</jp-radio>
                 <jp-radio name="theme" value="system" <%= theme === 'system' ? 'checked' : '' %>>System</jp-radio>
               </jp-radio-group>
-              <jp-checkbox id='checkbox-sync-jupyterlab-theme' type='checkbox' <%= syncJupyterLabTheme ? 'checked' : '' %>>Sync JupyterLab theme</jp-checkbox>
 
-              <div id="news-feed-settings">
-                <label slot="label">News Feed</label>
-                <jp-checkbox id='checkbox-show-news-feed' type='checkbox' <%= showNewsFeed ? 'checked' : '' %> onchange='handleAutoCheckForUpdates(this);'>Show news feed on welcome page</jp-checkbox>
-              </div>
-
-              <script>
-              const syncJupyterLabThemeCheckbox = document.getElementById('checkbox-sync-jupyterlab-theme');
-              </script>
             </jp-tab-panel>
 
+
+
+
+
             <jp-tab-panel id="tab-panel-server">
-              <div class="row" style="line-height: 30px;">
-                <label>Default working directory</label>
-              </div>
-              <div class="row">
-                <div style="flex-grow: 1;">
-                  <jp-text-field type="text" id="working-directory" value="<%= defaultWorkingDirectory %>" style="width: 100%;" spellcheck="false" placeholder="/working/directory (leave empty for user home)"></jp-text-field>
-                </div>
-                <div>
-                  <jp-button id='select-working-directory' onclick='handleSelectWorkingDirectory(this);'>Change</jp-button>
-                </div>
-              </div>
-
-              <div id="content-local-server" class="server-type-content">
-                <div class="row" style="line-height: 30px;">
-                  <label>Default Python environment</label>
-                </div>
-                <div style="display: flex; flex-direction: column; row-gap: 5px;">
-                  <div id="bundled-env-warning"><span id="bundled-env-warning-message"></span><jp-button id='install-bundled-env' onclick='handleInstallBundledEv(this);'>Install</jp-button><jp-button id='update-bundled-env' onclick='handleUpdateBundledEv(this);'>Update</jp-button></div>
-                  <jp-radio-group orientation="vertical">
-                    <jp-radio type="radio" id="bundled-env" name="env_type" value="bundled-env" <%= selectBundledPythonPath ? 'checked' : '' %> <%= !bundledEnvInstallationExists ? 'disabled' : '' %> onchange="handleEnvTypeChange(this);">Bundled Python environment</jp-radio>
-                    <jp-radio type="radio" id="custom-env" name="env_type" value="custom-env" <%= !selectBundledPythonPath ? 'checked' : '' %> onchange="handleEnvTypeChange(this);">Custom Python environment</jp-radio>
-                  </jp-radio-group>
-
-                  <div class="row">
-                    <div style="flex-grow: 1;">
-                      <jp-text-field type="text" id="python-path" value="<%= defaultPythonPath %>" style="width: 100%;" spellcheck="false"></jp-text-field>
-                    </div>
-                    <div>
-                      <jp-button id='select-python-path' onclick='handleSelectPythonPath(this);'>Select Python path</jp-button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row">
-                <jp-text-area id='additional-server-args' appearance="outline" resize="vertical" rows="2" value="<%= serverArgs %>" oninput='handleAdditionalServerArgsInput(this);' spellcheck="false" placeholder="Enter additional server launch args separated by space">
-                Additional JupyterLab Server launch args
-                </jp-text-area>
-              </div>
-              <div class="row">
-                <jp-checkbox id='override-default-server-args' type='checkbox' <%= overrideDefaultServerArgs ? 'checked' : '' %> onchange='handleOverrideDefaultServerArgsChange(this);'>Override default server launch args</jp-checkbox>
-              </div>
-              <div class="row">
-                <jp-text-area id='server-launch-command-preview' appearance="outline" resize="vertical" rows="2" readonly="" spellcheck="false">
-                Server launch command preview
-                </jp-text-area>
-              </div>
-              <div class="row">
-                <jp-text-area id='additional-server-env-vars' appearance="outline" resize="vertical" rows="2" value="<%= serverEnvVars %>" oninput='handleAdditionalServerEnvsInput(this);' spellcheck="false" placeholder='Enter additional environment variables in NAME="Value" format in separate lines'>
-                Additional JupyterLab Server environment variables
-                </jp-text-area>
-              </div>
-
-              <script>
-              const workingDirectoryInput = document.getElementById('working-directory');
-              const bundledEnvRadio = document.getElementById('bundled-env');
-              const customEnvRadio = document.getElementById('custom-env');
-              const pythonPathInput = document.getElementById('python-path');
-              const selectPythonPathButton = document.getElementById('select-python-path');
-              const bundledEnvWarningContainer = document.getElementById('bundled-env-warning');
-              const bundledEnvWarningMessage = document.getElementById('bundled-env-warning-message');
-              const installBundledEnvButton = document.getElementById('install-bundled-env');
-              const updateBundledEnvButton = document.getElementById('update-bundled-env');
-
-              const additionalServerArgs = document.getElementById('additional-server-args');
-              const overrideDefaultServerArgs = document.getElementById('override-default-server-args');
-              const serverLaunchCommandPreview  = document.getElementById('server-launch-command-preview');
-              const additionalServerEnvVars = document.getElementById('additional-server-env-vars');
-
-              function handleSelectWorkingDirectory(el) {
-                window.electronAPI.selectWorkingDirectory();
-              }
-
-              function handleEnvTypeChange() {
-                defaultPythonEnvChanged = true;
-                const useBundledEnv = bundledEnvRadio.checked;
-                if (useBundledEnv) {
-                  pythonPathInput.setAttribute('disabled', 'disabled');
-                  selectPythonPathButton.setAttribute('disabled', 'disabled');
-                } else {
-                  pythonPathInput.removeAttribute('disabled');
-                  selectPythonPathButton.removeAttribute('disabled');
-                }
-              }
-
-              function handleSelectPythonPath(el) {
-                window.electronAPI.selectPythonPath();
-              }
-
-              function showBundledEnvWarning(type) {
-                if (type === 'does-not-exist') {
-                  bundledEnvWarningMessage.innerText = 'Bundled environment not found';
-                  installBundledEnvButton.style.display = 'block';
-                  bundledEnvWarningContainer.classList.add('warning');
-                } else {
-                  bundledEnvWarningMessage.innerText = 'Updates available for the bundled environment';
-                  updateBundledEnvButton.style.display = 'block';
-                  bundledEnvWarningContainer.classList.add('warning');
-                }
-                bundledEnvWarningContainer.style.display = 'flex';
-              }
-
-              function hideBundledEnvWarning() {
-                bundledEnvWarningContainer.style.display = 'none';
-              }
-
-              function handleInstallBundledEv() {
-                applyButton.setAttribute('disabled', 'disabled');
-                installBundledEnvButton.setAttribute('disabled', 'disabled');
-                window.electronAPI.installBundledPythonEnv();
-              }
-
-              function handleUpdateBundledEv() {
-                showProgress('Updating environment', true);
-                applyButton.setAttribute('disabled', 'disabled');
-                window.electronAPI.updateBundledPythonEnv();
-              }
-
-              function handleAdditionalServerArgsInput(el) {
-                updateServerLaunchCommandPreview();
-              }
-
-              function handleAdditionalServerEnvsInput(el) {
-                updateServerEnvVarsValidity();
-              }
-
-              function handleOverrideDefaultServerArgsChange(el) {
-                updateServerLaunchCommandPreview();
-              }
-
-              function updateServerLaunchCommandPreview() {
-                let launchCommand = 'docker run --shm-size=1gb -it --privileged --name neurodesktop -v ~/neurodesktop-storage:/neurodesktop-storage -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" -p 8080:8080 -h neurodesktop-20221216 vnmd/neurodesktop:20221216';
-
-                if (additionalServerArgs.value) {
-                  launchCommand += ' ' + additionalServerArgs.value;
-                }
-
-                serverLaunchCommandPreview.value = launchCommand;
-              }
-
-              function parseServerEnvVars() {
-                const serverEnvVars = additionalServerEnvVars.value;
-                try {
-                  const envVars = {};
-                  const lines = serverEnvVars.trim().split('\\n');
-      
-                  for (const line of lines) {
-                    const equalPos = line.indexOf('=');
-                    if (equalPos > 0) {
-                      const name = line.substring(0, equalPos).trim();
-                      const value = line.substring(equalPos + 1).trim();
-                      if (name && value.length > 1 && value.startsWith('"') && value.endsWith('"')) {
-                        envVars[name] = value.substring(1, value.length - 1);
-                      }
-                    }
-                  }
-
-                  let valid = true;
-
-                  if (serverEnvVars !== '' && Object.keys(envVars).length < lines.length) {
-                    valid = false;
-                  }
-
-                  return { valid, envVars };
-                } catch (error) {
-                  return { valid: false, envVars: {} };
-                }
-              }
-
-              function updateServerEnvVarsValidity() {
-                if (parseServerEnvVars().valid) {
-                  additionalServerEnvVars.classList.remove('invalid');
-                } else {
-                  additionalServerEnvVars.classList.add('invalid');
-                }
-              }
-
-              document.addEventListener("DOMContentLoaded", () => {
-                updateServerLaunchCommandPreview();
-                updateServerEnvVarsValidity();
-              });
-
-              window.electronAPI.onInstallBundledPythonEnvStatus((status) => {
-                const message = status === 'STARTED' ?
-                  'Installing Python environment' :
-                  status === 'CANCELLED' ?
-                  'Installation cancelled!' :
-                  status === 'FAILURE' ?
-                    'Failed to install the environment!' :
-                  status === 'SUCCESS' ? 'Installation succeeded' : '';
-                
-                const animate = status === 'STARTED';
-
-                showProgress(message, animate);
-
-                if (status === 'SUCCESS') {
-                  bundledEnvRadio.removeAttribute('disabled');
-                  hideBundledEnvWarning();
-                }
-
-                installBundledEnvButton.removeAttribute('disabled');
-                applyButton.removeAttribute('disabled');
-              });
-
-              window.electronAPI.onWorkingDirectorySelected((path) => {
-                workingDirectoryInput.value = path;
-              });
-
-              window.electronAPI.onCustomPythonPathSelected((path) => {
-                pythonPathInput.value = path;
-              });
-
-              handleEnvTypeChange();
-              <%- !bundledEnvInstallationExists ? 'showBundledEnvWarning("does-not-exist");' : '' %> 
-              <%- (bundledEnvInstallationExists && !bundledEnvInstallationLatest) ? 'showBundledEnvWarning("not-latest");' : '' %>
-              </script>
+            
             </jp-tab-panel>
 
             <jp-tab-panel id="tab-panel-privacy">
@@ -577,33 +359,17 @@ export class SettingsDialog {
           window.electronAPI.setStartupMode(startupMode);
           const theme = document.querySelector('jp-radio[name="theme"].checked').value;
           window.electronAPI.setTheme(theme);
-          window.electronAPI.setSyncJupyterLabTheme(syncJupyterLabThemeCheckbox.checked);
-          const showNewsFeedCheckbox = document.getElementById('checkbox-show-news-feed');
-          window.electronAPI.setShowNewsFeed(showNewsFeedCheckbox.checked);
+
+
           window.electronAPI.setCheckForUpdatesAutomatically(autoUpdateCheckCheckbox.checked);
           window.electronAPI.setInstallUpdatesAutomatically(autoInstallCheckbox.checked);
 
-          window.electronAPI.setDefaultWorkingDirectory(workingDirectoryInput.value);
 
-          window.electronAPI.setServerLaunchArgs(additionalServerArgs.value, overrideDefaultServerArgs.checked);
-          window.electronAPI.setServerEnvVars(parseServerEnvVars().envVars);
+
 
           const ctrlWBehavior = document.querySelector('jp-radio[name="ctrl-w-behavior"].checked').value;
           window.electronAPI.setCtrlWBehavior(ctrlWBehavior);
 
-          if (defaultPythonEnvChanged) {
-            if (bundledEnvRadio.checked) {
-              window.electronAPI.setDefaultPythonPath('');
-            } else {
-              window.electronAPI.validatePythonPath(pythonPathInput.value).then((valid) => {
-                if (valid) {
-                  window.electronAPI.setDefaultPythonPath(pythonPathInput.value);
-                } else {
-                  window.electronAPI.showInvalidPythonPathMessage(pythonPathInput.value);
-                }
-              });
-            }
-          }
 
           window.electronAPI.restartApp();
         }
@@ -623,19 +389,20 @@ export class SettingsDialog {
     this._pageBody = ejs.render(template, {
       startupMode,
       theme,
-      syncJupyterLabTheme,
-      showNewsFeed,
+      // syncJupyterLabTheme,
+      // showNewsFeed,
       checkForUpdatesAutomatically,
       installUpdatesAutomaticallyEnabled,
       installUpdatesAutomatically,
+      // frontEndMode,
       defaultWorkingDirectory,
-      defaultPythonPath,
-      selectBundledPythonPath,
-      bundledEnvInstallationExists,
+      // defaultPythonPath,
+      // selectBundledPythonPath,
+      // bundledEnvInstallationExists,
       bundledEnvInstallationLatest,
       logLevel,
       serverArgs,
-      overrideDefaultServerArgs,
+      // overrideDefaultServerArgs,
       serverEnvVars: strServerEnvVars,
       ctrlWBehavior
     });
@@ -664,16 +431,17 @@ export namespace SettingsDialog {
     isDarkTheme: boolean;
     startupMode: StartupMode;
     theme: ThemeType;
-    syncJupyterLabTheme: boolean;
-    showNewsFeed: boolean;
+    // syncJupyterLabTheme: boolean;
+    // showNewsFeed: boolean;
+    // frontEndMode: FrontEndMode;
     checkForUpdatesAutomatically: boolean;
     installUpdatesAutomatically: boolean;
     defaultWorkingDirectory: string;
-    defaultPythonPath: string;
+    // defaultPythonPath: string;
     activateTab?: Tab;
     logLevel: LogLevel;
     serverArgs: string;
-    overrideDefaultServerArgs: boolean;
+    // overrideDefaultServerArgs: boolean;
     serverEnvVars: KeyValueMap;
     ctrlWBehavior: CtrlWBehavior;
   }

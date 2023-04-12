@@ -225,7 +225,7 @@ export class JupyterServer {
         this._info.port = this._options.port || (await getFreePort());
         this._info.token = this._options.token || this._generateToken();
         this._info.url = new URL(
-          `http://localhost:8080/#/?username=user&password=password/`
+          `http://localhost:8080/?username=user&password=password#/`
         );
 
         let baseCondaPath: string = '';
@@ -372,7 +372,7 @@ export class JupyterServer {
             this._serverStartFailed();
             reject(
               new Error(
-                'Jupyter Server process terminated before the initialization completed'
+                'Neurodesk process terminated before the initialization completed'
               )
             );
           }
@@ -381,7 +381,7 @@ export class JupyterServer {
         this._nbServer.on('error', (err: Error) => {
           if (started) {
             dialog.showMessageBox({
-              message: `Jupyter Server process errored: ${err.message}`,
+              message: `Neurodesk process errored: ${err.message}`,
               type: 'error'
             });
           } else {
