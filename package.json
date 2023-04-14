@@ -69,8 +69,8 @@
       "category": "Science;Development;",
       "extraResources": [
         {
-          "from": "dist-resources/linux/jlab.sh",
-          "to": "app/jlab"
+          "from": "dist-resources/linux/neurodesktop.sh",
+          "to": "app/neurodesktop"
         }
       ]
     },
@@ -85,8 +85,8 @@
       ],
       "extraFiles": [
         {
-          "from": "dist-resources/win/jlab.cmd",
-          "to": "jlab.cmd"
+          "from": "dist-resources/win/neurodesktop.cmd",
+          "to": "neurodesktop.cmd"
         }
       ]
     },
@@ -135,8 +135,8 @@
       "artifactName": "${productName}-${arch}.${ext}",
       "extraResources": [
         {
-          "from": "dist-resources/darwin/jlab.sh",
-          "to": "app/jlab"
+          "from": "dist-resources/darwin/neurodesktop.sh",
+          "to": "app/neurodesktop"
         }
       ]
     },

@@ -32,16 +32,16 @@ require('fix-path')();
 
 function parseArgs(argv: string[]) {
   return yargs(argv)
-    .usage('jlab [options] folder/file paths')
-    .example('jlab', 'Launch in default working directory')
-    .example('jlab .', 'Launch in current directory')
+    .usage('neurodesktop [options] folder/file paths')
+    .example('neurodesktop', 'Launch in default working directory')
+    .example('neurodesktop .', 'Launch in current directory')
     .example(
-      'jlab /data/nb/test.ipynb',
+      'neurodesktop /data/nb/test.ipynb',
       'Launch in /data/nb and open test.ipynb'
     )
-    .example('jlab /data/nb', 'Launch in /data/nb')
+    .example('neurodesktop /data/nb', 'Launch in /data/nb')
     .example(
-      'jlab --working-dir /data/nb test.ipynb sub/test2.ipynb',
+      'neurodesktop --working-dir /data/nb test.ipynb sub/test2.ipynb',
       'Launch in /data/nb and open /data/nb/test.ipynb and /data/nb/sub/test2.ipynb'
     )
     .option('python-path', {
@@ -146,8 +146,8 @@ function setupJLabCommand() {
     return;
   }
 
-  const symlinkPath = '/usr/local/bin/jlab';
-  const targetPath = `${getAppDir()}/app/jlab`;
+  const symlinkPath = '/usr/local/bin/neurodesktop';
+  const targetPath = `${getAppDir()}/app/neurodesktop`;
 
   if (!fs.existsSync(targetPath)) {
     return;

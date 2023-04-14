@@ -89,7 +89,7 @@ export function getOldUserConfigPath() {
 
 export function getBundledPythonEnvPath(): string {
   const userDataDir = getBundledPythonInstallDir();
-  let envPath = path.join(userDataDir, 'jlab_server');
+  let envPath = path.join(userDataDir, 'neurodesk _server');
 
   return envPath;
 }

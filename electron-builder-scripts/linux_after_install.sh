@@ -1,2 +1,2 @@
-ln -s "/opt/JupyterLab/resources/app/jlab" /usr/bin/jlab
-chmod 755 "/opt/JupyterLab/resources/app/jlab"
+ln -s "/opt/Neurodesktop/resources/app/neurodesktop" /usr/bin/neurodesktop
+chmod 755 "/opt/Neurodesktop/resources/app/neurodesktop"

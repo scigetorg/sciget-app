@@ -35,7 +35,7 @@ function createTempFile(
   data = '',
   encoding: BufferEncoding = 'utf8'
 ) {
-  const tempDirPath = path.join(os.tmpdir(), 'jlab_desktop');
+  const tempDirPath = path.join(os.tmpdir(), 'neurodesk _desktop');
   const tmpDir = fs.mkdtempSync(tempDirPath);
   const tmpFilePath = path.join(tmpDir, fileName);
 
@@ -503,6 +503,7 @@ export class JupyterServer {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           if (error.code === 'ECONNREFUSED') {
+            console.log('Server not up yet, waiting for it to start...', error.code )
             Promise.race([
               waitUntilServerIsUp(this._info.url),
               waitForDuration(SERVER_LAUNCH_TIMEOUT)
