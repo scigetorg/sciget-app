@@ -503,7 +503,10 @@ export class JupyterServer {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           if (error.code === 'ECONNREFUSED') {
-            console.log('Server not up yet, waiting for it to start...', error.code )
+            console.log(
+              'Server not up yet, waiting for it to start...',
+              error.code
+            );
             Promise.race([
               waitUntilServerIsUp(this._info.url),
               waitForDuration(SERVER_LAUNCH_TIMEOUT)

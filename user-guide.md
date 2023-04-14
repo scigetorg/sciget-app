@@ -179,9 +179,13 @@ rm -rf ~/.config/neurodesktop-desktop
 Find the application installation `Neurodesktop.app` in Finder (in /Applications or ~/Applications) and move to Trash by using `CMD + Delete`. Clean other application generated files using:
 
 # to remove application cache and bundled Python environment
+
 rm -rf ~/Library/neurodesktop-desktop
+
 # to remove user data
+
 rm -rf ~/Library/Application\ Support/neurodesktop-desktop
+
 ```
 
 ## Windows
@@ -191,3 +195,4 @@ On Windows, Neurodesk Desktop is installed in two parts, one for the python envi
 <img src="media/uninstall-windows-application.png" alt="Uninstall the application" height=200 />
 
 In order to remove application cache, delete `C:\Users\<username>\AppData\Roaming\neurodesktop-desktop` directory.
+```

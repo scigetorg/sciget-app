@@ -306,10 +306,10 @@ export class JupyterApplication implements IApplication, IDisposable {
     const startupMode = userSettings.getValue(
       SettingType.startupMode
     ) as StartupMode;
-    console.log('startupMode', startupMode)
+    console.log('startupMode', startupMode);
     // if launching from CLI, parse settings
     const sessionConfig = SessionConfig.createFromArgs(this._cliArgs);
-    console.log('sessionConfig', sessionConfig)
+    console.log('sessionConfig', sessionConfig);
     if (sessionConfig) {
       this._sessionWindowManager.createNewLabWindow(sessionConfig);
       return;

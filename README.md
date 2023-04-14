@@ -26,7 +26,6 @@ If you have an existing Neurodesk Desktop installation, please uninstall it firs
 
 Additionally, Neurodesk Desktop can be installed on Windows via winget: `winget install neurodesktop`.
 
-
 ## Launching Neurodesk Desktop
 
 Neurodesk Desktop can be launched from the GUI of your operating system by clicking the application's icon or by using `neurodesktop` command from the command line.
@@ -35,7 +34,7 @@ Neurodesk Desktop sets File Browser's root directory based on the launch method.
 
 - If launched from the application icon on GUI or by using `neurodesktop` command without any arguments, then the default working directory is set as the root directory. The default working directory is user home directory but it can be customized from the Settings dialog.
 
-- If `neurodesktop` command is used with a directory path as the argument or with the `--working-dir` argument the directory in the argument is set as the root directory. 
+- If `neurodesktop` command is used with a directory path as the argument or with the `--working-dir` argument the directory in the argument is set as the root directory.
 
 ## Sessions and Projects
 
