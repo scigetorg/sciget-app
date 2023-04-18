@@ -10,7 +10,7 @@ import { request as httpRequest } from 'http';
 import { request as httpsRequest } from 'https';
 import { IDisposable, IEnvironmentType, IPythonEnvironment } from './tokens';
 import {
-  Config,
+  // Config,
   getEnvironmentPath,
   getFreePort,
   getSchemasDir,
@@ -35,7 +35,7 @@ function createTempFile(
   data = '',
   encoding: BufferEncoding = 'utf8'
 ) {
-  const tempDirPath = path.join(os.tmpdir(), 'neurodesk _desktop');
+  const tempDirPath = path.join(os.tmpdir(), 'neurodesk_desktop');
   const tmpDir = fs.mkdtempSync(tempDirPath);
   const tmpFilePath = path.join(tmpDir, fileName);
 
@@ -57,17 +57,17 @@ function createLaunchScript(
   // be followed by equals sign without a space; this can be
   // removed once jupyter_server requires traitlets>5.0
   const launchArgs = [
-    'docker run -d --shm-size=1gb -it --privileged --name neurodesktop -v ~/neurodesktop-storage:/neurodesktop-storage -p 8080:8080'
+    'docker run -d --shm-size=1gb -it --privileged --name neurodesktop -v ~/neurodesktop-storage:/neurodesktop-storage -p 8888:8888'
   ];
   launchArgs.push(
-    `${isWin ? '' : '-e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)"'}`
+    `${isWin ? '' : '--user=root -e NB_UID="$(id -u)" -e NB_GID="$(id -g)"'}`
   );
 
-  const config = Config.loadConfig(path.join(__dirname, '..'));
-  const tag = config.ConfigToml.version;
+  // const config = Config.loadConfig(path.join(__dirname, '..'));
+  // const tag = config.ConfigToml.version;
 
   for (const arg of serverLaunchArgsFixed) {
-    launchArgs.push(arg.replace('{tag}', tag).replace('{tag}', tag));
+    launchArgs.push(arg.replace('{token}', token));
     console.debug(`!!! launchArgs ${launchArgs}`);
   }
 
@@ -79,9 +79,9 @@ function createLaunchScript(
 
   let launchCmd = launchArgs.join(' ');
 
-  // if (serverInfo.serverArgs) {
-  //   launchCmd += ` ${serverInfo.serverArgs}`;
-  // }
+  if (serverInfo.serverArgs) {
+    launchCmd += ` ${serverInfo.serverArgs}`;
+  }
 
   let script: string;
 
@@ -90,7 +90,7 @@ function createLaunchScript(
         setlocal enabledelayedexpansion
         SET ERRORCODE=0
         SET IMAGE_EXISTS=
-        FOR /F "usebackq delims=" %%i IN (\`docker image inspect vnmd/neurodesktop:${tag} --format="exists" 2^>nul\`) DO SET IMAGE_EXISTS=%%i
+        FOR /F "usebackq delims=" %%i IN (\`docker image inspect vnmd/neurodesktop-dev:latest --format="exists" 2^>nul\`) DO SET IMAGE_EXISTS=%%i
         if "%IMAGE_EXISTS%"=="exists" (
             echo "Image exists"
             FOR /F "usebackq delims=" %%i IN (\`docker container inspect -f "{{.State.Status}}" neurodesktop\`) DO SET CONTAINER_STATUS=%%i
@@ -108,13 +108,13 @@ function createLaunchScript(
             )
         ) else (
             echo "Image does not exist"
-            docker pull vnmd/neurodesktop:${tag}
+            docker pull vnmd/neurodesktop-dev:latest
             ${launchCmd}
         )
       `;
   } else {
     script = `
-        if [[ "$(docker image inspect vnmd/neurodesktop:${tag} --format='exists' 2> /dev/null)" == "exists" ]]; then 
+        if [[ "$(docker image inspect vnmd/neurodesktop-dev:latest --format='exists' 2> /dev/null)" == "exists" ]]; then 
           if [[ "$( docker container inspect -f '{{.State.Status}}' neurodesktop )" != "running" ]]; then 
             if [[ "$(docker container inspect -f '{{.State.Status}}' neurodesktop)" == "exited" || "$(docker container inspect -f '{{.State.Status}}' neurodesktop)" == "paused" ]]; then
                 docker start neurodesktop
@@ -123,7 +123,7 @@ function createLaunchScript(
             fi
           fi
         else
-          docker pull vnmd/neurodesktop:${tag}
+          docker pull vnmd/neurodesktop-dev:latest
           ${launchCmd}
         fi
         `;
@@ -206,7 +206,7 @@ export class JupyterServer {
    *
    * @return a promise that is resolved when the server has started.
    */
-  public start(): Promise<JupyterServer.IInfo> {
+  public start(token?: string): Promise<JupyterServer.IInfo> {
     if (this._startServer) {
       return this._startServer;
     }
@@ -223,9 +223,11 @@ export class JupyterServer {
         //   return;
         // }
         this._info.port = this._options.port || (await getFreePort());
-        this._info.token = this._options.token || this._generateToken();
+        this._info.token =
+          token || this._options.token || this._generateToken();
+
         this._info.url = new URL(
-          `http://localhost:8080/?username=user&password=password#/`
+          `http://127.0.0.1:8888/lab?token=${this._info.token}`
         );
 
         let baseCondaPath: string = '';
@@ -277,7 +279,7 @@ export class JupyterServer {
         //     }
         //   }
         // }
-
+        console.log('token', this._info.token);
         const launchScriptPath = createLaunchScript(
           this._info,
           baseCondaPath,
@@ -365,7 +367,7 @@ export class JupyterServer {
             if (!this._stopping && this._restartCount < SERVER_RESTART_LIMIT) {
               started = false;
               this._startServer = null;
-              this.start();
+              this.start(this._info.token);
               this._restartCount++;
             }
           } else {

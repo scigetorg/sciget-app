@@ -59,15 +59,15 @@ export enum SettingType {
 }
 
 export const serverLaunchArgsFixed = [
-  '-h neurodesktop-{tag} vnmd/neurodesktop:{tag}'
-  // '--no-browser',
-  // '--expose-app-in-browser',
-  // `--ServerApp.port={port}`,
+  '-h neurodesktop-dev vnmd/neurodesktop-dev:latest',
+
   // // use our token rather than any pre-configured password
-  // '--ServerApp.password=""',
-  // `--ServerApp.token="{token}"`,
-  // '--LabApp.quit_button=False'
-  // '-p 8000:8000'
+  'start.sh jupyter lab --ServerApp.password=""',
+  '--no-browser',
+  '--expose-app-in-browser',
+  `--ServerApp.token="{token}"`,
+  `--ServerApp.port=8888`,
+  '--LabApp.quit_button=False'
 ];
 
 // export const serverLaunchArgsDefault = [

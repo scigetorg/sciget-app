@@ -209,8 +209,6 @@ export class SettingsDialog {
               <jp-radio-group orientation="horizontal">
                 <label slot="label">On startup</label>
                 <jp-radio name="startup-mode" value="welcome-page" <%= startupMode === 'welcome-page' ? 'checked' : '' %>>Show welcome page</jp-radio>
-                <jp-radio name="startup-mode" value="new-local-session" <%= startupMode === 'new-local-session' ? 'checked' : '' %>>Start new session</jp-radio>
-                <jp-radio name="startup-mode" value="restore-sessions" <%= startupMode === 'restore-sessions' ? 'checked' : '' %>>Restore last sessions</jp-radio>
               </jp-radio-group>
               
               <jp-radio-group orientation="horizontal">
@@ -227,7 +225,17 @@ export class SettingsDialog {
 
 
             <jp-tab-panel id="tab-panel-server">
-            
+              <div class="row" style="line-height: 30px;">
+                <label>Default working directory</label>
+              </div>
+              <div class="row">
+                <div style="flex-grow: 1;">
+                  <jp-text-field type="text" id="working-directory" value="<%= defaultWorkingDirectory %>" style="width: 100%;" spellcheck="false" placeholder="/working/directory (leave empty for user home)"></jp-text-field>
+                </div>
+                <div>
+                  <jp-button id='select-working-directory' onclick='handleSelectWorkingDirectory(this);'>Change</jp-button>
+                </div>
+              </div>
             </jp-tab-panel>
 
             <jp-tab-panel id="tab-panel-privacy">
@@ -238,7 +246,7 @@ export class SettingsDialog {
                 <jp-checkbox id='checkbox-clear-session-data' type='checkbox' checked="true">Browser session cache & data</jp-checkbox>
                 <jp-checkbox id='checkbox-clear-recent-remote-urls' type='checkbox'>Recent remote URLs</jp-checkbox>
                 <jp-checkbox id='checkbox-clear-recent-sessions' type='checkbox'>Recent sessions</jp-checkbox>
-                <jp-checkbox id='checkbox-clear-user-set-python-envs' type='checkbox'>User set Python environments</jp-checkbox>
+              
 
                 <div class="row" style="height: 60px">
                 <jp-button onclick='handleClearHistory(this);'>Clear selected</jp-button><jp-progress-ring id="clear-history-progress"></jp-progress-ring>

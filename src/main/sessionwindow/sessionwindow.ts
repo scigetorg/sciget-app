@@ -513,7 +513,7 @@ export class SessionWindow implements IDisposable {
           this._showProgressView(
             'Failed to create session!',
             `
-            <div class="message-row">'Check if Docker is running and try again.</div>
+            <div class="message-row">Check if Docker is running and try again.</div>
             <div class="message-row">${error}</div>
             <div class="message-row">
             <a href="https://docs.docker.com/engine/install/">Install / update Docker</a>
