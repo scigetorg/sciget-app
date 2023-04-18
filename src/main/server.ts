@@ -10,7 +10,7 @@ import { request as httpRequest } from 'http';
 import { request as httpsRequest } from 'https';
 import { IDisposable, IEnvironmentType, IPythonEnvironment } from './tokens';
 import {
-  Config,
+  // Config,
   getEnvironmentPath,
   getFreePort,
   getSchemasDir,
@@ -85,9 +85,9 @@ function createLaunchScript(
 
   let launchCmd = launchArgs.join(' ');
 
-  // if (serverInfo.serverArgs) {
-  //   launchCmd += ` ${serverInfo.serverArgs}`;
-  // }
+  if (serverInfo.serverArgs) {
+    launchCmd += ` ${serverInfo.serverArgs}`;
+  }
 
   let script: string;
 
@@ -96,7 +96,7 @@ function createLaunchScript(
         setlocal enabledelayedexpansion
         SET ERRORCODE=0
         SET IMAGE_EXISTS=
-        FOR /F "usebackq delims=" %%i IN (\`docker image inspect vnmd/neurodesktop:${tag} --format="exists" 2^>nul\`) DO SET IMAGE_EXISTS=%%i
+        FOR /F "usebackq delims=" %%i IN (\`docker image inspect vnmd/neurodesktop-dev:latest --format="exists" 2^>nul\`) DO SET IMAGE_EXISTS=%%i
         if "%IMAGE_EXISTS%"=="exists" (
             echo "Image exists"
             FOR /F "usebackq delims=" %%i IN (\`docker container inspect -f "{{.State.Status}}" neurodesktop\`) DO SET CONTAINER_STATUS=%%i
@@ -114,7 +114,7 @@ function createLaunchScript(
       `;
   } else {
     script = `
-        if [[ "$(docker image inspect vnmd/neurodesktop:${tag} --format='exists' 2> /dev/null)" == "exists" ]]; then 
+        if [[ "$(docker image inspect vnmd/neurodesktop-dev:latest --format='exists' 2> /dev/null)" == "exists" ]]; then 
           if [[ "$( docker container inspect -f '{{.State.Status}}' neurodesktop )" != "running" ]]; then 
               docker stop neurodesktop && docker rm neurodesktop 
               ${launchCmd}
