@@ -25,11 +25,11 @@ Neurodesk Desktop stores data in ~/neurodesktop-storage as default.
 ## Debian, Ubuntu Linux
 
 ```bash
-sudo apt-get purge neurodesk-desktop # remove application
+sudo apt-get purge neurodesktop-desktop # remove application
 rm /usr/bin/neurodesktop # remove command symlink
 
 # to remove application cache
-rm -rf ~/.config/neurodesk-desktop
+rm -rf ~/.config/neurodesktop-desktop
 ```
 
 ## Red Hat, Fedora, SUSE Linux
@@ -46,7 +46,7 @@ rm -rf ~/.config/neurodesktop-desktop
 
 Find the application installation `Neurodesktop.app` in Finder (in /Applications or ~/Applications) and move to Trash by using `CMD + Delete`. Clean other application generated files using:
 
-# to remove application cache and bundled Python environment
+# to remove application cache
 
 rm -rf ~/Library/neurodesktop-desktop
 
@@ -58,7 +58,7 @@ rm -rf ~/Library/Application\ Support/neurodesktop-desktop
 
 ## Windows
 
-On Windows, Neurodesk Desktop is installed in two parts, one for the python environment and another for the application itself. Go to `Windows Apps & Features` dialog using `Start Menu` -> `Settings` -> `Apps` and uninstall Neurodesk Desktop application as shown below.
+On Windows, go to `Windows Apps & Features` dialog using `Start Menu` -> `Settings` -> `Apps` and uninstall Neurodesk Desktop application as shown below.
 
 <img src="media/uninstall-windows-application.png" alt="Uninstall the application" height=200 />
 

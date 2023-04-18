@@ -516,7 +516,10 @@ export class SessionWindow implements IDisposable {
             <div class="message-row">Check if Docker is running and try again.</div>
             <div class="message-row">${error}</div>
             <div class="message-row">
-            <a href="https://docs.docker.com/engine/install/">Install / update Docker</a>
+              <a href="https://docs.docker.com/engine/install/">Install Docker</a>
+            </div>
+            <div class="message-row">
+              <a href="https://github.com/NeuroDesk/neurodesk-desktop/blob/master/user-guide.md#uninstalling-neurodesk-desktop">Or follow this instruction to uninstall and reinstall Neurodesktop</a>
             </div>
             <div class="message-row">
               <a href="javascript:void(0);" onclick="sendMessageToMain('${EventTypeMain.ShowWelcomeView}')">Go to Welcome Page</a>
