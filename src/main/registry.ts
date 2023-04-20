@@ -19,7 +19,7 @@ import {
   getBundledPythonPath,
   getEnvironmentPath,
   getUserHomeDir,
-  // isPortInUse,
+  isPortInUse,
   versionWithoutSuffix
 } from './utils';
 import { SettingType, userSettings } from './config/settings';
