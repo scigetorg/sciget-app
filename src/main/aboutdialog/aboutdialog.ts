@@ -5,7 +5,9 @@ import * as ejs from 'ejs';
 import * as path from 'path';
 import * as fs from 'fs';
 import { ThemedWindow } from '../dialog/themedwindow';
-import { app } from 'electron';
+// import { app } from 'electron';
+
+const pkgjsonFilePath = require(path.resolve('package.json'));
 
 export class AboutDialog {
   constructor(options: AboutDialog.IOptions) {
@@ -93,7 +95,7 @@ export class AboutDialog {
       </div>
     `;
     this._pageBody = ejs.render(template, {
-      version: app.getVersion(),
+      version: pkgjsonFilePath.neurodesk_version,
       thisYear: new Date().getFullYear()
     });
   }

@@ -536,7 +536,7 @@ export class SessionWindow implements IDisposable {
 
         if (type === 'notebook') {
           this.labView.labUIReady.then(() => {
-            this.labView.newNotebook();
+            // this.labView.newNotebook();
             this._hideProgressView();
           });
         } else {
