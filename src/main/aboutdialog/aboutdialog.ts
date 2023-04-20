@@ -10,6 +10,8 @@ import { Config } from '../utils';
 const config = Config.loadConfig(path.join(__dirname, '../..'));
 const release = config.ConfigToml.neurodesk_desktop_release;
 
+const pkgjsonFilePath = require(path.resolve('package.json'));
+
 export class AboutDialog {
   constructor(options: AboutDialog.IOptions) {
     this._window = new ThemedWindow({

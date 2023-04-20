@@ -62,8 +62,6 @@ export const serverLaunchArgsFixed = [
   '-h neurodesktop-dev vnmd/neurodesktop:{tag}',
   // // use our token rather than any pre-configured password
   'start.sh jupyter lab --ServerApp.password=""',
-  '--no-browser',
-  '--expose-app-in-browser',
   `--ServerApp.token="{token}"`,
   `--ServerApp.port=8888`,
   '--LabApp.quit_button=False'
