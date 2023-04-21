@@ -42,25 +42,17 @@ rm /usr/bin/neurodesktop # remove command symlink
 rm -rf ~/.config/neurodesktop-desktop
 ```
 
-## macOS
+### macOS
 
 Find the application installation `Neurodesktop.app` in Finder (in /Applications or ~/Applications) and move to Trash by using `CMD + Delete`. Clean other application generated files using:
 
-# to remove application cache
-
-rm -rf ~/Library/neurodesktop-desktop
-
-# to remove user data
-
-rm -rf ~/Library/Application\ Support/neurodesktop-desktop
-
+```bash
+rm -rf ~/Library/neurodesktop-desktop # to remove application cache
+rm -rf ~/Library/Application\ Support/neurodesktop-desktop # to remove user data
 ```
 
-## Windows
+### Windows
 
 On Windows, go to `Windows Apps & Features` dialog using `Start Menu` -> `Settings` -> `Apps` and uninstall Neurodesk Desktop application as shown below.
 
-<img src="media/uninstall-windows-application.png" alt="Uninstall the application" height=200 />
-
 In order to remove application cache, delete `C:\Users\<username>\AppData\Roaming\neurodesktop-desktop` directory.
-```
