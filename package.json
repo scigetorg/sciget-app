@@ -1,7 +1,13 @@
 {
+<<<<<<< HEAD
   "name": "jupyterlab-desktop",
   "version": "4.0.0-1",
   "description": "JupyterLab Desktop",
+=======
+  "name": "neurodesktop-desktop",
+  "version": "3.6.3-1",
+  "description": "Neurodesktop Desktop",
+>>>>>>> neurodesk-client release version saved in neurodesktop.toml. Use timestamp tag for docker image
   "main": "./build/out/main/main.js",
   "scripts": {
     "start": "electron .",

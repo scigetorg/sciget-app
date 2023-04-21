@@ -10,7 +10,7 @@ import { request as httpRequest } from 'http';
 import { request as httpsRequest } from 'https';
 import { IDisposable, IEnvironmentType, IPythonEnvironment } from './tokens';
 import {
-  // Config,
+  Config,
   getEnvironmentPath,
   getFreePort,
   getSchemasDir,
@@ -63,11 +63,13 @@ function createLaunchScript(
     `${isWin ? '' : '-e NB_UID="$(id -u)" -e NB_GID="$(id -g)"'}`
   );
 
-  // const config = Config.loadConfig(path.join(__dirname, '..'));
-  // const tag = config.ConfigToml.version;
+  const config = Config.loadConfig(path.join(__dirname, '..'));
+  const tag = config.ConfigToml.jupyter_neurodesk_version;
 
   for (const arg of serverLaunchArgsFixed) {
-    launchArgs.push(arg.replace('{token}', token));
+    launchArgs.push(
+      arg.replace('{tag}', tag).replace('{tag}', tag).replace('{token}', token)
+    );
     console.debug(`!!! launchArgs ${launchArgs}`);
   }
 
@@ -90,7 +92,7 @@ function createLaunchScript(
         setlocal enabledelayedexpansion
         SET ERRORCODE=0
         SET IMAGE_EXISTS=
-        FOR /F "usebackq delims=" %%i IN (\`docker image inspect vnmd/neurodesktop-dev:latest --format="exists" 2^>nul\`) DO SET IMAGE_EXISTS=%%i
+        FOR /F "usebackq delims=" %%i IN (\`docker image inspect vnmd/neurodesktop-dev:${tag} --format="exists" 2^>nul\`) DO SET IMAGE_EXISTS=%%i
         if "%IMAGE_EXISTS%"=="exists" (
             echo "Image exists"
             FOR /F "usebackq delims=" %%i IN (\`docker container inspect -f "{{.State.Status}}" neurodesktop\`) DO SET CONTAINER_STATUS=%%i
@@ -109,13 +111,13 @@ function createLaunchScript(
         ) else (
             echo "Image does not exist"
             docker stop neurodesktop && docker rm neurodesktop 
-            docker pull vnmd/neurodesktop-dev:latest
+            docker pull vnmd/neurodesktop-dev:${tag}
             ${launchCmd}
         )
       `;
   } else {
     script = `
-        if [[ "$(docker image inspect vnmd/neurodesktop-dev:latest --format='exists' 2> /dev/null)" == "exists" ]]; then 
+        if [[ "$(docker image inspect vnmd/neurodesktop-dev:${tag} --format='exists' 2> /dev/null)" == "exists" ]]; then 
           if [[ "$( docker container inspect -f '{{.State.Status}}' neurodesktop )" != "running" ]]; then 
             if [[ "$(docker container inspect -f '{{.State.Status}}' neurodesktop)" == "exited" || "$(docker container inspect -f '{{.State.Status}}' neurodesktop)" == "paused" ]]; then
                 docker start neurodesktop
@@ -125,7 +127,7 @@ function createLaunchScript(
           fi
         else
           docker stop neurodesktop && docker rm neurodesktop 
-          docker pull vnmd/neurodesktop-dev:latest
+          docker pull vnmd/neurodesktop-dev:${tag}
           ${launchCmd}
         fi
         `;
