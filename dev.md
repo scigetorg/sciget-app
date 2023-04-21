@@ -39,7 +39,6 @@ JupyterLab Desktop bundles JupyterLab front-end and a conda environment as Jupyt
   yarn start
   ```
 
-
 ## Building for distribution
 
 - Build the application
@@ -59,3 +58,11 @@ JupyterLab Desktop bundles JupyterLab front-end and a conda environment as Jupyt
 ## Release Instructions
 
 For instructions on updating bundled JupyterLab packages and cutting a new release, please follow [Release.md](Release.md) document.
+
+## Neurodesk
+
+The client pull Jupyter Neurodesk image with `jupyter_neurodesk_version` tag in neurodesktop.toml.
+
+Image tag is updated on schedule by Github Action with PR.
+
+Update Release version by changing `neurodesk_desktop_release` in neurodesktop.toml.
