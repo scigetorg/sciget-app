@@ -69,7 +69,7 @@ interface IClearHistoryOptions {
   sessionData: boolean;
   recentRemoteURLs: boolean;
   recentSessions: boolean;
-  userSetPythonEnvs: boolean;
+  userSetPythonEnvs?: boolean;
 }
 
 const minimumWindowSpacing = 15;
