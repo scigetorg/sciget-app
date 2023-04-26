@@ -1,6 +1,7 @@
 {
   "name": "neurodeskapp",
-  "version": "3.6.3-1",
+  "jlab_version": "3.6.3-1",
+  "version": "0.1.0",
   "description": "Neurodesk App",
   "main": "./build/out/main/main.js",
   "scripts": {
