@@ -59,9 +59,6 @@ Previously opened sessions are stored as part of application data and they are l
 
 - Open directories using relative or absolute path
   - `neurodeskapp .` launch in current directory
-  - `neurodeskapp /Users/username/dir` launch with absolute path
-
-For additional CLI options run `neurodeskapp --help` in command line.
 
 ### See [user guide](user-guide.md) for configuration options
 
