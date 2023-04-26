@@ -41,7 +41,7 @@ if (cli.flags.checkVersionMatch) {
     process.exit(1);
   }
 
-  const appVersion = pkgjsonFileData['version'];
+  const appVersion = pkgjsonFileData['jlab_version'];
   console.log(`JupyterLab Desktop version: ${appVersion}`);
 
   // check JupyterLab version bundled to Application Server
