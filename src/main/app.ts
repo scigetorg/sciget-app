@@ -50,6 +50,11 @@ import { EventTypeMain, EventTypeRenderer } from './eventtypes';
 import { SettingsDialog } from './settingsdialog/settingsdialog';
 import { AboutDialog } from './aboutdialog/aboutdialog';
 import { AuthDialog } from './authdialog/authdialog';
+import { Config } from './utils';
+import * as path from 'path';
+
+const config = Config.loadConfig(path.join(__dirname, '..'));
+const release = config.ConfigToml.neurodesk_desktop_release;
 
 export interface IApplication {
   createNewEmptySession(): void;
@@ -574,7 +579,7 @@ export class JupyterApplication implements IApplication, IDisposable {
       EventTypeMain.LaunchInstallerDownloadPage,
       () => {
         shell.openExternal(
-          'https://github.com/NeuroDesk/neurodesk-desktop/releases'
+          'https://github.com/NeuroDesk/neurodesk-app/releases'
         );
       }
     );
@@ -930,14 +935,14 @@ export class JupyterApplication implements IApplication, IDisposable {
 
   checkForUpdates(showDialog: 'on-new-version' | 'always') {
     fetch(
-      'https://github.com/NeuroDesk/neurodesk-desktop/releases/latest/download/latest.yml'
+      'https://github.com/NeuroDesk/neurodesk-app/releases/latest/download/latest.yml'
     )
       .then(async response => {
         try {
           const data = await response.text();
           const latestReleaseData = yaml.load(data);
           const latestVersion = (latestReleaseData as any).version;
-          const currentVersion = app.getVersion();
+          const currentVersion = release;
           const newVersionAvailable =
             semver.compare(currentVersion, latestVersion) === -1;
           if (showDialog === 'always' || newVersionAvailable) {
