@@ -26,7 +26,7 @@ Neurodesk App stores data in ~/neurodesktop-storage as default.
 
 ```bash
 sudo apt-get purge neurodeskapp # remove application
-rm /usr/bin/neurodeskapp # remove command symlink
+sudo rm /usr/bin/neurodeskapp # remove command symlink
 
 # to remove application cache
 rm -rf ~/.config/neurodeskapp
@@ -36,7 +36,7 @@ rm -rf ~/.config/neurodeskapp
 
 ```bash
 sudo rpm -e neurodeskapp # remove application
-rm /usr/bin/neurodeskapp # remove command symlink
+sudo rm /usr/bin/neurodeskapp # remove command symlink
 
 # to remove application cache
 rm -rf ~/.config/neurodeskapp
