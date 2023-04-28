@@ -24,8 +24,6 @@ If you have an existing Neurodesk App installation, please uninstall it first by
 - [macOS Intel Installer](https://github.com/NeuroDesk/neurodesk-app/releases/latest/download/NeurodeskApp-Setup-macOS-x64.dmg), [macOS Apple silicon Installer](https://github.com/neurodesk/neurodesk-app/releases/latest/download/NeurodeskApp-Setup-macOS-arm64.dmg)
 - [Windows Installer](https://github.com/NeuroDesk/neurodesk-app/releases/latest/download/NeurodeskApp-Setup-Windows.exe)
 
-Additionally, Neurodesk App can be installed on Windows via winget: `winget install neurodeskapp`.
-
 ## Launching Neurodesk App
 
 Neurodesk App can be launched from the GUI of your operating system by clicking the application's icon or by using `neurodeskapp` command from the command line.
