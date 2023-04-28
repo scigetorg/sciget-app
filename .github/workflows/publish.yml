@@ -9,6 +9,9 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+permissions:
+  contents: write    
+  
 jobs:
   publish:
     strategy:
@@ -20,8 +23,7 @@ jobs:
 
     name: '${{ matrix.cfg.platform_name }} installer'
     runs-on: ${{ matrix.cfg.os }}
-    permissions:
-      contents: write
+
 
     steps:
       - uses: actions/checkout@v3
