@@ -1,11 +1,12 @@
 {
   "name": "neurodeskapp",
-  "jlab_version": "3.6.3-1",
+  "jlab_version": "4.0.0-1",
   "version": "0.1.0",
   "description": "Neurodesk App",
   "main": "./build/out/main/main.js",
   "scripts": {
     "start": "electron .",
+    "dev": "yarn build && yarn start",
     "start:windows": "electron . --windows-ui",
     "start:linux": "electron . --linux-ui",
     "start:mac": "electron . --mac-ui",
@@ -29,6 +30,8 @@
     "create_env_installer:mac": "rimraf ./env_installer/NeurodeskApp*.sh && constructor ./env_installer --platform=osx-64 --output-dir ./env_installer",
     "create_env_installer:win": "rimraf ./env_installer/NeurodeskApp*.exe && constructor ./env_installer --platform=win-64 --output-dir ./env_installer",
     "check_version_match": "node scripts/buildutil.js --check-version-match",
+    "set_jupyterlab_version": "node scripts/buildutil.js --set-jupyterlab-version",
+    "set_neurodesk_version": "node scripts/neurodeskutil.js --set-neurodesk-version",
     "eslint": "eslint --ext .js,.jsx,.ts,.tsx --cache --fix .",
     "eslint:check": "eslint --ext .js,.jsx,.ts,.tsx --cache .",
     "eslint:check:typed": "eslint --config .eslintrc.typecheck.js --ext .js,.jsx,.ts,.tsx .",
