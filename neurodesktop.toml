@@ -18,9 +18,3 @@ base="""docker run \
 --shm-size=1gb -it --privileged --name neurodesktop \
 -v C:/neurodesktop-storage:/neurodesktop-storage \
 -p 8080:8080"""
-
-[windows]
-base="""docker run \
---shm-size=1gb -it --privileged --name neurodesktop \
--v C:/neurodesktop-storage:/neurodesktop-storage \
--p 8080:8080"""

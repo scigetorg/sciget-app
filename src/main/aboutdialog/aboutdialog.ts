@@ -10,9 +10,6 @@ import { Config } from '../utils';
 const config = Config.loadConfig(path.join(__dirname, '../..'));
 const release = config.ConfigToml.neurodesk_desktop_release;
 
-const config = Config.loadConfig(path.join(__dirname, '../..'));
-const release = config.ConfigToml.neurodesk_desktop_release;
-
 export class AboutDialog {
   constructor(options: AboutDialog.IOptions) {
     this._window = new ThemedWindow({
