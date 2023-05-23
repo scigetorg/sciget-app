@@ -42,6 +42,12 @@ sudo rm /usr/bin/neurodeskapp # remove command symlink
 rm -rf ~/.config/neurodeskapp
 ```
 
+## Arch-based distributions
+
+```bash
+sudo pacman -Rs neurodeskapp-bin
+```
+
 ### macOS
 
 Find the application installation `NeurodeskApp.app` in Finder (in /Applications or ~/Applications) and move to Trash by using `CMD + Delete`. Clean other application generated files using:
