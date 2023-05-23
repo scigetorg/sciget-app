@@ -59,7 +59,7 @@ export enum SettingType {
 }
 
 export const serverLaunchArgsFixed = [
-  '-h neurodesktop-dev vnmd/neurodesktop-dev:{tag}',
+  '-h neurodesktop-dev vnmd/neurodesktop:{tag}',
   // // use our token rather than any pre-configured password
   'start.sh jupyter lab --ServerApp.password=""',
   '--no-browser',

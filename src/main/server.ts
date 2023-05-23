@@ -96,42 +96,32 @@ function createLaunchScript(
         setlocal enabledelayedexpansion
         SET ERRORCODE=0
         SET IMAGE_EXISTS=
-        FOR /F "usebackq delims=" %%i IN (\`docker image inspect vnmd/neurodesktop-dev:${tag} --format="exists" 2^>nul\`) DO SET IMAGE_EXISTS=%%i
+        FOR /F "usebackq delims=" %%i IN (\`docker image inspect vnmd/neurodesktop:${tag} --format="exists" 2^>nul\`) DO SET IMAGE_EXISTS=%%i
         if "%IMAGE_EXISTS%"=="exists" (
             echo "Image exists"
             FOR /F "usebackq delims=" %%i IN (\`docker container inspect -f "{{.State.Status}}" neurodesktop\`) DO SET CONTAINER_STATUS=%%i
             if not "!CONTAINER_STATUS!"=="running" (
-                if "!CONTAINER_STATUS!"=="exited" (
-                    echo "Container exited"
-                    docker start neurodesktop
-                ) else if "!CONTAINER_STATUS!"=="paused" (
-                    echo "Container paused"
-                    docker start neurodesktop
-                ) else (
-                    echo "Container does not exist"
-                    ${launchCmd}
-                )
+              echo "Container does not exist"
+              docker stop neurodesktop && docker rm neurodesktop 
+              ${launchCmd}
             )
         ) else (
             echo "Image does not exist"
             docker stop neurodesktop && docker rm neurodesktop 
-            docker pull vnmd/neurodesktop-dev:${tag}
+            docker pull vnmd/neurodesktop:${tag}
             ${launchCmd}
         )
       `;
   } else {
     script = `
-        if [[ "$(docker image inspect vnmd/neurodesktop-dev:${tag} --format='exists' 2> /dev/null)" == "exists" ]]; then 
+        if [[ "$(docker image inspect vnmd/neurodesktop:${tag} --format='exists' 2> /dev/null)" == "exists" ]]; then 
           if [[ "$( docker container inspect -f '{{.State.Status}}' neurodesktop )" != "running" ]]; then 
-            if [[ "$(docker container inspect -f '{{.State.Status}}' neurodesktop)" == "exited" || "$(docker container inspect -f '{{.State.Status}}' neurodesktop)" == "paused" ]]; then
-                docker start neurodesktop
-            else
+              docker stop neurodesktop && docker rm neurodesktop 
               ${launchCmd}
-            fi
           fi
         else
           docker stop neurodesktop && docker rm neurodesktop 
-          docker pull vnmd/neurodesktop-dev:${tag}
+          docker pull vnmd/neurodesktop:${tag}
           ${launchCmd}
         fi
         `;
