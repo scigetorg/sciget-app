@@ -384,7 +384,7 @@ export class SettingsDialog {
 
 
           window.electronAPI.restartApp();
-        }window.electronAPI.setDefaultWorkingDirectory(workingDirectoryInput.value);
+        }
 
         ${
           options.activateTab
