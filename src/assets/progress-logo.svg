@@ -3,10 +3,10 @@
     <style>
       @keyframes blink {
         0% {
-          opacity: 0;
+          opacity: 1;
         }
         50% {
-          opacity: 0.5;
+          opacity: 0;
         }
         100% {
           opacity: 1;
@@ -25,11 +25,6 @@
         stroke-miterlimit: 10;
       }
 
-      .app-ui-dark .cls-1,
-      .app-ui-dark .cls-2 {
-          stroke: #424242;
-          stroke-miterlimit: 10;
-      }
 
       .cls-2 {
         fill: #231f20;
@@ -38,7 +33,15 @@
 
       path:not(.cls-1),
       path:not(.cls-2) {
-        animation: blink 5s linear infinite;
+        animation: blink 4s linear infinite;
+      }
+
+      polyline {
+        animation: blink 4s linear infinite;
+      }
+
+      line {
+        animation: blink 4s linear infinite;
       }
     </style>
 
@@ -69,7 +72,11 @@
   <path d="M264,316.41c-3.29-11.28-20.92-5.86-17.31,5.32C250,333,267.63,327.58,264,316.41Z" />
   <path class="cls-1" d="M264,316.41c-3.29-11.28-20.92-5.86-17.31,5.32C250,333,267.63,327.58,264,316.41Z" />
   <polyline class="cls-1" points="264.02 316.41 327 276.91 323.24 195" />
-  <polyline class="cls-1" points="322.5 330 322.8 370.76 354 418" />
+  <polyline class="cls-1" points="322.5 330 322.8 370.76 3      .app-ui-dark .cls-1,
+      .app-ui-dark .cls-2 {
+          stroke: #424242;
+          stroke-miterlimit: 10;
+      }54 418" />
   <path d="M213.86,333.61c-9-7.5-20.61,6.87-11.36,14.1a8.39,8.39,0,0,0,5.68,2.1C215.41,349.62,221.22,339.36,213.86,333.61Z" />
   <path class="cls-1" d="M213.86,333.61c-9-7.5-20.61,6.87-11.36,14.1a8.39,8.39,0,0,0,5.68,2.1C215.41,349.62,221.22,339.36,213.86,333.61Z" />
   <line class="cls-1" x1="200.5" y1="345.71" x2="157.96" y2="380.38" />
