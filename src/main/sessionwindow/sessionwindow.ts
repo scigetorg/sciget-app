@@ -496,7 +496,11 @@ export class SessionWindow implements IDisposable {
           return;
         }
 
-        this._showProgressView('Creating new session');
+        this._showProgressView(
+          'Creating new session',
+          `<div class="message-row">This could take up to 20 minutes.</div>
+          `
+        );
 
         const sessionConfig = SessionConfig.createLocal();
         this._sessionConfig = sessionConfig;
