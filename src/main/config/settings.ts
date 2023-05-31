@@ -59,7 +59,7 @@ export enum SettingType {
 }
 
 export const serverLaunchArgsFixed = [
-  '-h neurodesktop vnmd/neurodesktop:{tag}'
+  '-e NEURODESKTOP_VERSION={tag} vnmd/neurodesktop:{tag}'
   // // use our token rather than any pre-configured password
 ];
 
