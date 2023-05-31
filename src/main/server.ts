@@ -75,7 +75,7 @@ function createLaunchScript(
   }
 
   for (const arg of serverLaunchArgsFixed) {
-    launchArgs.push(arg.replace('{tag}', tag));
+    launchArgs.push(arg.replace('{tag}', tag).replace('{tag}', tag));
     console.debug(`!!! launchArgs ${launchArgs}`);
   }
 
