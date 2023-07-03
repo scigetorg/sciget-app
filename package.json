@@ -155,7 +155,7 @@
   },
   "homepage": "https://github.com/NeuroDesk/neurodesk-app#readme",
   "repository": "https://github.com/NeuroDesk/neurodesk-app",
-  "license": "MIT License",
+  "license": "BSD-3-Clause",
   "devDependencies": {
     "@jupyter-notebook/web-components": "0.9.1",
     "@types/ejs": "^3.1.0",
