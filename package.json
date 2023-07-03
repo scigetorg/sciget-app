@@ -146,16 +146,16 @@
     }
   },
   "author": {
-    "name": "Project Jupyter",
-    "email": "project.jupyter@gmail.com",
-    "url": "http://jupyter.org"
+    "name": "University of Queensland",
+    "email": "mail.neurodesk@gmail.com",
+    "url": "https://neurodesk.org/"
   },
   "bugs": {
     "url": "https://github.com/NeuroDesk/neurodesk-app/issues"
   },
   "homepage": "https://github.com/NeuroDesk/neurodesk-app#readme",
   "repository": "https://github.com/NeuroDesk/neurodesk-app",
-  "license": "BSD-3-Clause",
+  "license": "MIT License",
   "devDependencies": {
     "@jupyter-notebook/web-components": "0.9.1",
     "@types/ejs": "^3.1.0",
