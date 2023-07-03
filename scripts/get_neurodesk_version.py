@@ -17,7 +17,7 @@ def find_latest_stable(owner, repository):
     endpoint = f"https://raw.githubusercontent.com/{owner}/{repository}/main/data/neurodesktop.toml"
     releases = urlopen(endpoint)
     for release in releases:
-        if 'jupyter_neurodesk_version' not in str(release):
+        if 'jupyter_neurodesk_version =' not in str(release):
             continue
         version = str(release).split('=')[1].split('"')[1]
         return version if version != currentVersion else ''
