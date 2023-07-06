@@ -91,6 +91,7 @@ jobs:
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
         run: |
+          set env DEBUG=electron-builder
           yarn dist:${{ matrix.cfg.platform }}
         if: steps.release-exists.outputs.result == 'true'
 
