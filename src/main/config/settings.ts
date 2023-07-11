@@ -72,7 +72,7 @@ export const serverLaunchArgsDefault = [
   '--no-browser',
   '--expose-app-in-browser',
   `--ServerApp.token="{token}"`,
-  `--ServerApp.port=8888`,
+  `--ServerApp.port={port}`,
   '--LabApp.quit_button=False'
 ];
 

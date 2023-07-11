@@ -52,12 +52,13 @@ function createLaunchScript(
   token: string
 ): string {
   const isWin = process.platform === 'win32';
+  const strPort = port.toString();
 
   // note: traitlets<5.0 require fully specified arguments to
   // be followed by equals sign without a space; this can be
   // removed once jupyter_server requires traitlets>5.0
   const launchArgs = [
-    'docker run -d --shm-size=1gb -it --privileged --user=root --name neurodesktop -p 8888:8888'
+    `docker run -d --shm-size=1gb -it --privileged --user=root --name neurodeskapp -p ${strPort}:${strPort}`
   ];
   launchArgs.push(
     `${
@@ -76,12 +77,12 @@ function createLaunchScript(
 
   for (const arg of serverLaunchArgsFixed) {
     launchArgs.push(arg.replace('{tag}', tag).replace('{tag}', tag));
-    console.debug(`!!! launchArgs ${launchArgs}`);
+    console.debug(`!!! ${strPort} launchArgs ${launchArgs}`);
   }
 
   if (!serverInfo.overrideDefaultServerArgs) {
     for (const arg of serverLaunchArgsDefault) {
-      launchArgs.push(arg.replace('{token}', token));
+      launchArgs.push(arg.replace('{token}', token).replace('{port}', strPort));
     }
   }
 
@@ -96,15 +97,12 @@ function createLaunchScript(
         FOR /F "usebackq delims=" %%i IN (\`docker image inspect vnmd/neurodesktop:${tag} --format="exists" 2^>nul\`) DO SET IMAGE_EXISTS=%%i
         if "%IMAGE_EXISTS%"=="exists" (
             echo "Image exists"
-            FOR /F "usebackq delims=" %%i IN (\`docker container inspect -f "{{.State.Status}}" neurodesktop\`) DO SET CONTAINER_STATUS=%%i
-            if not "!CONTAINER_STATUS!"=="running" (
-              echo "Container does not exist"
-              docker stop neurodesktop && docker rm neurodesktop 
+            FOR /F "usebackq delims=" %%i IN (\`docker container inspect -f "{{.State.Status}}" neurodeskapp\`) DO SET CONTAINER_STATUS=%%i
+              docker stop neurodeskapp && docker rm neurodeskapp 
               ${launchCmd}
-            )
         ) else (
             echo "Image does not exist"
-            docker stop neurodesktop && docker rm neurodesktop 
+            docker stop neurodeskapp && docker rm neurodeskapp 
             docker pull vnmd/neurodesktop:${tag}
             ${launchCmd}
         )
@@ -112,12 +110,10 @@ function createLaunchScript(
   } else {
     script = `
         if [[ "$(docker image inspect vnmd/neurodesktop:${tag} --format='exists' 2> /dev/null)" == "exists" ]]; then 
-          if [[ "$( docker container inspect -f '{{.State.Status}}' neurodesktop )" != "running" ]]; then 
-              docker stop neurodesktop && docker rm neurodesktop 
+              docker stop neurodeskapp && docker rm neurodeskapp 
               ${launchCmd}
-          fi
         else
-          docker stop neurodesktop && docker rm neurodesktop 
+          docker stop neurodeskapp && docker rm neurodeskapp 
           docker pull vnmd/neurodesktop:${tag}
           ${launchCmd}
         fi
@@ -201,7 +197,7 @@ export class JupyterServer {
    *
    * @return a promise that is resolved when the server has started.
    */
-  public start(token?: string): Promise<JupyterServer.IInfo> {
+  public start(port?: number, token?: string): Promise<JupyterServer.IInfo> {
     if (this._startServer) {
       return this._startServer;
     }
@@ -217,12 +213,12 @@ export class JupyterServer {
         //   reject(`Error: Environment not found at: ${pythonPath}`);
         //   return;
         // }
-        this._info.port = this._options.port || (await getFreePort());
+        this._info.port = port || this._options.port || (await getFreePort());
         this._info.token =
           token || this._options.token || this._generateToken();
 
         this._info.url = new URL(
-          `http://127.0.0.1:8888/lab?token=${this._info.token}`
+          `http://127.0.0.1:${this._info.port}/lab?token=${this._info.token}`
         );
 
         let baseCondaPath: string = '';
@@ -362,7 +358,7 @@ export class JupyterServer {
             if (!this._stopping && this._restartCount < SERVER_RESTART_LIMIT) {
               started = false;
               this._startServer = null;
-              this.start(this._info.token);
+              this.start(this._info.port, this._info.token);
               this._restartCount++;
             }
           } else {
