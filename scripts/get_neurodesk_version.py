@@ -10,7 +10,7 @@ def find_latest_stable(owner, repository):
     currentToml = os.path.join(os.path.dirname(__file__), '..', 'neurodesktop.toml')
     with open(currentToml, 'r') as f:
         for line in f:
-            if 'jupyter_neurodesk_version' in line:
+            if 'jupyter_neurodesk_version =' in line:
                 currentVersion = line.split('=')[1].split('"')[1]
             
     """Find latest stable release on GitHub for given repository."""
