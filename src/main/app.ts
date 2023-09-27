@@ -50,11 +50,9 @@ import { EventTypeMain, EventTypeRenderer } from './eventtypes';
 import { SettingsDialog } from './settingsdialog/settingsdialog';
 import { AboutDialog } from './aboutdialog/aboutdialog';
 import { AuthDialog } from './authdialog/authdialog';
-import { Config } from './utils';
 import * as path from 'path';
 
-const config = Config.loadConfig(path.join(__dirname, '..'));
-const release = config.ConfigToml.neurodesk_desktop_release;
+const release = require(path.join(__dirname, '..', 'package.json')).version;
 
 export interface IApplication {
   createNewEmptySession(): void;
