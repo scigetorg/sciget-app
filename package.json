@@ -169,8 +169,8 @@
     "@typescript-eslint/eslint-plugin": "~5.28.0",
     "@typescript-eslint/parser": "~5.28.0",
     "css-loader": "~5.1.1",
-    "electron": "^24.1.2",
-    "electron-builder": "^23.6.0",
+    "electron": "^26.2.3",
+    "electron-builder": "^24.6.4",
     "electron-notarize": "^1.2.2",
     "eslint": "~8.17.0",
     "eslint-config-prettier": "~8.5.0",
@@ -197,8 +197,8 @@
     "webpack-cli": "^4.5.0"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.15.2",
-    "@lumino/signaling": "^1.10.0",
+    "@fortawesome/fontawesome-free": "^6.4.2",
+    "@lumino/signaling": "^2.1.2",
     "ejs": "^3.1.7",
     "electron-log": "^4.4.8",
     "fast-xml-parser": "^4.0.12",

@@ -5,6 +5,7 @@ import {
   app,
   autoUpdater,
   BrowserWindow,
+  MessageBoxOptions,
   dialog,
   session,
   shell
@@ -466,7 +467,7 @@ export class JupyterApplication implements IApplication, IDisposable {
 
   private _setupAutoUpdater() {
     autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
-      const dialogOpts = {
+      const dialogOpts: MessageBoxOptions = {
         type: 'info',
         buttons: ['Restart', 'Later'],
         title: 'Application Update',
