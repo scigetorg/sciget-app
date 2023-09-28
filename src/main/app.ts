@@ -5,8 +5,8 @@ import {
   app,
   autoUpdater,
   BrowserWindow,
-  MessageBoxOptions,
   dialog,
+  MessageBoxOptions,
   session,
   shell
 } from 'electron';
