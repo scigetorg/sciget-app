@@ -112,9 +112,6 @@ export class RemoteServerSelectDialog {
             <jp-menu-item class="running-server" disabled>Loading...</jp-menu-item>
           </jp-menu>
 
-          <jp-menu id="storage-server-list">
-            <jp-menu-item class="category" id="running-storage-servers-header" disabled>Remote Persistent Storage Neurodesk Servers</jp-menu-item>
-          </jp-menu>
         </div>
         <div class="row">
           <div>

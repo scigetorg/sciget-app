@@ -9,10 +9,8 @@ import { JupyterApplication } from './app';
 import { ICLIArguments } from './tokens';
 import { SessionConfig } from './config/sessionconfig';
 import { SettingType, userSettings } from './config/settings';
-import { Config } from './utils';
 
-const config = Config.loadConfig(path.join(__dirname, '..'));
-const release = config.ConfigToml.neurodesk_desktop_release;
+const release = require(path.join(__dirname, '..', 'package.json')).version;
 
 let jupyterApp: JupyterApplication;
 let fileToOpenInMainInstance = '';

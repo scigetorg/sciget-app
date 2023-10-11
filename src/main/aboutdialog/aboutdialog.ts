@@ -5,10 +5,8 @@ import * as ejs from 'ejs';
 import * as path from 'path';
 import * as fs from 'fs';
 import { ThemedWindow } from '../dialog/themedwindow';
-import { Config } from '../utils';
 
-const config = Config.loadConfig(path.join(__dirname, '../..'));
-const release = config.ConfigToml.neurodesk_desktop_release;
+const release = require(path.join(__dirname, '../..', 'package.json')).version;
 
 export class AboutDialog {
   constructor(options: AboutDialog.IOptions) {
