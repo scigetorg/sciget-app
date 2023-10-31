@@ -34,9 +34,6 @@ jobs:
         run: |
           npm install --global yarn
           yarn install
-
-      - name: Install hub
-        uses: geertvdc/setup-hub@master
         
       - name: Check for new Jupyterlab releases
         shell: bash
@@ -86,6 +83,7 @@ jobs:
             git commit . -m "Update to Neurodesk v${NEURODESK_LATEST}"
 
             git push --set-upstream origin "${BRANCH_NAME}"            
+            sudo apt install hub      
             hub pull-request -m "Update to Neurodesk v${NEURODESK_LATEST}" \
                 -m "New Neurodesk release [v${NEURODESK_LATEST}](https://github.com/NeuroDesk/neurodesk.github.io/blob/main/data/neurodesktop.toml) is available. Please review the lock file carefully.".
           fi
