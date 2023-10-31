@@ -58,7 +58,7 @@ function createLaunchScript(
   // be followed by equals sign without a space; this can be
   // removed once jupyter_server requires traitlets>5.0
   const launchArgs = [
-    `docker run -d --shm-size=1gb -it --privileged --user=root --name neurodeskapp -p ${strPort}:${strPort}`
+    `docker volume create neurodesk-home && docker run -d --shm-size=1gb -it --privileged --user=root --name neurodeskapp -p ${strPort}:${strPort} --mount source=neurodesk-home,target=/home/jovyan`
   ];
   launchArgs.push(
     `${
