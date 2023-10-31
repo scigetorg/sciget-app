@@ -35,6 +35,9 @@ jobs:
           npm install --global yarn
           yarn install
 
+      - name: Install hub
+        uses: geertvdc/setup-hub@master
+        
       - name: Check for new Jupyterlab releases
         shell: bash
         run: |
@@ -42,10 +45,6 @@ jobs:
           export JUPYTER_LATEST=$(python scripts/get_latest_lab_version.py)
           echo "jupyter_latest=${JUPYTER_LATEST}" >> $GITHUB_ENV
           yarn set_jupyterlab_version ${JUPYTER_LATEST}
-          if [[ ! -z "$(git status --porcelain package.json)" ]]; then
-            tbump --only-patch ${JUPYTER_LATEST}-1 --non-interactive
-            yarn install
-          fi
       - name: Check for new Neurodesk releases
         shell: bash
         run: |
