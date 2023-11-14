@@ -72,7 +72,7 @@ function createLaunchScript(
   const tag = config.ConfigToml.jupyter_neurodesk_version;
 
   if (serverInfo.serverArgs) {
-    launchArgs.push(` -v ${serverInfo.serverArgs.replace(/\\/g, '/')}`);
+    launchArgs.push(` -v "${serverInfo.serverArgs}"`);
   }
 
   for (const arg of serverLaunchArgsFixed) {
