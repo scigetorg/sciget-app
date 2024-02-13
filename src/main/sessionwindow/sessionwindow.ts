@@ -879,7 +879,8 @@ export class SessionWindow implements IDisposable {
           },
           workingDirectory: info.workingDirectory,
           defaultKernel: info.environment.defaultKernel,
-          url: this._sessionConfig.url?.href
+          url: this._sessionConfig.url?.href,
+          // persistSessionData: this._sessionConfig.persistSessionData
         };
 
         return serverInfo;

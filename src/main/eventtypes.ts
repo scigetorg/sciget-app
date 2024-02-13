@@ -42,6 +42,7 @@ export enum EventTypeMain {
   ValidatePythonPath = 'validate-python-path',
   ValidateRemoteServerUrl = 'validate-remote-server-url',
   SetDefaultPythonPath = 'set-default-python-path',
+  SetEngineType = 'set-engine-type',
   SetStartupMode = 'set-startup-mode',
   SetSyncJupyterLabTheme = 'set-sync-jupyterlab-theme',
   SetShowNewsFeed = 'set-show-news-feed',

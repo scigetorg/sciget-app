@@ -34,6 +34,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   launchInstallerDownloadPage: () => {
     ipcRenderer.send(EventTypeMain.LaunchInstallerDownloadPage);
   },
+  setEngineType: (mode: string) => {
+    ipcRenderer.send(EventTypeMain.SetEngineType, mode);
+  },
   setStartupMode: (mode: string) => {
     ipcRenderer.send(EventTypeMain.SetStartupMode, mode);
   },

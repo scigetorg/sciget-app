@@ -18,6 +18,7 @@ import {
   waitForDuration
 } from './utils';
 import {
+  EngineType,
   KeyValueMap,
   serverLaunchArgsDefault,
   serverLaunchArgsFixed,
@@ -44,21 +45,38 @@ function createTempFile(
   return tmpFilePath;
 }
 
+// function getEngineType(): EngineType {
+//   const engineType = userSettings.getValue(
+//     SettingType.engineType
+//   ) as EngineType;
+//   console.log('Engine type:', engineType)
+//   return engineType;
+// }
+
 function createLaunchScript(
   serverInfo: JupyterServer.IInfo,
   baseCondaPath: string,
   schemasDir: string,
+  engineType: EngineType,
   port: number,
   token: string
 ): string {
   const isWin = process.platform === 'win32';
   const strPort = port.toString();
+  // const engineType = userSettings.getValue(
+  //   SettingType.engineType
+  // ) as EngineType;
+  // const engineType = serverInfo.engine;
+  console.debug(`!!!..... ${strPort} engineType ${engineType}`)
+  let isPodman = engineType === EngineType.Podman;
 
   // note: traitlets<5.0 require fully specified arguments to
   // be followed by equals sign without a space; this can be
   // removed once jupyter_server requires traitlets>5.0
-  const launchArgs = [
-    `docker volume create neurodesk-home && docker run -d --shm-size=1gb -it --privileged --user=root --name neurodeskapp-${strPort} -p ${strPort}:${strPort} --mount source=neurodesk-home,target=/home/jovyan`
+  let volumeCreate = `${isPodman ? `${engineType} volume exists neurodesk-home &> /dev/null || ${engineType} volume create neurodesk-home` : ''}`
+  
+  let launchArgs = [
+    `${engineType} run -d --shm-size=1gb -it --privileged --user=root --name neurodeskapp-${strPort} -p ${strPort}:${strPort} ` + `${isPodman ? '-v neurodesk-home:/home/jovyan' : '--mount source=neurodesk-home,target=/home/jovyan'}`
   ];
   launchArgs.push(
     `${
@@ -87,6 +105,7 @@ function createLaunchScript(
   }
 
   let launchCmd = launchArgs.join(' ');
+  let stopCmd = `${isPodman ? `${engineType} container exists neurodeskapp-${strPort} &> /dev/null && ${engineType} rm -f neurodeskapp-${strPort}` : `${engineType} rm -f neurodeskapp-${strPort}`}`;
   let script: string;
 
   if (isWin) {
@@ -94,27 +113,31 @@ function createLaunchScript(
         setlocal enabledelayedexpansion
         SET ERRORCODE=0
         SET IMAGE_EXISTS=
-        FOR /F "usebackq delims=" %%i IN (\`docker image inspect vnmd/neurodesktop:${tag} --format="exists" 2^>nul\`) DO SET IMAGE_EXISTS=%%i
+        FOR /F "usebackq delims=" %%i IN (\`${engineType} image inspect vnmd/neurodesktop:${tag} --format="exists" 2^>nul\`) DO SET IMAGE_EXISTS=%%i
         if "%IMAGE_EXISTS%"=="exists" (
             echo "Image exists"
-            FOR /F "usebackq delims=" %%i IN (\`docker container inspect -f "{{.State.Status}}" neurodeskapp-${strPort}\`) DO SET CONTAINER_STATUS=%%i
-              docker stop neurodeskapp-${strPort} && docker rm neurodeskapp-${strPort} 
+            FOR /F "usebackq delims=" %%i IN (\`${engineType} container inspect -f "{{.State.Status}}" neurodeskapp-${strPort}\`) DO SET CONTAINER_STATUS=%%i
+              ${stopCmd} 
+              ${volumeCreate}
               ${launchCmd}
         ) else (
             echo "Image does not exist"
-            docker stop neurodeskapp-${strPort} && docker rm neurodeskapp-${strPort} 
-            docker pull vnmd/neurodesktop:${tag}
+            ${stopCmd} 
+            ${volumeCreate}
+            ${engineType} pull vnmd/neurodesktop:${tag}
             ${launchCmd}
         )
       `;
   } else {
     script = `
-        if [[ "$(docker image inspect vnmd/neurodesktop:${tag} --format='exists' 2> /dev/null)" == "exists" ]]; then 
-              docker stop neurodeskapp-${strPort} && docker rm neurodeskapp-${strPort} 
+        if [[ "$(${engineType} image inspect vnmd/neurodesktop:${tag} --format='exists' 2> /dev/null)" == "exists" ]]; then 
+              ${stopCmd} 
+              ${volumeCreate}
               ${launchCmd}
         else
-          docker stop neurodeskapp-${strPort} && docker rm neurodeskapp-${strPort} 
-          docker pull vnmd/neurodesktop:${tag}
+          ${stopCmd} 
+          ${volumeCreate}
+          ${engineType} pull vnmd/neurodesktop:${tag}
           ${launchCmd}
         fi
         `;
@@ -180,6 +203,7 @@ export class JupyterServer {
     this._registry = registry;
 
     const wsSettings = new WorkspaceSettings(workingDir);
+    this._info.engine = wsSettings.getValue(SettingType.engineType);
     this._info.serverArgs = wsSettings.getValue(SettingType.serverArgs);
     this._info.overrideDefaultServerArgs = wsSettings.getValue(
       SettingType.overrideDefaultServerArgs
@@ -213,6 +237,7 @@ export class JupyterServer {
         //   reject(`Error: Environment not found at: ${pythonPath}`);
         //   return;
         // }
+        // this._info.engine = getEngineType() || EngineType.Podman;
         this._info.port = port || this._options.port || (await getFreePort());
         this._info.token =
           token || this._options.token || this._generateToken();
@@ -275,6 +300,7 @@ export class JupyterServer {
           this._info,
           baseCondaPath,
           getSchemasDir(),
+          this._info.engine,
           this._info.port,
           this._info.token
         );
@@ -534,6 +560,7 @@ export class JupyterServer {
   private _options: JupyterServer.IOptions;
   private _info: JupyterServer.IInfo = {
     type: 'local',
+    engine: null,
     url: null,
     port: null,
     token: null,
@@ -551,6 +578,7 @@ export class JupyterServer {
 
 export namespace JupyterServer {
   export interface IOptions {
+    // engine?: EngineType;
     port?: number;
     token?: string;
     workingDirectory?: string;
@@ -559,6 +587,7 @@ export namespace JupyterServer {
 
   export interface IInfo {
     type: 'local' | 'remote';
+    engine: EngineType;
     url: URL;
     port: number;
     token: string;

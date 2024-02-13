@@ -14,6 +14,11 @@ export enum ThemeType {
   Dark = 'dark'
 }
 
+export enum EngineType {
+  Docker = 'docker',
+  Podman = 'podman'
+}
+
 export enum StartupMode {
   WelcomePage = 'welcome-page',
   NewLocalSession = 'new-local-session',
@@ -50,7 +55,7 @@ export enum SettingType {
   serverArgs = 'serverArgs',
   overrideDefaultServerArgs = 'overrideDefaultServerArgs',
   serverEnvVars = 'serverEnvVars',
-
+  engineType = 'engineType',
   startupMode = 'startupMode',
 
   ctrlWBehavior = 'ctrlWBehavior',
@@ -137,7 +142,7 @@ export class UserSettings {
         wsOverridable: true
       }),
       serverEnvVars: new Setting<KeyValueMap>({}, { wsOverridable: true }),
-
+      engineType: new Setting<EngineType>(EngineType.Podman),
       startupMode: new Setting<StartupMode>(StartupMode.WelcomePage),
 
       ctrlWBehavior: new Setting<CtrlWBehavior>(CtrlWBehavior.CloseTab),

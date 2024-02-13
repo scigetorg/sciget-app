@@ -8,6 +8,7 @@ import * as fs from 'fs';
 import { ThemedWindow } from '../dialog/themedwindow';
 import {
   CtrlWBehavior,
+  EngineType,
   // FrontEndMode,
   KeyValueMap,
   LogLevel,
@@ -30,6 +31,7 @@ export class SettingsDialog {
     });
 
     const {
+      engineType,
       startupMode,
       theme,
       // syncJupyterLabTheme,
@@ -207,6 +209,12 @@ export class SettingsDialog {
 
             <jp-tab-panel id="tab-panel-general">
               <jp-radio-group orientation="horizontal">
+                <label slot="label">Engine Options</label>
+                <jp-radio name="engine-type" value="docker" <%= engineType === 'docker' ? 'checked' : '' %>>Docker</jp-radio>
+                <jp-radio name="engine-type" value="podman" <%= engineType === 'podman' ? 'checked' : '' %>>Podman</jp-radio>
+              </jp-radio-group>
+
+              <jp-radio-group orientation="horizontal">
                 <label slot="label">On startup</label>
                 <jp-radio name="startup-mode" value="welcome-page" <%= startupMode === 'welcome-page' ? 'checked' : '' %>>Show welcome page</jp-radio>
               </jp-radio-group>
@@ -368,6 +376,8 @@ export class SettingsDialog {
         }
 
         function handleApply() {
+          const engineType = document.querySelector('jp-radio[name="engine-type"].checked').value;
+          window.electronAPI.setEngineType(engineType);
           const startupMode = document.querySelector('jp-radio[name="startup-mode"].checked').value;
           window.electronAPI.setStartupMode(startupMode);
           const theme = document.querySelector('jp-radio[name="theme"].checked').value;
@@ -377,7 +387,9 @@ export class SettingsDialog {
           window.electronAPI.setCheckForUpdatesAutomatically(autoUpdateCheckCheckbox.checked);
           window.electronAPI.setInstallUpdatesAutomatically(autoInstallCheckbox.checked);
           window.electronAPI.setDefaultWorkingDirectory(workingDirectoryInput.value);
-          window.electronAPI.setServerLaunchArgs(workingDirectoryInput.value + ':/data');
+          if (workingDirectoryInput.value !== '') {
+            window.electronAPI.setServerLaunchArgs(workingDirectoryInput.value + ':/data');
+          }
 
           const ctrlWBehavior = document.querySelector('jp-radio[name="ctrl-w-behavior"].checked').value;
           window.electronAPI.setCtrlWBehavior(ctrlWBehavior);
@@ -399,6 +411,7 @@ export class SettingsDialog {
       </script>
     `;
     this._pageBody = ejs.render(template, {
+      engineType,
       startupMode,
       theme,
       // syncJupyterLabTheme,
@@ -441,6 +454,7 @@ export namespace SettingsDialog {
 
   export interface IOptions {
     isDarkTheme: boolean;
+    engineType: EngineType;
     startupMode: StartupMode;
     theme: ThemeType;
     // syncJupyterLabTheme: boolean;

@@ -369,6 +369,7 @@ export class JupyterApplication implements IApplication, IDisposable {
     const dialog = new SettingsDialog(
       {
         isDarkTheme: this._isDarkTheme,
+        engineType: settings.getValue(SettingType.engineType),
         startupMode: settings.getValue(SettingType.startupMode),
         theme: settings.getValue(SettingType.theme),
         // syncJupyterLabTheme: settings.getValue(SettingType.syncJupyterLabTheme),
@@ -788,6 +789,13 @@ export class JupyterApplication implements IApplication, IDisposable {
       EventTypeMain.SetDefaultPythonPath,
       (event, path) => {
         userSettings.setValue(SettingType.pythonPath, path);
+      }
+    );
+
+    this._evm.registerEventHandler(
+      EventTypeMain.SetEngineType,
+      (_event, mode) => {
+        userSettings.setValue(SettingType.engineType, mode);
       }
     );
 
