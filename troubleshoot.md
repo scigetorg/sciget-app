@@ -19,6 +19,7 @@ Below are detailed information on topics which commonly come up in questions and
 - [Double clicking .ipynb files not launching JLD](#double-clicking-ipynb-files-not-launching-jld)
 - [Detecting if an issue is specific to JupyterLab Desktop or not](#Detecting-if-an-issue-is-specific-to-JupyterLab-Desktop-or-not)
 - [Debugging application launch issues](#Debugging-application-launch-issues)
+- [Linux docker permission denied](#linux-docker-permission-denied)
 
 ## JupyterLab Desktop vs JupyterLab Web Application versions
 
@@ -195,3 +196,30 @@ Application launch might fail for various reasons and it is best to check logs f
 3. Try removing custom environment settings from `settings.json` and/or `desktop-settings.json`. You can see [configuration and data files section in User Guide](user-guide.md#Configuration-and-data-files) for the locations of these files in different systems. Retry launch and check logs.
 4. Try removing application cache data from `app-data.json`. Retry launch and check logs.
 5. Try to launch using `jlab --log-level debug` CLI command to check if there are any logs output in system Terminal.
+
+## Linux docker permission denied
+
+If you get this error in the session startup screen
+
+`docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Post "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/create?name=neurodeskapp-40549": dial unix /var/run/docker.sock: connect: permission denied.`
+
+try to fix it by running this in terminal:
+```bash
+sudo chmod 666 /var/run/docker.sock
+```
+
+## Debug Podman on relaunch
+
+podman start container but failed to fuse mount cvmfs and exited with code 0 (supposed to happen only when child process exit without error)
+
+error can only be seen from `podman logs container-name`
+
+so the app starts another container, found it exists for a sec and exited, so it still tries to rm container
+
+The app was hanging on relaunch because of [zombie process](https://unix.stackexchange.com/questions/223201/defunct-process-is-it-always-a-child-process) where `this._nbServer`, a child process, is killed on close but still waiting for the Promise to waitUntilServerIsUp and waitForDuration for 15 mins.
+
+```
+autofs is NOT running - attempting to mount manually:
+CernVM-FS: running with credentials 107:115
+CernVM-FS: loading Fuse module... Failed to initialize shared lru cache (12 - quota init failure)
+```
