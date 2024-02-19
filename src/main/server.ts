@@ -28,8 +28,8 @@ import {
 } from './config/settings';
 import { randomBytes } from 'crypto';
 
-const SERVER_LAUNCH_TIMEOUT = 900000; // milliseconds
-const SERVER_RESTART_LIMIT = 6; // max server restarts
+const SERVER_LAUNCH_TIMEOUT = 20000; // milliseconds
+const SERVER_RESTART_LIMIT = 1; // max server restarts
 
 function createTempFile(
   fileName = 'temp',
@@ -76,7 +76,7 @@ function createLaunchScript(
   let volumeCreate = `${isPodman ? `${engineType} volume exists neurodesk-home &> /dev/null || ${engineType} volume create neurodesk-home` : ''}`
   
   let launchArgs = [
-    `${engineType} run -d --shm-size=1gb -it --privileged --user=root --name neurodeskapp-${strPort} -p ${strPort}:${strPort} ` + `${isPodman ? '-v neurodesk-home:/home/jovyan' : '--mount source=neurodesk-home,target=/home/jovyan'}`
+    `${engineType} run --log-level=trace -d --shm-size=1gb -it --privileged --user=root --name neurodeskapp-${strPort} -p ${strPort}:${strPort} ` + `${isPodman ? '-v neurodesk-home:/home/jovyan -v /cvmfs/neurodesk.ardc.edu.au:/cvmfs/neurodesk.ardc.edu.au:ro' : '--mount source=neurodesk-home,target=/home/jovyan'}`
   ];
   launchArgs.push(
     `${
@@ -226,6 +226,9 @@ export class JupyterServer {
       return this._startServer;
     }
     let started = false;
+    let stderrChunks: string[] = [];
+    let stdoutChunks: string[] = [];
+
     console.debug('Starting Jupyter server....');
     this._startServer = new Promise<JupyterServer.IInfo>(
       // eslint-disable-next-line no-async-promise-executor
@@ -350,28 +353,51 @@ export class JupyterServer {
           if (up) {
             started = true;
             fs.unlinkSync(launchScriptPath);
+            console.log('delete launchScriptPath', launchScriptPath);
             resolve(this._info);
           } else {
             console.debug("Server didn't start in time");
             this._serverStartFailed();
-            reject(new Error('Failed to launch Jupyter Server'));
+            reject(new Error('Failed to launch Neurodesk from Promise ' + this._info.port + stderrChunks + stdoutChunks));
           }
         });
 
         this._nbServer.stdout.on('data', (data: string) => {
           console.debug(`stdout: ${data}`);
+          stdoutChunks = stdoutChunks.concat(data);
         });
 
         this._nbServer.stderr.on('data', (data: string) => {
           console.debug(`stderr: ${data}`);
+          if (data.includes('The input device is not a TTY.')) {
+            console.error('The input device is not a TTY.');
+            // Handle the error appropriately here
+          } else {
+            stderrChunks = stderrChunks.concat(data);
+            // reject(new Error('Failed to launch Neurodesk from stderr ' + this._restartCount + this._info.port + stderrChunks + stdoutChunks));
+          }
         });
+
+        this._nbServer.on('error', (err: Error) => {
+          if (started) {
+            dialog.showMessageBox({
+              message: `Neurodesk process errored: ${err.message}`,
+              type: 'error'
+            });
+          } else {
+            this._serverStartFailed();
+            reject(err);
+          }
+        })
 
         this._nbServer.on('exit', (code, signal) => {
           const _code: number | null = code;
+            'child process exited with ' + `code ${code} and signal ${signal}`
+          stdoutChunks.concat('child process exited with ' + `code ${code} and signal ${signal} on this._restartCount ${this._restartCount}`);
           console.log(
             'child process exited with ' + `code ${code} and signal ${signal}`
           );
-          if (_code === 0) {
+          if (_code === 0 || started) {
             /* On Windows, JupyterLab server sometimes crashes randomly during websocket
               connection. As a result of this, users experience kernel connections failures.
               This crash only happens when server is launched from electron app. Since we
@@ -391,7 +417,7 @@ export class JupyterServer {
             this._serverStartFailed();
             reject(
               new Error(
-                'Neurodesk process terminated before the initialization completed'
+                'Neurodesk process terminated' + stderrChunks
               )
             );
           }
@@ -440,6 +466,8 @@ export class JupyterServer {
           );
         } else {
           this._nbServer.kill();
+          // exec(`podman container cleanup --rm neurodeskapp-${this._info.port}`)
+          
           this._shutdownServer()
             .then(() => {
               this._stopping = false;
@@ -484,6 +512,7 @@ export class JupyterServer {
   private _cleanupListeners(): void {
     this._nbServer.removeAllListeners();
     this._nbServer.stderr.removeAllListeners();
+    this._nbServer.stdout.removeAllListeners();
   }
 
   private _callShutdownAPI(): Promise<void> {
