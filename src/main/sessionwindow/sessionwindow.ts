@@ -775,7 +775,7 @@ export class SessionWindow implements IDisposable {
         {
           label: 'Open Developer Tools',
           visible:
-            this._contentViewType === ContentViewType.Lab ||
+           this._contentViewType === ContentViewType.Lab ||
             process.env.NODE_ENV === 'development',
           click: () => {
             this._openDevTools();
@@ -988,16 +988,13 @@ export class SessionWindow implements IDisposable {
 
     this._registry.getRunningServerList().then(runningServers => {
       runningServers.push(
-        'https://play-sydney.neurodesk.org/v2/gh/neurodesk/jupyter-neurodesktop-image/main'
+        'https://play-sydney.neurodesk.org/v2/gh/neurodesk/neurodesktop/main'
       );
       runningServers.push(
-        'https://play-phoenix.neurodesk.org/v2/gh/neurodesk/jupyter-neurodesktop-image/main'
+        'https://play-iowa.neurodesk.org/v2/gh/neurodesk/neurodesktop/main'
       );
       runningServers.push(
-        'https://play-frankfurt.neurodesk.org/v2/gh/neurodesk/jupyter-neurodesktop-image/main'
-      );
-      runningServers.push(
-        'https://play-ashburn.neurodesk.org/v2/gh/neurodesk/jupyter-neurodesktop-image/main'
+        'https://play-frankfurt.neurodesk.org/v2/gh/neurodesk/neurodesktop/main'
       );
       this._remoteServerSelectDialog.setRunningServerList(runningServers);
     });
