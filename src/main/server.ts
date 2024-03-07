@@ -73,7 +73,8 @@ function createLaunchScript(
   // note: traitlets<5.0 require fully specified arguments to
   // be followed by equals sign without a space; this can be
   // removed once jupyter_server requires traitlets>5.0
-  let volumeCreate = `${isPodman ? `${engineType} volume exists neurodesk-home &> /dev/null || ${engineType} volume create neurodesk-home` : ''}`
+  let volumeCheck = `${isWin ? `${engineType} volume inspect neurodesk-home >NUL 2>&1 || ${engineType} volume create neurodesk-home` :  `${engineType} volume exists neurodesk-home &> /dev/null || ${engineType} volume create neurodesk-home`}`;
+  let volumeCreate = `${isPodman ? `${volumeCheck}` : ''}`
   
   let launchArgs = [
     `${engineType} run --log-level=trace -d --shm-size=1gb -it --privileged --user=root --name neurodeskapp-${strPort} -p ${strPort}:${strPort} ` + `${isPodman ? '-v neurodesk-home:/home/jovyan -v /cvmfs/neurodesk.ardc.edu.au:/cvmfs/neurodesk.ardc.edu.au:ro' : '--mount source=neurodesk-home,target=/home/jovyan'}`
@@ -105,7 +106,8 @@ function createLaunchScript(
   }
 
   let launchCmd = launchArgs.join(' ');
-  let stopCmd = `${isPodman ? `${engineType} container exists neurodeskapp-${strPort} &> /dev/null && ${engineType} rm -f neurodeskapp-${strPort}` : `${engineType} rm -f neurodeskapp-${strPort}`}`;
+  let removeCmd = `${isWin ? `${engineType} container exists neurodeskapp-${strPort} >NUL 2>&1 && ${engineType} rm -f neurodeskapp-${strPort}` : `${engineType} container exists neurodeskapp-${strPort} &> /dev/null && ${engineType} rm -f neurodeskapp-${strPort}`}`;
+  let stopCmd = `${isPodman ? `${removeCmd}` : `${engineType} rm -f neurodeskapp-${strPort}`}`;
   let script: string;
 
   if (isWin) {
