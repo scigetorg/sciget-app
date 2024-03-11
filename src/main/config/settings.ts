@@ -142,7 +142,7 @@ export class UserSettings {
         wsOverridable: true
       }),
       serverEnvVars: new Setting<KeyValueMap>({}, { wsOverridable: true }),
-      engineType: new Setting<EngineType>(EngineType.Podman),
+      engineType: new Setting<EngineType>(EngineType.Docker),
       startupMode: new Setting<StartupMode>(StartupMode.WelcomePage),
 
       ctrlWBehavior: new Setting<CtrlWBehavior>(CtrlWBehavior.CloseTab),

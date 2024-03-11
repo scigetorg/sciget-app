@@ -30,6 +30,7 @@ import { randomBytes } from 'crypto';
 
 const SERVER_LAUNCH_TIMEOUT = 20000; // milliseconds
 const SERVER_RESTART_LIMIT = 1; // max server restarts
+let engineCmd: string;
 
 function createTempFile(
   fileName = 'temp',
@@ -67,17 +68,27 @@ function createLaunchScript(
   //   SettingType.engineType
   // ) as EngineType;
   // const engineType = serverInfo.engine;
-  console.debug(`!!!..... ${strPort} engineType ${engineType}`)
+  console.debug(`!!!..... ${strPort} engineType ${engineType}`);
   let isPodman = engineType === EngineType.Podman;
-
+  engineCmd =
+    isPodman && process.platform == 'linux' ? 'podman --remote' : engineType;
   // note: traitlets<5.0 require fully specified arguments to
   // be followed by equals sign without a space; this can be
   // removed once jupyter_server requires traitlets>5.0
-  let volumeCheck = `${isWin ? `${engineType} volume inspect neurodesk-home >NUL 2>&1 || ${engineType} volume create neurodesk-home` :  `${engineType} volume exists neurodesk-home &> /dev/null || ${engineType} volume create neurodesk-home`}`;
-  let volumeCreate = `${isPodman ? `${volumeCheck}` : ''}`
-  
+  let volumeCheck = `${
+    isWin
+      ? `${engineCmd} volume inspect neurodesk-home >NUL 2>&1 || ${engineCmd} volume create neurodesk-home`
+      : `${engineCmd} volume exists neurodesk-home &> /dev/null || ${engineCmd} volume create neurodesk-home`
+  }`;
+  let volumeCreate = `${isPodman ? `${volumeCheck}` : ''}`;
+
   let launchArgs = [
-    `${engineType} run --log-level=trace -d --shm-size=1gb -it --privileged --user=root --name neurodeskapp-${strPort} -p ${strPort}:${strPort} ` + `${isPodman ? '-v neurodesk-home:/home/jovyan -v /cvmfs/neurodesk.ardc.edu.au:/cvmfs/neurodesk.ardc.edu.au:ro' : '--mount source=neurodesk-home,target=/home/jovyan'}`
+    `${engineCmd} run -d --rm --shm-size=1gb -it --privileged --user=root --name neurodeskapp-${strPort} -p ${strPort}:${strPort} ` +
+      `${
+        isPodman
+          ? '-v neurodesk-home:/home/jovyan'
+          : '--mount source=neurodesk-home,target=/home/jovyan'
+      }`
   ];
   launchArgs.push(
     `${
@@ -106,8 +117,14 @@ function createLaunchScript(
   }
 
   let launchCmd = launchArgs.join(' ');
-  let removeCmd = `${isWin ? `${engineType} container exists neurodeskapp-${strPort} >NUL 2>&1 && ${engineType} rm -f neurodeskapp-${strPort}` : `${engineType} container exists neurodeskapp-${strPort} &> /dev/null && ${engineType} rm -f neurodeskapp-${strPort}`}`;
-  let stopCmd = `${isPodman ? `${removeCmd}` : `${engineType} rm -f neurodeskapp-${strPort}`}`;
+  let removeCmd = `${
+    isWin
+      ? `${engineCmd} container exists neurodeskapp-${strPort} >NUL 2>&1 && ${engineCmd} rm -f neurodeskapp-${strPort}`
+      : `${engineCmd} container exists neurodeskapp-${strPort} &> /dev/null && ${engineCmd} rm -f neurodeskapp-${strPort}`
+  }`;
+  let stopCmd = `${
+    isPodman ? `${removeCmd}` : `${engineCmd} rm -f neurodeskapp-${strPort}`
+  }`;
   let script: string;
 
   if (isWin) {
@@ -115,31 +132,30 @@ function createLaunchScript(
         setlocal enabledelayedexpansion
         SET ERRORCODE=0
         SET IMAGE_EXISTS=
-        FOR /F "usebackq delims=" %%i IN (\`${engineType} image inspect vnmd/neurodesktop:${tag} --format="exists" 2^>nul\`) DO SET IMAGE_EXISTS=%%i
+        FOR /F "usebackq delims=" %%i IN (\`${engineCmd} image inspect vnmd/neurodesktop:${tag} --format="exists" 2^>nul\`) DO SET IMAGE_EXISTS=%%i
         if "%IMAGE_EXISTS%"=="exists" (
             echo "Image exists"
-            FOR /F "usebackq delims=" %%i IN (\`${engineType} container inspect -f "{{.State.Status}}" neurodeskapp-${strPort}\`) DO SET CONTAINER_STATUS=%%i
+            FOR /F "usebackq delims=" %%i IN (\`${engineCmd} container inspect -f "{{.State.Status}}" neurodeskapp-${strPort}\`) DO SET CONTAINER_STATUS=%%i
               ${stopCmd} 
               ${volumeCreate}
               ${launchCmd}
         ) else (
             echo "Image does not exist"
             ${stopCmd} 
-            ${volumeCreate}
-            ${engineType} pull vnmd/neurodesktop:${tag}
+            ${volumeCreate}            ${engineCmd} pull docker.io/vnmd/neurodesktop:${tag}
             ${launchCmd}
         )
       `;
   } else {
     script = `
-        if [[ "$(${engineType} image inspect vnmd/neurodesktop:${tag} --format='exists' 2> /dev/null)" == "exists" ]]; then 
+        if [[ "$(${engineCmd} image inspect vnmd/neurodesktop:${tag} --format='exists' 2> /dev/null)" == "exists" ]]; then 
               ${stopCmd} 
               ${volumeCreate}
               ${launchCmd}
         else
           ${stopCmd} 
           ${volumeCreate}
-          ${engineType} pull vnmd/neurodesktop:${tag}
+          ${engineCmd} pull docker.io/vnmd/neurodesktop:${tag}
           ${launchCmd}
         fi
         `;
@@ -360,7 +376,14 @@ export class JupyterServer {
           } else {
             console.debug("Server didn't start in time");
             this._serverStartFailed();
-            reject(new Error('Failed to launch Neurodesk from Promise ' + this._info.port + stderrChunks + stdoutChunks));
+            reject(
+              new Error(
+                'Failed to launch Neurodesk from Promise ' +
+                  this._info.port +
+                  stderrChunks +
+                  stdoutChunks
+              )
+            );
           }
         });
 
@@ -390,12 +413,15 @@ export class JupyterServer {
             this._serverStartFailed();
             reject(err);
           }
-        })
+        });
 
         this._nbServer.on('exit', (code, signal) => {
           const _code: number | null = code;
-            'child process exited with ' + `code ${code} and signal ${signal}`
-          stdoutChunks.concat('child process exited with ' + `code ${code} and signal ${signal} on this._restartCount ${this._restartCount}`);
+          'child process exited with ' + `code ${code} and signal ${signal}`;
+          stdoutChunks.concat(
+            'child process exited with ' +
+              `code ${code} and signal ${signal} on this._restartCount ${this._restartCount}`
+          );
           console.log(
             'child process exited with ' + `code ${code} and signal ${signal}`
           );
@@ -417,11 +443,7 @@ export class JupyterServer {
             }
           } else {
             this._serverStartFailed();
-            reject(
-              new Error(
-                'Neurodesk process terminated' + stderrChunks
-              )
-            );
+            reject(new Error('Neurodesk process terminated' + stderrChunks));
           }
         });
 
@@ -458,24 +480,20 @@ export class JupyterServer {
     this._stopServer = new Promise<void>((resolve, reject) => {
       if (this._nbServer !== undefined) {
         if (process.platform === 'win32') {
-          execFile(
-            'taskkill',
-            ['/PID', String(this._nbServer.pid), '/T', '/F'],
-            () => {
-              this._stopping = false;
-              resolve();
-            }
-          );
+          execFile(`${engineCmd} stop neurodeskapp-${this._info.port}`, () => {
+            this._stopping = false;
+            resolve();
+          });
         } else {
           this._nbServer.kill();
-          // exec(`podman container cleanup --rm neurodeskapp-${this._info.port}`)
-          
-          this._shutdownServer()
-            .then(() => {
-              this._stopping = false;
-              resolve();
-            })
-            .catch(reject);
+          execFile(`${engineCmd} stop neurodeskapp-${this._info.port}`, () => {
+            this._shutdownServer()
+              .then(() => {
+                this._stopping = false;
+                resolve();
+              })
+              .catch(reject);
+          });
         }
       } else {
         this._stopping = false;
@@ -609,7 +627,6 @@ export class JupyterServer {
 
 export namespace JupyterServer {
   export interface IOptions {
-    // engine?: EngineType;
     port?: number;
     token?: string;
     workingDirectory?: string;
