@@ -204,6 +204,7 @@ If you get this error in the session startup screen
 `docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Post "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/create?name=neurodeskapp-40549": dial unix /var/run/docker.sock: connect: permission denied.`
 
 try to fix it by running this in terminal:
+
 ```bash
 sudo chmod 666 /var/run/docker.sock
 ```
