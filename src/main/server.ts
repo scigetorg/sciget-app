@@ -28,7 +28,7 @@ import {
 } from './config/settings';
 import { randomBytes } from 'crypto';
 
-const SERVER_LAUNCH_TIMEOUT = 20000; // milliseconds
+const SERVER_LAUNCH_TIMEOUT = 90000; // milliseconds
 const SERVER_RESTART_LIMIT = 1; // max server restarts
 let engineCmd: string;
 
@@ -142,7 +142,8 @@ function createLaunchScript(
         ) else (
             echo "Image does not exist"
             ${stopCmd} 
-            ${volumeCreate}            ${engineCmd} pull docker.io/vnmd/neurodesktop:${tag}
+            ${volumeCreate}            
+            ${engineCmd} pull docker.io/vnmd/neurodesktop:${tag}
             ${launchCmd}
         )
       `;

@@ -23,6 +23,7 @@ import {
   clearSession,
   DarkThemeBGColor,
   getBundledPythonPath,
+  getLogFilePath,
   isDarkTheme,
   LightThemeBGColor
 } from '../utils';
@@ -525,6 +526,7 @@ export class SessionWindow implements IDisposable {
             <div class="message-row">
               <a href="https://github.com/NeuroDesk/neurodesk-app/blob/master/user-guide.md#uninstalling-neurodesk-app">Or follow this instruction to uninstall and reinstall Neurodesk App</a>
             </div>
+            <div class="message-row"><a href="javascript:void(0);" onclick="sendMessageToMain('${EventTypeMain.ShowLogs}')">Show logs</a></div>
             <div class="message-row">
               <a href="javascript:void(0);" onclick="sendMessageToMain('${EventTypeMain.ShowWelcomeView}')">Go to Welcome Page</a>
             </div>
@@ -658,6 +660,10 @@ export class SessionWindow implements IDisposable {
       }
     );
 
+    this._evm.registerEventHandler(EventTypeMain.ShowLogs, event => {
+      shell.openPath(getLogFilePath());
+    });
+
     this._evm.registerEventHandler(
       EventTypeMain.OpenDroppedFiles,
       (event, fileOrFolders: string[]) => {
@@ -775,7 +781,7 @@ export class SessionWindow implements IDisposable {
         {
           label: 'Open Developer Tools',
           visible:
-           this._contentViewType === ContentViewType.Lab ||
+            this._contentViewType === ContentViewType.Lab ||
             process.env.NODE_ENV === 'development',
           click: () => {
             this._openDevTools();
@@ -879,7 +885,7 @@ export class SessionWindow implements IDisposable {
           },
           workingDirectory: info.workingDirectory,
           defaultKernel: info.environment.defaultKernel,
-          url: this._sessionConfig.url?.href,
+          url: this._sessionConfig.url?.href
           // persistSessionData: this._sessionConfig.persistSessionData
         };
 

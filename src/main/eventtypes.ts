@@ -56,6 +56,7 @@ export enum EventTypeMain {
   SetServerLaunchArgs = 'set-server-launch-args',
   SetServerEnvVars = 'set-server-env-vars',
   SetCtrlWBehavior = 'set-ctrl-w-behavior',
+  ShowLogs = 'show-logs',
   SetAuthDialogResponse = 'set-auth-dialog-response'
 }
 

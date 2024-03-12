@@ -267,3 +267,19 @@ export function versionWithoutSuffix(version: string) {
   })}.${semver.patch(version, { loose: true })}`;
 }
 
+export function getLogFilePath(processType: 'main' | 'renderer' = 'main') {
+  switch (process.platform) {
+    case 'win32':
+      return path.join(getUserDataDir(), `\\logs\\${processType}.log`);
+    case 'darwin':
+      return path.join(
+        getUserHomeDir(),
+        `/Library/Logs/neurodeskapp/${processType}.log`
+      );
+    default:
+      return path.join(
+        getUserHomeDir(),
+        `/.config/neurodeskapp/logs/${processType}.log`
+      );
+  }
+}
