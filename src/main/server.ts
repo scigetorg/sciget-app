@@ -86,8 +86,8 @@ function createLaunchScript(
     `${engineCmd} run -d --rm --shm-size=1gb -it --privileged --user=root --name neurodeskapp-${strPort} -p ${strPort}:${strPort} ` +
       `${
         isPodman
-          ? '-v neurodesk-home:/home/jovyan'
-          : '--mount source=neurodesk-home,target=/home/jovyan'
+          ? '-v neurodesk-home:/home/jovyan --network bridge:ip=10.88.0.10,mac=88:75:56:ef:3e:d6'
+          : '--mount source=neurodesk-home,target=/home/jovyan --mac-address=88:75:56:ef:3e:d6'
       }`
   ];
   launchArgs.push(

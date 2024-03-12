@@ -753,12 +753,6 @@ export class SessionWindow implements IDisposable {
 
       const template: MenuItemConstructorOptions[] = [
         {
-          label: 'New Window',
-          click: () => {
-            this._newWindow();
-          }
-        },
-        {
           label: 'Close Session',
           visible: true,
           click: () => {
@@ -1336,15 +1330,6 @@ export class SessionWindow implements IDisposable {
 
     this._contentViewType = ContentViewType.Welcome;
     this._updateContentView();
-  }
-
-  private _newWindow() {
-    this._app.createNewEmptySession();
-    // keep a free server up
-    // launch server after a wait to prevent blocking UI
-    setTimeout(() => {
-      this._app.createFreeServersIfNeeded();
-    }, 500);
   }
 
   private _closeSession() {
