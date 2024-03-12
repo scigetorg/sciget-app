@@ -481,9 +481,19 @@ export class JupyterServer {
     this._stopServer = new Promise<void>((resolve, reject) => {
       if (this._nbServer !== undefined) {
         if (process.platform === 'win32') {
+          execFile('taskkill', [
+            '/PID',
+            String(this._nbServer.pid),
+            '/T',
+            '/F'
+          ]);
           execFile(`${engineCmd} stop neurodeskapp-${this._info.port}`, () => {
-            this._stopping = false;
-            resolve();
+            this._shutdownServer()
+              .then(() => {
+                this._stopping = false;
+                resolve();
+              })
+              .catch(reject);
           });
         } else {
           this._nbServer.kill();
