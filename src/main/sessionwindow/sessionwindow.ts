@@ -15,6 +15,7 @@ import { LabView } from '../labview/labview';
 import {
   DEFAULT_WIN_HEIGHT,
   DEFAULT_WIN_WIDTH,
+  EngineType,
   SettingType,
   WorkspaceSettings
 } from '../config/settings';
@@ -80,6 +81,9 @@ export class SessionWindow implements IDisposable {
     this._wsSettings = new WorkspaceSettings(
       this._sessionConfig?.workingDirectory
     );
+    this._engineType = this._wsSettings
+      .getValue(SettingType.engineType)
+      .toString();
 
     // if a python path was specified together with working directory,
     // then set it as workspace setting
@@ -499,7 +503,7 @@ export class SessionWindow implements IDisposable {
 
         this._showProgressView(
           'Creating new session',
-          `<div class="message-row">This could take up to 20 minutes.</div>
+          `<div class="message-row">This could take up to 20 minutes on the first start.</div>
           `
         );
 
@@ -508,6 +512,13 @@ export class SessionWindow implements IDisposable {
         this._wsSettings = new WorkspaceSettings(
           sessionConfig.workingDirectory
         );
+        let installEngineURL =
+          this._engineType === 'docker'
+            ? '<div class="message-row"><a href="https://docs.docker.com/engine/install/">Install Docker</a></div>'
+            : '<div class="message-row"><a href="https://podman.io/docs/installation">Install Podman</a></div>';
+        let engineName =
+          this._engineType.charAt(0).toUpperCase() + this._engineType.slice(1);
+
         try {
           await this._createServerForSession();
           appData.addSessionToRecents({
@@ -518,11 +529,9 @@ export class SessionWindow implements IDisposable {
           this._showProgressView(
             'Failed to create session!',
             `
-            <div class="message-row">Check if Docker is running and try again.</div>
+            <div class="message-row">Check if ${engineName} is running and try again.</div>
             <div class="message-row">${error}</div>
-            <div class="message-row">
-              <a href="https://docs.docker.com/engine/install/">Install Docker</a>
-            </div>
+            ${installEngineURL}
             <div class="message-row">
               <a href="https://github.com/NeuroDesk/neurodesk-app/blob/master/user-guide.md#uninstalling-neurodesk-app">Or follow this instruction to uninstall and reinstall Neurodesk App</a>
             </div>
@@ -1402,6 +1411,7 @@ export class SessionWindow implements IDisposable {
   private _sessionConfigChanged = new Signal<this, void>(this);
   private _evm = new EventManager();
   private _recentSessionRemovalByThis = false;
+  private _engineType: EngineType;
 }
 
 export namespace SessionWindow {

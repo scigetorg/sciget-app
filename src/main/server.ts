@@ -28,7 +28,7 @@ import {
 } from './config/settings';
 import { randomBytes } from 'crypto';
 
-const SERVER_LAUNCH_TIMEOUT = 90000; // milliseconds
+const SERVER_LAUNCH_TIMEOUT = 900000; // milliseconds
 const SERVER_RESTART_LIMIT = 1; // max server restarts
 let engineCmd: string;
 
