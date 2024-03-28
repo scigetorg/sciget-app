@@ -18,6 +18,7 @@ exports.default = async function notarizing(context) {
     appBundleId: 'org.neurodesk.neurodeskapp',
     appPath: `${appOutDir}/${appName}.app`,
     appleId: process.env.APPLEID,
-    appleIdPassword: process.env.APPLEIDPASS
+    appleIdPassword: process.env.APPLEIDPASS,
+    tool: 'notarytool'
   });
 };
