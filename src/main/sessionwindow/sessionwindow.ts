@@ -995,16 +995,11 @@ export class SessionWindow implements IDisposable {
 
     this._remoteServerSelectDialog.load();
 
+    // switched them from binderhub to jupyterhub so they don't required the "/v2/gh/neurodesk/neurodesktop/main"
     this._registry.getRunningServerList().then(runningServers => {
-      runningServers.push(
-        'https://play-sydney.neurodesk.org/v2/gh/neurodesk/neurodesktop/main'
-      );
-      runningServers.push(
-        'https://play-iowa.neurodesk.org/v2/gh/neurodesk/neurodesktop/main'
-      );
-      runningServers.push(
-        'https://play-frankfurt.neurodesk.org/v2/gh/neurodesk/neurodesktop/main'
-      );
+      runningServers.push('https://play.neurodesk.cloud.edu.au/');
+      runningServers.push('https://play-iowa.neurodesk.org/');
+      runningServers.push('https://play-frankfurt.neurodesk.org/');
       this._remoteServerSelectDialog.setRunningServerList(runningServers);
     });
   }
