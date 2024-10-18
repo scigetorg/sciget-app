@@ -16,6 +16,7 @@ import {
   DEFAULT_WIN_HEIGHT,
   DEFAULT_WIN_WIDTH,
   EngineType,
+  resolveWorkingDirectory,
   SettingType,
   WorkspaceSettings
 } from '../config/settings';
@@ -1156,8 +1157,9 @@ export class SessionWindow implements IDisposable {
     recentSessionIndex?: number,
     useDefaultPythonEnv?: boolean
   ) {
+    const resolvedWorkingDirectory = resolveWorkingDirectory(workingDirectory);
     const sessionConfig = SessionConfig.createLocal(
-      workingDirectory,
+      resolvedWorkingDirectory,
       filesToOpen
     );
 
