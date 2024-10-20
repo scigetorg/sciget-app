@@ -276,47 +276,6 @@ export class JupyterServer {
           baseCondaPath = await this._registry.condaRootPath;
         }
 
-        //   if (!baseCondaPath) {
-        //     const choice = dialog.showMessageBoxSync({
-        //       message: 'Select conda base environment',
-        //       detail:
-        //         'Base conda environment not found. Please select a root conda environment to activate the custom environment.',
-        //       type: 'error',
-        //       buttons: ['OK', 'Cancel'],
-        //       defaultId: 0,
-        //       cancelId: 1
-        //     });
-        //     if (choice == 1) {
-        //       reject('Failed to activate conda environment');
-        //       return;
-        //     }
-
-        //     const filePaths = dialog.showOpenDialogSync({
-        //       properties: [
-        //         'openDirectory',
-        //         'showHiddenFiles',
-        //         'noResolveAliases'
-        //       ],
-        //       buttonLabel: 'Use Conda Root'
-        //     });
-
-        //     if (filePaths && filePaths.length > 0) {
-        //       baseCondaPath = filePaths[0];
-        //       if (
-        //         !this._registry.validateCondaBaseEnvironmentAtPath(
-        //           baseCondaPath
-        //         )
-        //       ) {
-        //         reject('Invalid base conda environment');
-        //         return;
-        //       }
-        //       this._registry.setCondaRootPath(baseCondaPath);
-        //     } else {
-        //       reject('Failed to activate conda environment');
-        //       return;
-        //     }
-        //   }
-        // }
         console.log('token', this._info.token);
         const launchScriptPath = createLaunchScript(
           this._info,
@@ -418,7 +377,6 @@ export class JupyterServer {
 
         this._nbServer.on('exit', (code, signal) => {
           const _code: number | null = code;
-          'child process exited with ' + `code ${code} and signal ${signal}`;
           stdoutChunks.concat(
             'child process exited with ' +
               `code ${code} and signal ${signal} on this._restartCount ${this._restartCount}`
@@ -481,30 +439,25 @@ export class JupyterServer {
     this._stopServer = new Promise<void>((resolve, reject) => {
       if (this._nbServer !== undefined) {
         if (process.platform === 'win32') {
-          execFile('taskkill', [
-            '/PID',
-            String(this._nbServer.pid),
-            '/T',
-            '/F'
-          ]);
-          execFile(`${engineCmd} stop neurodeskapp-${this._info.port}`, () => {
-            this._shutdownServer()
-              .then(() => {
-                this._stopping = false;
-                resolve();
-              })
-              .catch(reject);
+          execFile(`${engineCmd} rm -f neurodeskapp-${this._info.port}`, {
+            shell: 'cmd.exe'
           });
+          this._shutdownServer()
+            .then(() => {
+              this._stopping = false;
+              resolve();
+            })
+            .catch(reject);
         } else {
-          this._nbServer.kill();
-          execFile(`${engineCmd} stop neurodeskapp-${this._info.port}`, () => {
-            this._shutdownServer()
-              .then(() => {
-                this._stopping = false;
-                resolve();
-              })
-              .catch(reject);
+          execFile(`${engineCmd} rm -f neurodeskapp-${this._info.port}`, {
+            shell: '/bin/bash'
           });
+          this._shutdownServer()
+            .then(() => {
+              this._stopping = false;
+              resolve();
+            })
+            .catch(reject);
         }
       } else {
         this._stopping = false;
