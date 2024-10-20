@@ -26,9 +26,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: s-weigand/setup-conda@v1
-      # downgrade conda since v23.1.0 is causing issues in "Create Application Server Installer" step
-      - run: conda install -c conda-forge conda=22.11.1 python=3.10 -y
 
       - name: Install node
         uses: actions/setup-node@v3
@@ -40,7 +37,6 @@ jobs:
         # pin Pillow version to prevent Windows build errors
         run: |
           npm install --global yarn --prefer-offline
-          conda install -c conda-forge constructor Pillow=9.3.0
           yarn install
 
       - name: Check JupyterLab version match
