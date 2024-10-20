@@ -18,6 +18,7 @@ import * as semver from 'semver';
 import * as fs from 'fs';
 import {
   clearSession,
+  customRelaunch,
   getAppDir,
   getBundledPythonEnvPath,
   getBundledPythonPath,
@@ -838,6 +839,9 @@ export class JupyterApplication implements IApplication, IDisposable {
     );
 
     this._evm.registerEventHandler(EventTypeMain.RestartApp, _event => {
+      if (process.platform === 'linux') {
+        app.relaunch = customRelaunch;
+      }
       app.relaunch();
       app.quit();
     });

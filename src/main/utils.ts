@@ -8,6 +8,7 @@ import log from 'electron-log';
 import { AddressInfo, createServer, Socket } from 'net';
 import { app, nativeTheme } from 'electron';
 import { IPythonEnvironment } from './tokens';
+import { spawn } from 'child_process';
 
 export const DarkThemeBGColor = '#212121';
 export const LightThemeBGColor = '#ffffff';
@@ -282,4 +283,20 @@ export function getLogFilePath(processType: 'main' | 'renderer' = 'main') {
         `/.config/neurodeskapp/logs/${processType}.log`
       );
   }
+}
+
+export function customRelaunch(): void {
+  const script = `while kill -0 ${process.pid} 2>/dev/null; do
+    sleep 0.1
+    done
+    ${process.argv.join(' ')} & disown
+    exit
+  `;
+  spawn('sh', ['-c', `"${script}"`], {
+    shell: true,
+    detached: true,
+    stdio: 'ignore'
+  });
+  // Exit the parent process
+  process.exit();
 }
