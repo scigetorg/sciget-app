@@ -70,8 +70,7 @@ function createLaunchScript(
   // const engineType = serverInfo.engine;
   console.debug(`!!!..... ${strPort} engineType ${engineType}`);
   let isPodman = engineType === EngineType.Podman;
-  engineCmd =
-    isPodman && process.platform == 'linux' ? 'podman --remote' : engineType;
+  engineCmd = isPodman && process.platform == 'linux' ? 'podman' : engineType;
   // note: traitlets<5.0 require fully specified arguments to
   // be followed by equals sign without a space; this can be
   // removed once jupyter_server requires traitlets>5.0
@@ -81,6 +80,22 @@ function createLaunchScript(
       : `${engineCmd} volume exists neurodesk-home &> /dev/null || ${engineCmd} volume create neurodesk-home`
   }`;
   let volumeCreate = `${isPodman ? `${volumeCheck}` : ''}`;
+
+  let machineCmd = '';
+  if (isPodman && process.platform != 'linux' && serverInfo.serverArgs) {
+    let machineInitArgs = [
+      'podman machine init --volume neurodesk-home:/home/jovyan'
+    ];
+    machineInitArgs.push(
+      `${
+        isWin
+          ? '-v C:/neurodesktop-storage:/neurodesktop-storage -v "${serverInfo.serverArgs}"'
+          : '-v ~/neurodesktop-storage:/neurodesktop-storage -v "${serverInfo.serverArgs}"'
+      }`
+    );
+
+    machineCmd = machineInitArgs.join(' ') + ` && ${engineCmd} machine start`;
+  }
 
   let launchArgs = [
     `${engineCmd} run -d --rm --shm-size=1gb -it --privileged --user=root --name neurodeskapp-${strPort} -p ${strPort}:${strPort} ` +
@@ -142,6 +157,7 @@ function createLaunchScript(
         ) else (
             echo "Image does not exist"
             ${stopCmd} 
+            ${machineCmd}
             ${volumeCreate}            
             ${engineCmd} pull docker.io/vnmd/neurodesktop:${tag}
             ${launchCmd}
@@ -155,6 +171,7 @@ function createLaunchScript(
               ${launchCmd}
         else
           ${stopCmd} 
+          ${machineCmd}
           ${volumeCreate}
           ${engineCmd} pull docker.io/vnmd/neurodesktop:${tag}
           ${launchCmd}
@@ -442,6 +459,11 @@ export class JupyterServer {
           execFile(`${engineCmd} rm -f neurodeskapp-${this._info.port}`, {
             shell: 'cmd.exe'
           });
+          if (this._info.engine === EngineType.Podman) {
+            execFile(`${engineCmd} machine stop`, {
+              shell: 'cmd.exe'
+            });
+          }
           this._shutdownServer()
             .then(() => {
               this._stopping = false;
@@ -452,6 +474,11 @@ export class JupyterServer {
           execFile(`${engineCmd} rm -f neurodeskapp-${this._info.port}`, {
             shell: '/bin/bash'
           });
+          if (this._info.engine === EngineType.Podman) {
+            execFile(`${engineCmd} machine stop`, {
+              shell: '/bin/bash'
+            });
+          }
           this._shutdownServer()
             .then(() => {
               this._stopping = false;
