@@ -17,26 +17,63 @@ jobs:
     strategy:
       matrix:
         cfg:
-          - { platform: linux, platform_name: Linux, os: ubuntu-latest }
-          - { platform: mac, platform_name: macOS, os: macos-12 }
-          - { platform: win, platform_name: Windows, os: windows-latest }
+          - {
+              platform: linux-64,
+              platform_name: Linux x64,
+              os: ubuntu-latest,
+              build_platform: linux-64,
+              conda_platform: linux-64,
+            }
+          - {
+              platform: osx-64,
+              platform_name: macOS x64,
+              os: macos-latest,
+              build_platform: osx-64,
+              conda_platform: osx-64,
+            }
+          - {
+              platform: osx-arm64,
+              platform_name: macOS arm64,
+              os: macos-latest,
+              build_platform: osx-64,
+              conda_platform: osx-arm64,
+            }
+          - {
+              platform: win-64,
+              platform_name: Windows x64,
+              os: windows-latest,
+              build_platform: win-64,
+              conda_platform: win-64,
+            }
 
     name: '${{ matrix.cfg.platform_name }} installer'
     runs-on: ${{ matrix.cfg.os }}
+    defaults:
+      run:
+        # needed for conda to work
+        shell: bash -el {0}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+          auto-activate-base: true
+          activate-environment: ''
+          channels: conda-forge
+      - run: conda install -c conda-forge conda=22.11.1 python=3.10 -y
 
       - name: Install node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '14.x'
+          node-version: '20.x'
           cache: 'yarn'
 
       - name: Install dependencies
         # pin Pillow version to prevent Windows build errors
         run: |
           npm install --global yarn --prefer-offline
+          conda install -c conda-forge constructor Pillow=9.3.0
           yarn install
 
       - name: Check JupyterLab version match
