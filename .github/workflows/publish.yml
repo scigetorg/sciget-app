@@ -74,7 +74,7 @@ jobs:
         # pin Pillow version to prevent Windows build errors
         run: |
           npm install --global yarn --prefer-offline
-          conda install -c conda-forge constructor Pillow=9.3.0
+          conda install --solver=classic conda-forge::conda-libmamba-solver conda-forge::libmamba conda-forge::libmambapy conda-forge::libarchive -c conda-forge constructor Pillow=9.3.0
           yarn install
 
       - name: Check JupyterLab version match
