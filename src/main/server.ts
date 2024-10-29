@@ -84,7 +84,7 @@ function createLaunchScript(
   let machineCmd = '';
   // if (isPodman && process.platform == 'darwin') {
   //   machineCmd = `podman machine reset -f && podman machine init --rootful --now -v /Volumes:/Volumes -v $HOME:$HOME podman-machine-default`;
-  // } 
+  // }
 
   let launchArgs = [
     `${engineCmd} run -d --rm --shm-size=1gb -it --privileged --user=root --name neurodeskapp-${strPort} -p ${strPort}:${strPort} ` +
