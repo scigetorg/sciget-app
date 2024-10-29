@@ -393,7 +393,7 @@ export class SettingsDialog {
           window.electronAPI.setInstallUpdatesAutomatically(autoInstallCheckbox.checked);
           window.electronAPI.setDefaultWorkingDirectory(workingDirectoryInput.value);
           if (workingDirectoryInput.value !== '') {
-            window.electronAPI.setServerLaunchArgs(workingDirectoryInput.value + ':/data');
+            window.electronAPI.setServerLaunchArgs(workingDirectoryInput.value);
           }
 
           const ctrlWBehavior = document.querySelector('jp-radio[name="ctrl-w-behavior"].checked').value;

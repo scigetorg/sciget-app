@@ -516,7 +516,7 @@ export class SessionWindow implements IDisposable {
         let installEngineURL =
           this._engineType === 'docker'
             ? '<div class="message-row"><a href="https://docs.docker.com/engine/install/">Install Docker</a></div>'
-            : '<div class="message-row"><a href="https://podman.io/docs/installation">Install Podman</a></br>If you are on Linux, please follow additional steps to setup <a href="https://www.neurodesk.org/docs/getting-started/neurodesktop/linux/">Podman client as in this documentation</a></div>';
+            : '<div class="message-row"><a href="https://podman.io/docs/installation">Install Podman</a></div>';
         let engineName =
           this._engineType.charAt(0).toUpperCase() + this._engineType.slice(1);
 
