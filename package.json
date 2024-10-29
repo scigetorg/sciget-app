@@ -81,7 +81,6 @@
       ]
     },
     "win": {
-      "requestedExecutionLevel": "asInvoker",
       "target": [
         "nsis"
       ],
