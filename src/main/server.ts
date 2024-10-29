@@ -82,9 +82,9 @@ function createLaunchScript(
   let volumeCreate = `${isPodman ? `${volumeCheck}` : ''}`;
 
   let machineCmd = '';
-  if (isPodman && process.platform == 'darwin' && serverInfo.workingDirectory) {
-    machineCmd = `podman machine reset -f && podman machine init --rootful --now -v ${serverInfo.workingDirectory}:${serverInfo.workingDirectory} -v $HOME:$HOME podman-machine-default`;
-  }
+  // if (isPodman && process.platform == 'darwin') {
+  //   machineCmd = `podman machine reset -f && podman machine init --rootful --now -v /Volumes:/Volumes -v $HOME:$HOME podman-machine-default`;
+  // } 
 
   let launchArgs = [
     `${engineCmd} run -d --rm --shm-size=1gb -it --privileged --user=root --name neurodeskapp-${strPort} -p ${strPort}:${strPort} ` +
@@ -106,7 +106,7 @@ function createLaunchScript(
   const tag = config.ConfigToml.jupyter_neurodesk_version;
 
   if (serverInfo.workingDirectory) {
-    launchArgs.push(` -v ${serverInfo.workingDirectory}:/data`);
+    launchArgs.push(` --volume ${serverInfo.workingDirectory}:/data`);
   }
 
   for (const arg of serverLaunchArgsFixed) {
@@ -464,17 +464,17 @@ export class JupyterServer {
           execFile(`${engineCmd} rm -f neurodeskapp-${this._info.port}`, {
             shell: '/bin/bash'
           });
-          if (
-            process.platform === 'darwin' &&
-            this._info.engine === EngineType.Podman
-          ) {
-            execFile(
-              `${engineCmd} machine stop podman-machine-default && ${engineCmd} machine rm podman-machine-default`,
-              {
-                shell: '/bin/bash'
-              }
-            );
-          }
+          // if (
+          //   process.platform === 'darwin' &&
+          //   this._info.engine === EngineType.Podman
+          // ) {
+          //   execFile(
+          //     `${engineCmd} machine stop podman-machine-default && ${engineCmd} machine rm podman-machine-default`,
+          //     {
+          //       shell: '/bin/bash'
+          //     }
+          //   );
+          // }
           this._shutdownServer()
             .then(() => {
               this._stopping = false;
