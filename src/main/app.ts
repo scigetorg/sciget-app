@@ -251,7 +251,9 @@ function createNeurodesktopStorage() {
       : path.join(app.getPath('home'), 'neurodesktop-storage');
   if (!fs.existsSync(storagePath)) {
     fs.mkdirSync(storagePath, { recursive: true });
-    fs.chmodSync(storagePath, 0o777);
+    if (process.platform === 'linux') {
+      fs.chmodSync(storagePath, 0o777);
+    }
   }
 }
 
