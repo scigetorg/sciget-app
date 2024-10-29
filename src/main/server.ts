@@ -83,7 +83,7 @@ function createLaunchScript(
 
   let machineCmd = '';
   if (isPodman && process.platform == 'darwin' && serverInfo.workingDirectory) {
-    machineCmd = `podman machine init --rootful --now --volume neurodesk-home:/home/jovyan -v ~/neurodesktop-storage:/neurodesktop-storage -v ${serverInfo.workingDirectory} -v $HOME:$HOME podman-machine-default`;
+    machineCmd = `podman machine reset -f && podman machine init --rootful --now -v ${serverInfo.workingDirectory}:${serverInfo.workingDirectory} -v $HOME:$HOME podman-machine-default`;
   }
 
   let launchArgs = [
