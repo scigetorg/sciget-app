@@ -298,5 +298,5 @@ export function customRelaunch(): void {
     stdio: 'ignore'
   });
   // Exit the parent process
-  process.exit();
+  // process.exit();
 }

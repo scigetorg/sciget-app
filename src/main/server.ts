@@ -20,6 +20,7 @@ import {
 import {
   EngineType,
   KeyValueMap,
+  resolveWorkingDirectory,
   serverLaunchArgsDefault,
   serverLaunchArgsFixed,
   SettingType,
@@ -81,7 +82,7 @@ function createLaunchScript(
   }`;
   let volumeCreate = `${isPodman ? `${volumeCheck}` : ''}`;
 
-  let machineCmd = '';
+  // let machineCmd = '';
   // if (isPodman && process.platform == 'darwin') {
   //   machineCmd = `podman machine reset -f && podman machine init --rootful --now -v /Volumes:/Volumes -v $HOME:$HOME podman-machine-default`;
   // }
@@ -105,8 +106,9 @@ function createLaunchScript(
   const config = Config.loadConfig(path.join(__dirname, '..'));
   const tag = config.ConfigToml.jupyter_neurodesk_version;
 
-  if (serverInfo.workingDirectory) {
-    launchArgs.push(` --volume ${serverInfo.workingDirectory}:/data`);
+  if (serverInfo.serverArgs) {
+    let additionalDir = resolveWorkingDirectory(serverInfo.serverArgs);
+    launchArgs.push(` --volume ${additionalDir}:/data`);
   }
 
   for (const arg of serverLaunchArgsFixed) {
@@ -158,8 +160,7 @@ function createLaunchScript(
               ${volumeCreate}
               ${launchCmd}
         else
-          ${stopCmd} 
-          ${machineCmd}
+          ${stopCmd}
           ${volumeCreate}
           ${engineCmd} pull docker.io/vnmd/neurodesktop:${tag}
           ${launchCmd}
@@ -475,6 +476,7 @@ export class JupyterServer {
           //     }
           //   );
           // }
+          this._nbServer.kill();
           this._shutdownServer()
             .then(() => {
               this._stopping = false;
