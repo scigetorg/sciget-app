@@ -108,6 +108,9 @@ function createLaunchScript(
 
   if (serverInfo.serverArgs) {
     let additionalDir = resolveWorkingDirectory(serverInfo.serverArgs);
+    if (process.platform === 'linux') {
+      fs.chmodSync(additionalDir, 0o777);
+    }
     launchArgs.push(` --volume ${additionalDir}:/data`);
   }
 
