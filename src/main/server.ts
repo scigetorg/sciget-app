@@ -9,14 +9,7 @@ import * as path from 'path';
 import { request as httpRequest } from 'http';
 import { request as httpsRequest } from 'https';
 import { IDisposable, IEnvironmentType, IPythonEnvironment } from './tokens';
-import {
-  Config,
-  getEnvironmentPath,
-  getFreePort,
-  getSchemasDir,
-  getUserDataDir,
-  waitForDuration
-} from './utils';
+import { Config, getFreePort, getUserDataDir, waitForDuration } from './utils';
 import {
   EngineType,
   KeyValueMap,
@@ -31,7 +24,6 @@ import { randomBytes } from 'crypto';
 
 const SERVER_LAUNCH_TIMEOUT = 900000; // milliseconds
 const SERVER_RESTART_LIMIT = 1; // max server restarts
-let engineCmd: string;
 
 function createTempFile(
   fileName = 'temp',
@@ -47,18 +39,8 @@ function createTempFile(
   return tmpFilePath;
 }
 
-// function getEngineType(): EngineType {
-//   const engineType = userSettings.getValue(
-//     SettingType.engineType
-//   ) as EngineType;
-//   console.log('Engine type:', engineType)
-//   return engineType;
-// }
-
 function createLaunchScript(
   serverInfo: JupyterServer.IInfo,
-  baseCondaPath: string,
-  schemasDir: string,
   engineType: EngineType,
   port: number,
   token: string
@@ -71,14 +53,14 @@ function createLaunchScript(
   // const engineType = serverInfo.engine;
   console.debug(`!!!..... ${strPort} engineType ${engineType}`);
   let isPodman = engineType === EngineType.Podman;
-  engineCmd = isPodman && process.platform == 'linux' ? 'podman' : engineType;
+  // engineCmd = isPodman && process.platform == 'linux' ? 'podman' : engineType;
   // note: traitlets<5.0 require fully specified arguments to
   // be followed by equals sign without a space; this can be
   // removed once jupyter_server requires traitlets>5.0
   let volumeCheck = `${
     isWin
-      ? `${engineCmd} volume inspect neurodesk-home >NUL 2>&1 || ${engineCmd} volume create neurodesk-home`
-      : `${engineCmd} volume exists neurodesk-home &> /dev/null || ${engineCmd} volume create neurodesk-home`
+      ? `${engineType} volume inspect neurodesk-home >NUL 2>&1 || ${engineType} volume create neurodesk-home`
+      : `${engineType} volume exists neurodesk-home &> /dev/null || ${engineType} volume create neurodesk-home`
   }`;
   let volumeCreate = `${isPodman ? `${volumeCheck}` : ''}`;
 
@@ -88,7 +70,7 @@ function createLaunchScript(
   // }
 
   let launchArgs = [
-    `${engineCmd} run -d --rm --shm-size=1gb -it --privileged --user=root --name neurodeskapp-${strPort} -p ${strPort}:${strPort} ` +
+    `${engineType} run -d --rm --shm-size=1gb -it --privileged --user=root --name neurodeskapp-${strPort} -p ${strPort}:${strPort} ` +
       `${
         isPodman
           ? '-v neurodesk-home:/home/jovyan --network bridge:ip=10.88.0.10,mac=88:75:56:ef:3e:d6'
@@ -128,11 +110,11 @@ function createLaunchScript(
   let launchCmd = launchArgs.join(' ');
   let removeCmd = `${
     isWin
-      ? `${engineCmd} container exists neurodeskapp-${strPort} >NUL 2>&1 && ${engineCmd} rm -f neurodeskapp-${strPort}`
-      : `${engineCmd} container exists neurodeskapp-${strPort} &> /dev/null && ${engineCmd} rm -f neurodeskapp-${strPort}`
+      ? `${engineType} container exists neurodeskapp-${strPort} >NUL 2>&1 && ${engineType} rm -f neurodeskapp-${strPort}`
+      : `${engineType} container exists neurodeskapp-${strPort} &> /dev/null && ${engineType} rm -f neurodeskapp-${strPort}`
   }`;
   let stopCmd = `${
-    isPodman ? `${removeCmd}` : `${engineCmd} rm -f neurodeskapp-${strPort}`
+    isPodman ? `${removeCmd}` : `${engineType} rm -f neurodeskapp-${strPort}`
   }`;
   let script: string;
 
@@ -141,10 +123,10 @@ function createLaunchScript(
         setlocal enabledelayedexpansion
         SET ERRORCODE=0
         SET IMAGE_EXISTS=
-        FOR /F "usebackq delims=" %%i IN (\`${engineCmd} image inspect vnmd/neurodesktop:${tag} --format="exists" 2^>nul\`) DO SET IMAGE_EXISTS=%%i
+        FOR /F "usebackq delims=" %%i IN (\`${engineType} image inspect vnmd/neurodesktop:${tag} --format="exists" 2^>nul\`) DO SET IMAGE_EXISTS=%%i
         if "%IMAGE_EXISTS%"=="exists" (
             echo "Image exists"
-            FOR /F "usebackq delims=" %%i IN (\`${engineCmd} container inspect -f "{{.State.Status}}" neurodeskapp-${strPort}\`) DO SET CONTAINER_STATUS=%%i
+            FOR /F "usebackq delims=" %%i IN (\`${engineType} container inspect -f "{{.State.Status}}" neurodeskapp-${strPort}\`) DO SET CONTAINER_STATUS=%%i
               ${stopCmd} 
               ${volumeCreate}
               ${launchCmd}
@@ -152,20 +134,20 @@ function createLaunchScript(
             echo "Image does not exist"
             ${stopCmd} 
             ${volumeCreate}            
-            ${engineCmd} pull docker.io/vnmd/neurodesktop:${tag}
+            ${engineType} pull docker.io/vnmd/neurodesktop:${tag}
             ${launchCmd}
         )
       `;
   } else {
     script = `
-        if [[ "$(${engineCmd} image inspect vnmd/neurodesktop:${tag} --format='exists' 2> /dev/null)" == "exists" ]]; then 
+        if [[ "$(${engineType} image inspect vnmd/neurodesktop:${tag} --format='exists' 2> /dev/null)" == "exists" ]]; then 
               ${stopCmd} 
               ${volumeCreate}
               ${launchCmd}
         else
           ${stopCmd}
           ${volumeCreate}
-          ${engineCmd} pull docker.io/vnmd/neurodesktop:${tag}
+          ${engineType} pull docker.io/vnmd/neurodesktop:${tag}
           ${launchCmd}
         fi
         `;
@@ -228,7 +210,6 @@ export class JupyterServer {
     const workingDir =
       this._options.workingDirectory || userSettings.resolvedWorkingDirectory;
     this._info.workingDirectory = workingDir;
-    this._registry = registry;
 
     const wsSettings = new WorkspaceSettings(workingDir);
     this._info.engine = wsSettings.getValue(SettingType.engineType);
@@ -277,19 +258,9 @@ export class JupyterServer {
           `http://127.0.0.1:${this._info.port}/lab?token=${this._info.token}`
         );
 
-        let baseCondaPath: string = '';
-
-        if (this._info.environment.type === IEnvironmentType.CondaRoot) {
-          baseCondaPath = getEnvironmentPath(this._info.environment);
-        } else if (this._info.environment.type === IEnvironmentType.CondaEnv) {
-          baseCondaPath = await this._registry.condaRootPath;
-        }
-
         console.log('token', this._info.token);
         const launchScriptPath = createLaunchScript(
           this._info,
-          baseCondaPath,
-          getSchemasDir(),
           this._info.engine,
           this._info.port,
           this._info.token
@@ -448,9 +419,12 @@ export class JupyterServer {
     this._stopServer = new Promise<void>((resolve, reject) => {
       if (this._nbServer !== undefined) {
         if (process.platform === 'win32') {
-          execFile(`${engineCmd} rm -f neurodeskapp-${this._info.port}`, {
-            shell: 'cmd.exe'
-          });
+          execFile(
+            `${this._info.engine} rm -f neurodeskapp-${this._info.port}`,
+            {
+              shell: 'cmd.exe'
+            }
+          );
           execFile(
             'taskkill',
             ['/PID', String(this._nbServer.pid), '/T', '/F'],
@@ -465,20 +439,12 @@ export class JupyterServer {
             })
             .catch(reject);
         } else {
-          execFile(`${engineCmd} rm -f neurodeskapp-${this._info.port}`, {
-            shell: '/bin/bash'
-          });
-          // if (
-          //   process.platform === 'darwin' &&
-          //   this._info.engine === EngineType.Podman
-          // ) {
-          //   execFile(
-          //     `${engineCmd} machine stop podman-machine-default && ${engineCmd} machine rm podman-machine-default`,
-          //     {
-          //       shell: '/bin/bash'
-          //     }
-          //   );
-          // }
+          execFile(
+            `${this._info.engine} rm -f neurodeskapp-${this._info.port}`,
+            {
+              shell: '/bin/bash'
+            }
+          );
           this._nbServer.kill();
           this._shutdownServer()
             .then(() => {
@@ -612,7 +578,6 @@ export class JupyterServer {
     serverEnvVars: {},
     version: null
   };
-  private _registry: IRegistry;
   private _stopping: boolean = false;
   private _restartCount: number = 0;
 }
@@ -745,11 +710,6 @@ export class JupyterServerFactory implements IServerFactory, IDisposable {
       defaultKernel: 'python3'
     };
 
-    // if (!opts?.environment) {
-    //   env = await this._registry.getDefaultEnvironment();
-    // } else {
-    // env = opts?.environment;
-    // }
     console.debug('~ createFreeServer', opts);
     opts = { ...opts, ...{ environment: env } };
     item = this._createServer(opts);
@@ -779,12 +739,6 @@ export class JupyterServerFactory implements IServerFactory, IDisposable {
       versions: {},
       defaultKernel: 'python3'
     };
-
-    // if (!opts?.environment) {
-    //   env = await this._registry.getDefaultEnvironment();
-    // } else {
-    // env = opts?.environment;
-    // }
     console.log('~ createServer', opts?.environment);
     opts = { ...opts, ...{ environment: env } };
 
