@@ -23,7 +23,7 @@ import {
 import { randomBytes } from 'crypto';
 
 const SERVER_LAUNCH_TIMEOUT = 900000; // milliseconds
-const SERVER_RESTART_LIMIT = 1; // max server restarts
+const SERVER_RESTART_LIMIT = 0; // max server restarts
 
 function createTempFile(
   fileName = 'temp',
@@ -47,10 +47,7 @@ function createLaunchScript(
 ): string {
   const isWin = process.platform === 'win32';
   const strPort = port.toString();
-  // const engineType = userSettings.getValue(
-  //   SettingType.engineType
-  // ) as EngineType;
-  // const engineType = serverInfo.engine;
+
   console.debug(`!!!..... ${strPort} engineType ${engineType}`);
   let isPodman = engineType === EngineType.Podman;
   // engineCmd = isPodman && process.platform == 'linux' ? 'podman' : engineType;
@@ -63,11 +60,6 @@ function createLaunchScript(
       : `${engineType} volume exists neurodesk-home &> /dev/null || ${engineType} volume create neurodesk-home`
   }`;
   let volumeCreate = `${isPodman ? `${volumeCheck}` : ''}`;
-
-  // let machineCmd = '';
-  // if (isPodman && process.platform == 'darwin') {
-  //   machineCmd = `podman machine reset -f && podman machine init --rootful --now -v /Volumes:/Volumes -v $HOME:$HOME podman-machine-default`;
-  // }
 
   let launchArgs = [
     `${engineType} run -d --rm --shm-size=1gb -it --privileged --user=root --name neurodeskapp-${strPort} -p ${strPort}:${strPort} ` +
@@ -107,7 +99,14 @@ function createLaunchScript(
     }
   }
 
-  let launchCmd = launchArgs.join(' ');
+  /**
+   * Launch command for TinyRange needs downloading the executable file into tmp directory, then unzip it and run it.
+   * curl -L https://github.com/tinyrange/tinyrange/releases/download/v0.1.8/tinyrange-linux-amd64.zip > tinyrange.zip && unzip tinyrange.zip && curl -L https://raw.githubusercontent.com/NeuroDesk/neurodesktop/2b3d68adbfbff2529f0d27a9de59da7d1ff48cb9/neurodesk.yml > neurodesk.yml &&
+   */
+  let launchCmd =
+    engineType !== EngineType.TinyRange
+      ? launchArgs.join(' ')
+      : `curl -L https://github.com/tinyrange/tinyrange/releases/download/v0.1.8/tinyrange-linux-amd64.zip > tinyrange.zip && unzip tinyrange.zip && ./tinyrange/tinyrange login -c neurodesk.yml -E "start.sh jupyter lab --no-browser --expose-app-in-browser --ServerApp.token=${token} --LabApp.quit_button=False" --forward ${port}`;
   let removeCmd = `${
     isWin
       ? `${engineType} container exists neurodeskapp-${strPort} >NUL 2>&1 && ${engineType} rm -f neurodeskapp-${strPort}`

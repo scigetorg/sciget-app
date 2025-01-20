@@ -212,7 +212,8 @@ export class SettingsDialog {
                 <label slot="label">Engine Options</label>
                 <jp-radio name="engine-type" value="docker" <%= engineType === 'docker' ? 'checked' : '' %>>Docker</jp-radio>
                 <jp-radio name="engine-type" value="podman" <%= engineType === 'podman' ? 'checked' : '' %>>Podman</jp-radio>
-              </jp-radio-group>
+                <jp-radio name="engine-type" value="tinyrange" <%= engineType === 'tinyrange' ? 'checked' : '' %>>TinyRange</jp-radio>
+                </jp-radio-group>
 
               <jp-radio-group orientation="horizontal">
                 <label slot="label">On startup</label>
