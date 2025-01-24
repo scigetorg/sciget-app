@@ -15,7 +15,6 @@ import {
   KeyValueMap,
   resolveWorkingDirectory,
   serverLaunchArgsDefault,
-  serverLaunchArgsFixed,
   SettingType,
   userSettings,
   WorkspaceSettings
@@ -47,9 +46,14 @@ function createLaunchScript(
 ): string {
   const isWin = process.platform === 'win32';
   const strPort = port.toString();
-
-  console.debug(`!!!..... ${strPort} engineType ${engineType}`);
+  const config = Config.loadConfig(path.join(__dirname, '..'));
+  const tag = config.ConfigToml.jupyter_neurodesk_version;
+  let imageRegistry = `vnmd/neurodesktop:${tag}`;
+  let additionalDir = '';
   let isPodman = engineType === EngineType.Podman;
+  let isTinyRange = engineType === EngineType.TinyRange;
+  console.debug(`!!!..... ${strPort} engineType ${engineType}`);
+
   // engineCmd = isPodman && process.platform == 'linux' ? 'podman' : engineType;
   // note: traitlets<5.0 require fully specified arguments to
   // be followed by equals sign without a space; this can be
@@ -61,52 +65,62 @@ function createLaunchScript(
   }`;
   let volumeCreate = `${isPodman ? `${volumeCheck}` : ''}`;
 
-  let launchArgs = [
-    `${engineType} run -d --rm --shm-size=1gb -it --privileged --user=root --name neurodeskapp-${strPort} -p ${strPort}:${strPort} ` +
-      `${
-        isPodman
-          ? '-v neurodesk-home:/home/jovyan --network bridge:ip=10.88.0.10,mac=88:75:56:ef:3e:d6'
-          : '--mount source=neurodesk-home,target=/home/jovyan --mac-address=88:75:56:ef:3e:d6'
-      }`
+  // Common launch arguments
+  let commonLaunchArgs = [
+    `--shm-size=1gb`,
+    `-it`,
+    `--privileged`,
+    `--user=root`,
+    `--name neurodeskapp-${strPort}`,
+    `-p ${strPort}:${strPort}`,
+    `-e NEURODESKTOP_VERSION=${tag} ${imageRegistry}`,
+    isWin
+      ? `-v C:/neurodesktop-storage:/neurodesktop-storage`
+      : `-e NB_UID="$(id -u)" -e NB_GID="$(id -g)" -v ~/neurodesktop-storage:/neurodesktop-storage`
   ];
-  launchArgs.push(
-    `${
-      isWin
-        ? '-v C:/neurodesktop-storage:/neurodesktop-storage'
-        : '-e NB_UID="$(id -u)" -e NB_GID="$(id -g)" -v ~/neurodesktop-storage:/neurodesktop-storage'
-    }`
-  );
 
-  const config = Config.loadConfig(path.join(__dirname, '..'));
-  const tag = config.ConfigToml.jupyter_neurodesk_version;
+  let launchArgs: string[] = [];
+  if (isTinyRange) {
+    launchArgs = [
+      path.join(__dirname, '../../..', 'tinyrange/tinyrange'),
+      'login',
+      '--verbose',
+      `--oci ${imageRegistry}`,
+      `--forward ${strPort}`,
+      // `-E "chmod 777 /dev/fuse;NEURODESKTOP_VERSION=${tag};start.sh jupyter lab --no-browser --expose-app-in-browser --ServerApp.token=${token} --ServerApp.port=${strPort} --LabApp.quit_button=False"`,
+    ];
+  } else {
+    launchArgs = [
+      `${engineType} run -d --rm`,
+      ...commonLaunchArgs,
+      isPodman
+        ? `-v neurodesk-home:/home/jovyan --network bridge:ip=10.88.0.10,mac=88:75:56:ef:3e:d6`
+        : `--mount source=neurodesk-home,target=/home/jovyan --mac-address=88:75:56:ef:3e:d6`
+    ];
+  }
 
   if (serverInfo.serverArgs) {
-    let additionalDir = resolveWorkingDirectory(serverInfo.serverArgs);
+    additionalDir = resolveWorkingDirectory(serverInfo.serverArgs);
     if (process.platform === 'linux') {
       fs.chmodSync(additionalDir, 0o777);
     }
-    launchArgs.push(` --volume ${additionalDir}:/data`);
-  }
-
-  for (const arg of serverLaunchArgsFixed) {
-    launchArgs.push(arg.replace('{tag}', tag).replace('{tag}', tag));
-    console.debug(`!!! ${strPort} launchArgs ${launchArgs}`);
+    launchArgs.push(isTinyRange ? `--mount-rw ${additionalDir}:/data` : ` --volume ${additionalDir}:/data`);
   }
 
   if (!serverInfo.overrideDefaultServerArgs) {
+    launchArgs.push(isTinyRange ? '-E "chmod 777 /dev/fuse;' : "")
     for (const arg of serverLaunchArgsDefault) {
       launchArgs.push(arg.replace('{token}', token).replace('{port}', strPort));
     }
+    launchArgs.push(isTinyRange ? '"': "")
   }
 
   /**
    * Launch command for TinyRange needs downloading the executable file into tmp directory, then unzip it and run it.
    * curl -L https://github.com/tinyrange/tinyrange/releases/download/v0.1.8/tinyrange-linux-amd64.zip > tinyrange.zip && unzip tinyrange.zip && curl -L https://raw.githubusercontent.com/NeuroDesk/neurodesktop/2b3d68adbfbff2529f0d27a9de59da7d1ff48cb9/neurodesk.yml > neurodesk.yml &&
    */
-  let launchCmd =
-    engineType !== EngineType.TinyRange
-      ? launchArgs.join(' ')
-      : `curl -L https://github.com/tinyrange/tinyrange/releases/download/v0.1.8/tinyrange-linux-amd64.zip > tinyrange.zip && unzip tinyrange.zip && ./tinyrange/tinyrange login -c neurodesk.yml -E "start.sh jupyter lab --no-browser --expose-app-in-browser --ServerApp.token=${token} --LabApp.quit_button=False" --forward ${port}`;
+
+  let launchCmd = launchArgs.join(' ')
   let removeCmd = `${
     isWin
       ? `${engineType} container exists neurodeskapp-${strPort} >NUL 2>&1 && ${engineType} rm -f neurodeskapp-${strPort}`
@@ -122,7 +136,7 @@ function createLaunchScript(
         setlocal enabledelayedexpansion
         SET ERRORCODE=0
         SET IMAGE_EXISTS=
-        FOR /F "usebackq delims=" %%i IN (\`${engineType} image inspect vnmd/neurodesktop:${tag} --format="exists" 2^>nul\`) DO SET IMAGE_EXISTS=%%i
+        FOR /F "usebackq delims=" %%i IN (\`${engineType} image inspect ${imageRegistry} --format="exists" 2^>nul\`) DO SET IMAGE_EXISTS=%%i
         if "%IMAGE_EXISTS%"=="exists" (
             echo "Image exists"
             FOR /F "usebackq delims=" %%i IN (\`${engineType} container inspect -f "{{.State.Status}}" neurodeskapp-${strPort}\`) DO SET CONTAINER_STATUS=%%i
@@ -133,20 +147,25 @@ function createLaunchScript(
             echo "Image does not exist"
             ${stopCmd} 
             ${volumeCreate}            
-            ${engineType} pull docker.io/vnmd/neurodesktop:${tag}
+            ${engineType} pull docker.io/${imageRegistry}
             ${launchCmd}
         )
       `;
   } else {
     script = `
-        if [[ "$(${engineType} image inspect vnmd/neurodesktop:${tag} --format='exists' 2> /dev/null)" == "exists" ]]; then 
-              ${stopCmd} 
-              ${volumeCreate}
+              ${launchCmd}
               ${launchCmd}
         else
           ${stopCmd}
           ${volumeCreate}
-          ${engineType} pull docker.io/vnmd/neurodesktop:${tag}
+          ${engineType} pull docker.io/${imageRegistry}
+          ${launchCmd}
+        fi
+      ${launchCmd}
+        else
+          ${stopCmd}
+          ${volumeCreate}
+          ${engineType} pull docker.io/${imageRegistry}
           ${launchCmd}
         fi
         `;
