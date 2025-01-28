@@ -45,12 +45,14 @@ jobs:
 
       - name: Install TinyRange
         run: |
-          git clone https://github.com/tinyrange/tinyrange.git /tmp
+          git clone https://github.com/tinyrange/tinyrange.git /tmp/tinyrange
           /tmp/tinyrange/tools/build.go -release
           scp /tmp/tinyrange/release/tinyrange-*.zip ./tinyrange.zip
+          echo $(pwd)
+          echo $(ls)
           unzip tinyrange.zip -d tinyrange
           rm tinyrange.zip
-          
+
       - name: Check Lint & Prettier
         run: |
           yarn lint:check
