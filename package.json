@@ -73,6 +73,10 @@
         {
           "from": "dist-resources/linux/neurodeskapp.sh",
           "to": "app/neurodeskapp"
+        },
+        {
+          "from": "tinyrange",
+          "to": "app/tinyrange"
         }
       ]
     },

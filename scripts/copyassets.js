@@ -5,7 +5,6 @@ const watch = require('node-watch');
 const platform = process.platform;
 const buildDir = path.resolve('./build');
 const srcDir = path.resolve('./src');
-const tinyrangeDir = path.resolve('./tinyrange');
 
 function walkSync(currentDirPath, callback) {
   fs.readdirSync(currentDirPath).forEach(name => {
@@ -44,12 +43,25 @@ function copyAssests() {
   });
 
   // Copy tinyrange directory into build directory
-  fs.mkdir(path.join(dest, 'tinyrange'), { recursive: true });
+  const tinyrangeDir = path.resolve('./tinyrange');
+  const tinyrangeDest = path.resolve(path.join(dest, 'tinyrange'));
   walkSync(tinyrangeDir, srcPath => {
-    const destPath = srcPath.replace(tinyrangeDir, path.join(dest, 'tinyrange'));
-    console.log("srcPath, destPath", srcPath, destPath, dest, tinyrangeDir);
+    const destPath = srcPath.replace(tinyrangeDir, tinyrangeDest);
+    console.log('destPath, srcPath', destPath, srcPath);
     fs.copySync(srcPath, destPath);
   });
+
+  if (!fs.existsSync(path.join(tinyrangeDest, 'tinyrange'))) {
+    console.error(
+      'Error: tinyrange directory not found at',
+      path.join(tinyrangeDest, 'tinyrange')
+    );
+  } else {
+    console.log(
+      'tinyrange successfully copied to',
+      path.join(tinyrangeDest, 'tinyrange')
+    );
+  }
 
   const titlebarPath = path.join('main', 'titlebarview', 'titlebar.html');
   fs.copySync(

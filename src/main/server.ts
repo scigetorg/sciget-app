@@ -52,6 +52,11 @@ function createLaunchScript(
   let additionalDir = '';
   let isPodman = engineType === EngineType.Podman;
   let isTinyRange = engineType === EngineType.TinyRange;
+  const isDev = process.env.NODE_ENV === 'development';
+  const tinyrangePath = isDev
+    ? path.join(__dirname, '..', 'tinyrange', 'tinyrange') // Development path
+    : path.join(process.resourcesPath, 'app', 'tinyrange', 'tinyrange'); // Production path
+
   console.debug(`!!!..... ${strPort} engineType ${engineType}`);
 
   // engineCmd = isPodman && process.platform == 'linux' ? 'podman' : engineType;
@@ -82,9 +87,10 @@ function createLaunchScript(
   let launchArgs: string[] = [];
   if (isTinyRange) {
     launchArgs = [
-      path.join(__dirname, '..', 'tinyrange/tinyrange'),
+      tinyrangePath,
       'login',
       '--verbose',
+      '--buildDir ~/neurodesktop-storage/build',
       `--oci ${imageRegistry}`,
       `--forward ${strPort}`,
       '--mount-rw ~/neurodesktop-storage:/neurodesktop-storage'
@@ -96,7 +102,7 @@ function createLaunchScript(
       isPodman
         ? `-v neurodesk-home:/home/jovyan --network bridge:ip=10.88.0.10,mac=88:75:56:ef:3e:d6`
         : `--mount source=neurodesk-home,target=/home/jovyan --mac-address=88:75:56:ef:3e:d6`,
-        imageRegistry
+      imageRegistry
     ];
   }
 
@@ -105,15 +111,19 @@ function createLaunchScript(
     if (process.platform === 'linux') {
       fs.chmodSync(additionalDir, 0o777);
     }
-    launchArgs.push(isTinyRange ? `--mount-rw ${additionalDir}:/data` : ` --volume ${additionalDir}:/data`);
+    launchArgs.push(
+      isTinyRange
+        ? `--mount-rw ${additionalDir}:/data`
+        : ` --volume ${additionalDir}:/data`
+    );
   }
 
   if (!serverInfo.overrideDefaultServerArgs) {
-    launchArgs.push(isTinyRange ? '-E "chmod 777 /dev/fuse;' : "")
+    launchArgs.push(isTinyRange ? '-E "chmod 777 /dev/fuse;' : '');
     for (const arg of serverLaunchArgsDefault) {
       launchArgs.push(arg.replace('{token}', token).replace('{port}', strPort));
     }
-    launchArgs.push(isTinyRange ? '"': "")
+    launchArgs.push(isTinyRange ? '"' : '');
   }
 
   /**
@@ -121,7 +131,7 @@ function createLaunchScript(
    * curl -L https://github.com/tinyrange/tinyrange/releases/download/v0.1.8/tinyrange-linux-amd64.zip > tinyrange.zip && unzip tinyrange.zip && curl -L https://raw.githubusercontent.com/NeuroDesk/neurodesktop/2b3d68adbfbff2529f0d27a9de59da7d1ff48cb9/neurodesk.yml > neurodesk.yml &&
    */
 
-  let launchCmd = launchArgs.join(' ')
+  let launchCmd = launchArgs.join(' ');
   let removeCmd = `${
     isWin
       ? `${engineType} container exists neurodeskapp-${strPort} >NUL 2>&1 && ${engineType} rm -f neurodeskapp-${strPort}`
@@ -454,12 +464,9 @@ export class JupyterServer {
             .catch(reject);
         } else {
           if (this._info.engine === EngineType.TinyRange) {
-            execFile(
-              `killall qemu-system-x86`,
-              {
-                shell: '/bin/bash'
-              }
-            )
+            execFile(`killall qemu-system-x86`, {
+              shell: '/bin/bash'
+            });
           } else {
             execFile(
               `${this._info.engine} rm -f neurodeskapp-${this._info.port}`,
