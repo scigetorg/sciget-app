@@ -82,7 +82,7 @@ function createLaunchScript(
   let launchArgs: string[] = [];
   if (isTinyRange) {
     launchArgs = [
-      path.join(__dirname, '../../..', 'tinyrange/tinyrange'),
+      path.join(__dirname, '..', 'tinyrange/tinyrange'),
       'login',
       '--verbose',
       `--oci ${imageRegistry}`,

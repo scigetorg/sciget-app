@@ -5,6 +5,7 @@ const watch = require('node-watch');
 const platform = process.platform;
 const buildDir = path.resolve('./build');
 const srcDir = path.resolve('./src');
+const tinyrangeDir = path.resolve('./tinyrange');
 
 function walkSync(currentDirPath, callback) {
   fs.readdirSync(currentDirPath).forEach(name => {
@@ -37,10 +38,17 @@ function copyAssests() {
   // Copy style and img directories into build directory
   walkSync(srcDir, srcPath => {
     const destPath = srcPath.replace(srcDir, dest);
-
     if (srcPath.includes('style') || srcPath.includes('img')) {
       fs.copySync(srcPath, destPath);
     }
+  });
+
+  // Copy tinyrange directory into build directory
+  fs.mkdir(path.join(dest, 'tinyrange'), { recursive: true });
+  walkSync(tinyrangeDir, srcPath => {
+    const destPath = srcPath.replace(tinyrangeDir, path.join(dest, 'tinyrange'));
+    console.log("srcPath, destPath", srcPath, destPath, dest, tinyrangeDir);
+    fs.copySync(srcPath, destPath);
   });
 
   const titlebarPath = path.join('main', 'titlebarview', 'titlebar.html');

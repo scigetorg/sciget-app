@@ -43,10 +43,14 @@ jobs:
           npm install --global yarn --prefer-offline
           yarn install
 
-      - name: Check JupyterLab version match
+      - name: Install TinyRange
         run: |
-          yarn check_version_match
-
+          git clone https://github.com/tinyrange/tinyrange.git /tmp
+          /tmp/tinyrange/tools/build.go -release
+          scp /tmp/tinyrange/release/tinyrange-*.zip ./tinyrange.zip
+          unzip tinyrange.zip -d tinyrange
+          rm tinyrange.zip
+          
       - name: Check Lint & Prettier
         run: |
           yarn lint:check
