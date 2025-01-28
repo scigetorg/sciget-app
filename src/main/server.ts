@@ -73,7 +73,7 @@ function createLaunchScript(
     `--user=root`,
     `--name neurodeskapp-${strPort}`,
     `-p ${strPort}:${strPort}`,
-    `-e NEURODESKTOP_VERSION=${tag} ${imageRegistry}`,
+    `-e NEURODESKTOP_VERSION=${tag}`,
     isWin
       ? `-v C:/neurodesktop-storage:/neurodesktop-storage`
       : `-e NB_UID="$(id -u)" -e NB_GID="$(id -g)" -v ~/neurodesktop-storage:/neurodesktop-storage`
@@ -87,7 +87,7 @@ function createLaunchScript(
       '--verbose',
       `--oci ${imageRegistry}`,
       `--forward ${strPort}`,
-      // `-E "chmod 777 /dev/fuse;NEURODESKTOP_VERSION=${tag};start.sh jupyter lab --no-browser --expose-app-in-browser --ServerApp.token=${token} --ServerApp.port=${strPort} --LabApp.quit_button=False"`,
+      '--mount-rw ~/neurodesktop-storage:/neurodesktop-storage'
     ];
   } else {
     launchArgs = [
@@ -95,7 +95,8 @@ function createLaunchScript(
       ...commonLaunchArgs,
       isPodman
         ? `-v neurodesk-home:/home/jovyan --network bridge:ip=10.88.0.10,mac=88:75:56:ef:3e:d6`
-        : `--mount source=neurodesk-home,target=/home/jovyan --mac-address=88:75:56:ef:3e:d6`
+        : `--mount source=neurodesk-home,target=/home/jovyan --mac-address=88:75:56:ef:3e:d6`,
+        imageRegistry
     ];
   }
 
@@ -153,15 +154,10 @@ function createLaunchScript(
       `;
   } else {
     script = `
-              ${launchCmd}
-              ${launchCmd}
-        else
-          ${stopCmd}
+        if [[ "$(${engineType} image inspect ${imageRegistry} --format='exists' 2> /dev/null)" == "exists" ]]; then 
+          ${stopCmd} 
           ${volumeCreate}
-          ${engineType} pull docker.io/${imageRegistry}
           ${launchCmd}
-        fi
-      ${launchCmd}
         else
           ${stopCmd}
           ${volumeCreate}
@@ -457,12 +453,21 @@ export class JupyterServer {
             })
             .catch(reject);
         } else {
-          execFile(
-            `${this._info.engine} rm -f neurodeskapp-${this._info.port}`,
-            {
-              shell: '/bin/bash'
-            }
-          );
+          if (this._info.engine === EngineType.TinyRange) {
+            execFile(
+              `killall qemu-system-x86`,
+              {
+                shell: '/bin/bash'
+              }
+            )
+          } else {
+            execFile(
+              `${this._info.engine} rm -f neurodeskapp-${this._info.port}`,
+              {
+                shell: '/bin/bash'
+              }
+            );
+          }
           this._nbServer.kill();
           this._shutdownServer()
             .then(() => {
