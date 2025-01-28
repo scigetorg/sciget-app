@@ -42,7 +42,10 @@ jobs:
           go-version: '>=1.23.0'
       - run: go version
       - name: Set up QEMU for TinyRange
+        if: runner.os == 'Linux' && runner.arch == 'X64'
         uses: docker/setup-qemu-action@v3
+        with:
+          platforms: all
       - name: Install dependencies
         # pin Pillow version to prevent Windows build errors
         run: |
