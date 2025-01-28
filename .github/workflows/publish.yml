@@ -55,9 +55,9 @@ jobs:
       - name: Install TinyRange
         run: |
           git clone https://github.com/tinyrange/tinyrange.git /tmp/tinyrange
-          echo $(pwd)
+          echo $(ls /tmp/tinyrange)
           /tmp/tinyrange/tools/build.go -release
-          scp /tmp/tinyrange/release/tinyrange-*.zip ./tinyrange.zip
+          mv ./release/tinyrange-*.zip ./tinyrange.zip
           echo $(pwd)
           echo $(ls)
           unzip tinyrange.zip -d tinyrange
