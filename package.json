@@ -2,6 +2,7 @@
   "name": "neurodeskapp",
   "jlab_version": "4.0.0-1",
   "version": "1.8.0",
+  "tinyrange_version": "0.2.1",
   "description": "Neurodesk App",
   "main": "./build/out/main/main.js",
   "scripts": {
@@ -30,7 +31,7 @@
     "create_env_installer:mac": "rimraf ./env_installer/NeurodeskApp*.sh && constructor ./env_installer --platform=osx-64 --output-dir ./env_installer",
     "create_env_installer:win": "rimraf ./env_installer/NeurodeskApp*.exe && constructor ./env_installer --platform=win-64 --output-dir ./env_installer",
     "check_version_match": "node scripts/buildutil.js --check-version-match",
-    "set_jupyterlab_version": "node scripts/buildutil.js --set-jupyterlab-version",
+    "set_tinyrange_version": "node scripts/neurodeskutil.js --set-tinyrange-version",
     "set_neurodesk_version": "node scripts/neurodeskutil.js --set-neurodesk-version",
     "eslint": "eslint --ext .js,.jsx,.ts,.tsx --cache --fix .",
     "eslint:check": "eslint --ext .js,.jsx,.ts,.tsx --cache .",

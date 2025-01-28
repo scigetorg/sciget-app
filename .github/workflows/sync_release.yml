@@ -1,4 +1,4 @@
-name: Check for new JupyterLab releases
+name: Check for new Neurodesk releases
 
 on:
   schedule:
@@ -35,13 +35,6 @@ jobs:
           npm install --global yarn
           yarn install
         
-      - name: Check for new Jupyterlab releases
-        shell: bash
-        run: |
-          set -eux
-          export JUPYTER_LATEST=$(python scripts/get_latest_lab_version.py)
-          echo "jupyter_latest=${JUPYTER_LATEST}" >> $GITHUB_ENV
-          yarn set_jupyterlab_version ${JUPYTER_LATEST}
       - name: Check for new Neurodesk releases
         shell: bash
         run: |
@@ -49,6 +42,13 @@ jobs:
           export NEURODESK_LATEST=$(python scripts/get_neurodesk_version.py)
           echo "neurodesk_latest=${NEURODESK_LATEST}" >> $GITHUB_ENV
           yarn set_neurodesk_version ${NEURODESK_LATEST}
+      - name: Check for new TinyRange releases
+        shell: bash
+        run: |
+          set -eux
+          export TINYRANGE_LATEST=$(python scripts/get_tinyrange_version.py)
+          echo "tinyrange_latest=${TINYRANGE_LATEST}" >> $GITHUB_ENV
+          yarn set_tinyrange_version ${TINYRANGE_LATEST}
       - name: Create a PR if needed
         shell: bash
         env:
@@ -57,19 +57,19 @@ jobs:
         run: |
           set -eux
           # if resulted in any change:
-          export JUPYTER_LATEST=${{ env.jupyter_latest }}
+          export TINYRANGE_LATEST=${{ env.tinyrange_latest }}
           if [[ ! -z "$(git status --porcelain package.json)" ]]; then
-            export BRANCH_NAME=update-jupyter-to-v${JUPYTER_LATEST}
+            export BRANCH_NAME=update-tinyrange-to-v${TINYRANGE_LATEST}
             # this will fail if the branch already exists which means we won't have duplicate PRs
             git checkout -b "${BRANCH_NAME}"
-            git config user.name "JupyterLab Desktop Bot"
-            git config user.email 'jupyterlab-bot@users.noreply.github.com'
+            git config user.name "Neurodesk Desktop Bot"
+            git config user.email 'neurodesk-bot@users.noreply.github.com'
 
-            git commit . -m "Update to JupyterLab v${JUPYTER_LATEST}"
+            git commit . -m "Update to TinyRange v${TINYRANGE_LATEST}"
 
             git push --set-upstream origin "${BRANCH_NAME}"            
-            hub pull-request -m "Update to JupyterLab v${JUPYTER_LATEST}" \
-                -m "New JupyterLab release [v${JUPYTER_LATEST}](https://github.com/jupyterlab/jupyterlab/releases/tag/v${JUPYTER_LATEST}) is available. Please review the lock file carefully.".
+            hub pull-request -m "Update to TinyRange v${TINYRANGE_LATEST}" \
+                -m "New TinyRange release [v${TINYRANGE_LATEST}](https://github.com/tinyrange/tinyrange/releases/tag/v${TINYRANGE_LATEST}) is available. Please review the lock file carefully.".
           fi
 
           export NEURODESK_LATEST=${{ env.neurodesk_latest }}

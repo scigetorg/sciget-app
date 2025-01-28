@@ -2,8 +2,8 @@ from urllib.request import urlopen
 import json
 
 
-REPOSITORY = "jupyterlab"
-ORGANIZATION = "jupyterlab"
+REPOSITORY = "tinyrange"
+ORGANIZATION = "tinyrange"
 
 
 def find_latest_stable(owner, repository):
