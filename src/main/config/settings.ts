@@ -64,10 +64,10 @@ export enum SettingType {
   logLevel = 'logLevel'
 }
 
-export const serverLaunchArgsFixed = [
-  '-e NEURODESKTOP_VERSION={tag} vnmd/neurodesktop:{tag}'
-  // // use our token rather than any pre-configured password
-];
+// export const serverLaunchArgsFixed = [
+//   '-e NEURODESKTOP_VERSION={tag} vnmd/neurodesktop:{tag}'
+//   // // use our token rather than any pre-configured password
+// ];
 
 export const serverLaunchArgsDefault = [
   //   // do not use any config file
