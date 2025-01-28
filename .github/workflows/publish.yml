@@ -36,7 +36,13 @@ jobs:
         with:
           node-version: '20.x'
           cache: 'yarn'
-
+      - name: Setup Go for TinyRange
+        uses: actions/setup-go@v5
+        with:
+          go-version: '>=1.23.0'
+      - run: go version
+      - name: Set up QEMU for TinyRange
+        uses: docker/setup-qemu-action@v3
       - name: Install dependencies
         # pin Pillow version to prevent Windows build errors
         run: |
@@ -46,6 +52,7 @@ jobs:
       - name: Install TinyRange
         run: |
           git clone https://github.com/tinyrange/tinyrange.git /tmp/tinyrange
+          echo $(pwd)
           /tmp/tinyrange/tools/build.go -release
           scp /tmp/tinyrange/release/tinyrange-*.zip ./tinyrange.zip
           echo $(pwd)
