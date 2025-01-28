@@ -30,14 +30,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: conda-incubator/setup-miniconda@v3
-        with:
-          auto-update-conda: true
-          auto-activate-base: true
-          activate-environment: ''
-          channels: conda-forge
-      # upgrade conda since v22.11.1 is causing issues in "Install dependencies" step
-      - run: conda install -c conda-forge conda=24.5.0 python=3.10 -y
 
       - name: Install node
         uses: actions/setup-node@v4
