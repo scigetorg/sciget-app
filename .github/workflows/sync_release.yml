@@ -69,6 +69,7 @@ jobs:
             git commit . -m "Update to TinyRange v${TINYRANGE_LATEST}"
 
             git push --set-upstream origin "${BRANCH_NAME}"            
+            sudo apt install hub
             hub pull-request -m "Update to TinyRange v${TINYRANGE_LATEST}" \
                 -m "New TinyRange release [v${TINYRANGE_LATEST}](https://github.com/tinyrange/tinyrange/releases/tag/v${TINYRANGE_LATEST}) is available. Please review the lock file carefully.".
           fi
