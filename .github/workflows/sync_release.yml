@@ -1,6 +1,7 @@
 name: Check for new Neurodesk releases
 
 on:
+  push:
   schedule:
     - cron: 30 17 * * *
   workflow_dispatch:
