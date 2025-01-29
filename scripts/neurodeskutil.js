@@ -63,18 +63,18 @@ if (cli.flags.setNeurodeskVersion !== '') {
 }
 
 if (cli.flags.setTinyrangeVersion !== '') {
-    // parse application version
-    const pkgjsonFileData = fs.existsSync(pkgjsonFilePath)
-      ? fs.readJSONSync(pkgjsonFilePath)
-      : undefined;
-    if (!pkgjsonFileData) {
-      console.error('package.json not found!');
-      process.exit(1);
-    }
-    
-    pkgjsonFileData['tinyrange_version'] = cli.flags.setTinyrangeVersion;
-    fs.writeFileSync(pkgjsonFilePath, JSON.stringify(pkgjsonFileData, null, 2));
-
-    console.log(`tinyrange version set to: ${cli.flags.setTinyrangeVersion}`);
-    process.exit(0);
+  // parse application version
+  const pkgjsonFileData = fs.existsSync(pkgjsonFilePath)
+    ? fs.readJSONSync(pkgjsonFilePath)
+    : undefined;
+  if (!pkgjsonFileData) {
+    console.error('package.json not found!');
+    process.exit(1);
   }
+
+  pkgjsonFileData['tinyrange_version'] = cli.flags.setTinyrangeVersion;
+  fs.writeFileSync(pkgjsonFilePath, JSON.stringify(pkgjsonFileData, null, 2));
+
+  console.log(`tinyrange version set to: ${cli.flags.setTinyrangeVersion}`);
+  process.exit(0);
+}
