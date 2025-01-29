@@ -88,13 +88,12 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           pattern: tinyrange-${{ matrix.cfg.tinyrange_os }}*
-          path: tinyrange.zip
 
       - name: Install TinyRange
         run: |
-          echo $(find tinyrange.zip)
           echo $(ls)
-          unzip tinyrange.zip
+          echo $(find tinyrange.zip)
+          unzip tinyrange*.zip
           rm tinyrange.zip
 
       - name: Check Lint & Prettier
