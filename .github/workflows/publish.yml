@@ -31,13 +31,24 @@ jobs:
         run: |
           brew install qemu
 
+      - name: Setup tinyQemu
+        run: |
+          mkdir release
+          ./tools/build.go -run -- login -c tools/tinyqemu.yml
+          mv tinyqemu.zip local/
+
       - name: Build Releases
         run: |
           ./tools/build.go -release -os linux -arch arm64
           ./tools/build.go -release -os linux -arch amd64
           ./tools/build.go -release -os windows -arch amd64
           ./tools/build.go -release -os darwin -arch arm64 -cgo
-          
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tinyrange-linux-arm64
+          path: |
+            release/tinyrange-linux-arm64.zip
       - uses: actions/upload-artifact@v4
         with:
           name: tinyrange-linux-amd64
@@ -58,10 +69,11 @@ jobs:
     strategy:
       matrix:
         cfg:
-          - { platform: linux, platform_name: Linux, os: ubuntu-latest, tinyrange_os: linux }
-          - { platform: mac, platform_name: macOS, os: macos-latest, tinyrange_os: darwin }
-          - { platform: win, platform_name: Windows, os: windows-latest, tinyrange_os: windows }
-
+          - { platform: linux-64, platform_name: Linux x64,  os: ubuntu-latest, tinyrange_os: linux-amd64 }
+          - { platform: linux-arm64, platform_name: Linux arm64,  os: ubuntu-latest, tinyrange_os: linux-arm64 }
+          - { platform: mac, platform_name: macOS, os: macos-latest, tinyrange_os: darwin-arm64 }
+          - { platform: win, platform_name: Windows, os: windows-latest, tinyrange_os: windows-amd64 }
+  
     name: '${{ matrix.cfg.platform_name }} installer'
     needs: tinyrange_build_release
     runs-on: ${{ matrix.cfg.os }}
@@ -141,19 +153,35 @@ jobs:
           yarn dist:${{ matrix.cfg.platform }}
         if: steps.release-exists.outputs.result == 'true'
 
-      - name: Upload Debian Installer
-        if: matrix.cfg.platform == 'linux'
+      - name: Upload Debian x64 Installer
+        if: matrix.cfg.platform == 'linux-64'
         uses: actions/upload-artifact@v3
         with:
-          name: debian-installer
+          name: debian-installer-x64
           path: |
             dist/NeurodeskApp.deb
 
-      - name: Upload Fedora Installer
-        if: matrix.cfg.platform == 'linux'
+      - name: Upload Fedora x64 Installer
+        if: matrix.cfg.platform == 'linux-64'
         uses: actions/upload-artifact@v3
         with:
-          name: fedora-installer
+          name: fedora-installer-x64
+          path: |
+            dist/NeurodeskApp.rpm
+
+      - name: Upload Debian arm64 Installer
+        if: matrix.cfg.platform == 'linux-arm64'
+        uses: actions/upload-artifact@v3
+        with:
+          name: debian-installer-arm64
+          path: |
+            dist/NeurodeskApp.deb
+
+      - name: Upload Fedora arm64 Installer
+        if: matrix.cfg.platform == 'linux-arm64'
+        uses: actions/upload-artifact@v3
+        with:
+          name: fedora-installer-arm64
           path: |
             dist/NeurodeskApp.rpm
 
@@ -181,23 +209,43 @@ jobs:
           path: |
             dist/NeurodeskApp-Setup.exe
 
-      - name: Upload Debian Installer as Release asset
-        if: matrix.cfg.platform == 'linux' && steps.release-exists.outputs.result == 'true'
+      - name: Upload Debian Installer x64 as Release asset
+        if: matrix.cfg.platform == 'linux-64' && steps.release-exists.outputs.result == 'true'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: dist/NeurodeskApp.deb
-          asset_name: NeurodeskApp-Setup-Debian.deb
+          asset_name: NeurodeskApp-Setup-Debian-x64.deb
           tag: v${{ steps.package-info.outputs.version}}
           overwrite: true
 
-      - name: Upload Fedora Installer as Release asset
-        if: matrix.cfg.platform == 'linux' && steps.release-exists.outputs.result == 'true'
+      - name: Upload Fedora Installer x64 as Release asset
+        if: matrix.cfg.platform == 'linux-64' && steps.release-exists.outputs.result == 'true'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: dist/NeurodeskApp.rpm
-          asset_name: NeurodeskApp-Setup-Fedora.rpm
+          asset_name: NeurodeskApp-Setup-Fedora-x64.rpm
+          tag: v${{ steps.package-info.outputs.version}}
+          overwrite: true
+
+      - name: Upload Debian Installer arm64 as Release asset
+        if: matrix.cfg.platform == 'linux-arm64' && steps.release-exists.outputs.result == 'true'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist/NeurodeskApp.deb
+          asset_name: NeurodeskApp-Setup-Debian-arm64.deb
+          tag: v${{ steps.package-info.outputs.version}}
+          overwrite: true
+
+      - name: Upload Fedora Installer arm64 as Release asset
+        if: matrix.cfg.platform == 'linux-arm64' && steps.release-exists.outputs.result == 'true'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist/NeurodeskApp.rpm
+          asset_name: NeurodeskApp-Setup-Fedora-arm64.rpm
           tag: v${{ steps.package-info.outputs.version}}
           overwrite: true
 
