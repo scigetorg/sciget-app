@@ -28,7 +28,7 @@ def update_readme(stats):
         # Replace stats section in README
         new_content = re.sub(
             r"(?<=<!-- STATS_START -->)(.*?)(?=<!-- STATS_END -->)",
-            f"![Static Badge](https://img.shields.io/badge/Downloads-{stats}-white)",
+            "\n" + f"![downloads](https://img.shields.io/badge/downloads-{stats}-white)" + "\n",
             content,
             flags=re.DOTALL,
         )
