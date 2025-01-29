@@ -1,6 +1,6 @@
 # Neurodesk App
 
-<!-- STATS_START -->![Static Badge](https://img.shields.io/badge/Downloads-9062-white)<!-- STATS_END -->
+<!-- STATS_START -->![Static Badge](https://img.shields.io/badge/Downloads-9063-white)<!-- STATS_END -->
 
 Neurodesk App is the cross-platform desktop application for [Neurodesk](https://github.com/neurodesk/neurodesk-app). It is the quickest and easiest way to get started with Neurodesk on your personal computer, with the flexibility for advanced use cases.
 
