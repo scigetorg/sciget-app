@@ -40,10 +40,19 @@ jobs:
           
       - uses: actions/upload-artifact@v4
         with:
-          name: tinyrange-release-build
+          name: tinyrange-linux-amd64
           path: |
-            release/*.zip
-            !release/tinyrange-linux-arm64.zip
+            release/tinyrange-linux-amd64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tinyrange-windows-amd64
+          path: |
+            release/tinyrange-windows-amd64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tinyrange-darwin-arm64
+          path: |
+            release/tinyrange-darwin-arm64.zip
 
   publish:
     strategy:
@@ -79,7 +88,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: tinyrange-release-build
-          path: release/tinyrange-${{ matrix.cfg.tinyrange_os }}*.zip
+          path: tinyrange-${{ matrix.cfg.tinyrange_os }}*.zip
 
       - name: Install TinyRange
         run: |
