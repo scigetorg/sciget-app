@@ -87,7 +87,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          pattern: tinyrange-${{ matrix.cfg.tinyrange_os }}*.zip
+          pattern: tinyrange-${{ matrix.cfg.tinyrange_os }}*
           path: tinyrange.zip
 
       - name: Install TinyRange
