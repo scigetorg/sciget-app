@@ -53,8 +53,9 @@ function createLaunchScript(
   let isPodman = engineType === EngineType.Podman;
   let isTinyRange = engineType === EngineType.TinyRange;
   const isDev = process.env.NODE_ENV === 'development';
+  console.log("isDev", isDev);
   const tinyrangePath = isDev
-    ? path.join(__dirname, '..', 'tinyrange', 'tinyrange') // Development path
+    ? path.join(__dirname, '../../..', 'tinyrange', 'tinyrange') // Development path
     : path.join(process.resourcesPath, 'app', 'tinyrange', 'tinyrange'); // Production path
 
   console.debug(`!!!..... ${strPort} engineType ${engineType}`);
@@ -119,7 +120,7 @@ function createLaunchScript(
   }
 
   if (!serverInfo.overrideDefaultServerArgs) {
-    launchArgs.push(isTinyRange ? '-E "chmod 777 /dev/fuse;' : '');
+    launchArgs.push(isTinyRange ? `-E "chmod 777 /dev/fuse;NEURODESKTOP_VERSION=${tag}` : '');
     for (const arg of serverLaunchArgsDefault) {
       launchArgs.push(arg.replace('{token}', token).replace('{port}', strPort));
     }

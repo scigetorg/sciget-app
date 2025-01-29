@@ -157,7 +157,7 @@ jobs:
         if: matrix.cfg.platform == 'linux-64'
         uses: actions/upload-artifact@v3
         with:
-          name: debian-installer-x64
+          name: NeurodeskApp-debian-installer-x64
           path: |
             dist/NeurodeskApp.deb
 
@@ -165,7 +165,7 @@ jobs:
         if: matrix.cfg.platform == 'linux-64'
         uses: actions/upload-artifact@v3
         with:
-          name: fedora-installer-x64
+          name: NeurodeskApp-fedora-installer-x64
           path: |
             dist/NeurodeskApp.rpm
 
@@ -173,7 +173,7 @@ jobs:
         if: matrix.cfg.platform == 'linux-arm64'
         uses: actions/upload-artifact@v3
         with:
-          name: debian-installer-arm64
+          name: NeurodeskApp-debian-installer-arm64
           path: |
             dist/NeurodeskApp.deb
 
@@ -181,7 +181,7 @@ jobs:
         if: matrix.cfg.platform == 'linux-arm64'
         uses: actions/upload-artifact@v3
         with:
-          name: fedora-installer-arm64
+          name: NeurodeskApp-fedora-installer-arm64
           path: |
             dist/NeurodeskApp.rpm
 
@@ -189,7 +189,7 @@ jobs:
         if: matrix.cfg.platform == 'mac'
         uses: actions/upload-artifact@v3
         with:
-          name: mac-installer-x64
+          name: NeurodeskApp-mac-installer-x64
           path: |
             dist/NeurodeskApp-x64.dmg
 
@@ -197,7 +197,7 @@ jobs:
         if: matrix.cfg.platform == 'mac'
         uses: actions/upload-artifact@v3
         with:
-          name: mac-installer-arm64
+          name: NeurodeskApp-mac-installer-arm64
           path: |
             dist/NeurodeskApp-arm64.dmg
 
@@ -205,7 +205,7 @@ jobs:
         if: matrix.cfg.platform == 'win'
         uses: actions/upload-artifact@v3
         with:
-          name: windows-installer
+          name: NeurodeskApp-windows-installer
           path: |
             dist/NeurodeskApp-Setup.exe
 
