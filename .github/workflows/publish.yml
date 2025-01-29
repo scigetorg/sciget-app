@@ -87,13 +87,11 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: tinyrange-release-build
-          path: tinyrange-${{ matrix.cfg.tinyrange_os }}*.zip
+          pattern: tinyrange-${{ matrix.cfg.tinyrange_os }}*.zip
+          path: tinyrange.zip
 
       - name: Install TinyRange
         run: |
-          mv ./release/tinyrange-*.zip ./tinyrange.zip
-          rm -rf release
           echo $(find tinyrange.zip)
           echo $(ls)
           unzip tinyrange.zip
