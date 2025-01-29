@@ -85,9 +85,9 @@ jobs:
         run: |
           mv ./release/tinyrange-*.zip ./tinyrange.zip
           rm -rf release
-          echo $(pwd)
+          echo $(find tinyrange.zip)
           echo $(ls)
-          unzip ./tinyrange.zip
+          unzip tinyrange.zip
           rm tinyrange.zip
 
       - name: Check Lint & Prettier
