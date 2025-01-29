@@ -92,9 +92,8 @@ jobs:
       - name: Install TinyRange
         run: |
           echo $(ls)
-          echo $(find tinyrange*.zip)
-          unzip tinyrange*.zip
-          rm tinyrange.zip
+          cd tinyrange*
+          unzip tinyrange*.zip -d ..
 
       - name: Check Lint & Prettier
         run: |
