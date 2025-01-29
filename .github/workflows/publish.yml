@@ -13,15 +13,52 @@ permissions:
   contents: write
 
 jobs:
+  tinyrange_build_release:
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.23.4"
+
+      - name: Install QEMU
+        run: |
+          brew install qemu
+
+      - name: Setup tinyQemu
+        run: |
+          mkdir release
+          ./tools/build.go -run -- login -c tools/tinyqemu.yml
+          mv tinyqemu.zip local/
+
+      - name: Build Releases
+        run: |
+          ./tools/build.go -release -os linux -arch arm64
+          ./tools/build.go -release -os linux -arch amd64
+          ./tools/build.go -release -os windows -arch amd64
+          ./tools/build.go -release -os darwin -arch arm64 -cgo
+          
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tinyrange-release-build
+          path: |
+            release/*.zip
+            !release/tinyrange-linux-arm64.zip
+
   publish:
     strategy:
       matrix:
         cfg:
-          - { platform: linux, platform_name: Linux, os: ubuntu-latest }
-          - { platform: mac, platform_name: macOS, os: macos-latest }
-          - { platform: win, platform_name: Windows, os: windows-latest }
+          - { platform: linux, platform_name: Linux, os: ubuntu-latest, tinyrange_os: linux }
+          - { platform: mac, platform_name: macOS, os: macos-latest, tinyrange_os: darwin }
+          - { platform: win, platform_name: Windows, os: windows-latest, tinyrange_os: windows }
 
     name: '${{ matrix.cfg.platform_name }} installer'
+    needs: tinyrange_build_release
     runs-on: ${{ matrix.cfg.os }}
     defaults:
       run:
@@ -36,27 +73,20 @@ jobs:
         with:
           node-version: '20.x'
           cache: 'yarn'
-      - name: Setup Go for TinyRange
-        uses: actions/setup-go@v5
-        with:
-          go-version: '>=1.23.0'
-      - run: go version
-      - name: Set up QEMU for TinyRange
-        if: runner.os == 'Linux' && runner.arch == 'X64'
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: all
+
       - name: Install dependencies
         # pin Pillow version to prevent Windows build errors
         run: |
           npm install --global yarn --prefer-offline
           yarn install
 
+      - uses: actions/download-artifact@v4
+        with:
+          name: tinyrange-release-build
+          path: release/tinyrange-${{ matrix.cfg.tinyrange_os }}*.zip
+
       - name: Install TinyRange
         run: |
-          git clone https://github.com/tinyrange/tinyrange.git /tmp/tinyrange
-          echo $(ls /tmp/tinyrange)
-          /tmp/tinyrange/tools/build.go -release
           mv ./release/tinyrange-*.zip ./tinyrange.zip
           echo $(pwd)
           echo $(ls)
