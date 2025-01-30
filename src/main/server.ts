@@ -55,8 +55,18 @@ function createLaunchScript(
   const isDev = process.env.NODE_ENV === 'development';
 
   const tinyrangePath = isDev
-    ? path.join(__dirname, '../../..', 'tinyrange', isWin ? 'tinyrange.exe' : 'tinyrange') // Development path
-    : path.join(process.resourcesPath, 'app', 'tinyrange', isWin ? 'tinyrange.exe' : 'tinyrange'); // Production path
+    ? path.join(
+        __dirname,
+        '../../..',
+        'tinyrange',
+        isWin ? 'tinyrange.exe' : 'tinyrange'
+      ) // Development path
+    : path.join(
+        process.resourcesPath,
+        'app',
+        'tinyrange',
+        isWin ? 'tinyrange.exe' : 'tinyrange'
+      ); // Production path
 
   console.debug(`!!!..... ${strPort} engineType ${engineType}`);
 
