@@ -30,7 +30,7 @@ def update_readme(stats, tag_name):
         # Replace stats section in README
         new_content = re.sub(
             r"(?<=<!-- STATS_START -->)(.*?)(?=<!-- STATS_END -->)",
-            "\n\n" + f"![{tag_name}](https://img.shields.io/badge/{tag_name}-{stat_count}-white)" + "\n\n",
+            "\n\n" + f"![{tag_name}](https://img.shields.io/badge/{tag_name}-{stat_count}-blue)" + "\n\n",
             content,
             flags=re.DOTALL,
         )

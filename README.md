@@ -2,7 +2,7 @@
 
 <!-- STATS_START -->
 
-![v1.7.0](https://img.shields.io/badge/v1.7.0-9064_downloads-white)
+![v1.7.0](https://img.shields.io/badge/v1.7.0-9064_downloads-blue)
 
 <!-- STATS_END -->
 
