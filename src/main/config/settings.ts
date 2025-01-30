@@ -74,10 +74,10 @@ export const serverLaunchArgsDefault = [
   //   '--JupyterApp.config_file_name=""',
   //   // enable hidden files (let user decide whether to display them)
   //   '--ContentsManager.allow_hidden=True'
-  'start.sh jupyter lab --ServerApp.password=""',
+  "start.sh jupyter lab --ServerApp.password=''",
   '--no-browser',
   '--expose-app-in-browser',
-  `--ServerApp.token="{token}"`,
+  `--ServerApp.token='{token}'`,
   `--ServerApp.port={port}`,
   '--LabApp.quit_button=False'
 ];

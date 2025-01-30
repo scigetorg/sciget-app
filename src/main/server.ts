@@ -55,18 +55,8 @@ function createLaunchScript(
   const isDev = process.env.NODE_ENV === 'development';
 
   const tinyrangePath = isDev
-    ? path.join(
-        __dirname,
-        '../../..',
-        'tinyrange',
-        isWin ? 'tinyrange.exe' : 'tinyrange'
-      ) // Development path
-    : path.join(
-        process.resourcesPath,
-        'app',
-        'tinyrange',
-        isWin ? 'tinyrange.exe' : 'tinyrange'
-      ); // Production path
+    ? path.join(__dirname, '../../..', 'tinyrange', isWin ? 'tinyrange.exe' : 'tinyrange').replace(/\\/g, '/')    // Development path
+    : path.join(process.resourcesPath, 'app', 'tinyrange', isWin ? 'tinyrange.exe' : 'tinyrange').replace(/\\/g, '/'); // Production path
 
   console.debug(`!!!..... ${strPort} engineType ${engineType}`);
 
@@ -131,7 +121,7 @@ function createLaunchScript(
 
   if (!serverInfo.overrideDefaultServerArgs) {
     launchArgs.push(
-      isTinyRange ? `-E "chmod 777 /dev/fuse;NEURODESKTOP_VERSION=${tag}` : ''
+      isTinyRange ? `-E "chmod 777 /dev/fuse;NEURODESKTOP_VERSION=${tag};` : ''
     );
     for (const arg of serverLaunchArgsDefault) {
       launchArgs.push(arg.replace('{token}', token).replace('{port}', strPort));
@@ -160,6 +150,11 @@ function createLaunchScript(
         setlocal enabledelayedexpansion
         SET ERRORCODE=0
         SET IMAGE_EXISTS=
+        where ${engineType} >nul 2>nul
+          if %ERRORLEVEL% neq 0 (
+              echo "${engineType} command not found, running ${launchCmd}"
+              ${launchCmd}
+          )
         FOR /F "usebackq delims=" %%i IN (\`${engineType} image inspect ${imageRegistry} --format="exists" 2^>nul\`) DO SET IMAGE_EXISTS=%%i
         if "%IMAGE_EXISTS%"=="exists" (
             echo "Image exists"
