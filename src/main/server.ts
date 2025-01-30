@@ -50,6 +50,9 @@ function createLaunchScript(
   const tag = config.ConfigToml.jupyter_neurodesk_version;
   let imageRegistry = `vnmd/neurodesktop:${tag}`;
   let additionalDir = '';
+  let neurodesktopStorageDir = isWin
+    ? 'C:/neurodesktop-storage:/neurodesktop-storage'
+    : '~/neurodesktop-storage:/neurodesktop-storage';
   let isPodman = engineType === EngineType.Podman;
   let isTinyRange = engineType === EngineType.TinyRange;
   const isDev = process.env.NODE_ENV === 'development';
@@ -95,8 +98,8 @@ function createLaunchScript(
     `-p ${strPort}:${strPort}`,
     `-e NEURODESKTOP_VERSION=${tag}`,
     isWin
-      ? `-v C:/neurodesktop-storage:/neurodesktop-storage`
-      : `-e NB_UID="$(id -u)" -e NB_GID="$(id -g)" -v ~/neurodesktop-storage:/neurodesktop-storage`
+      ? `-v ${neurodesktopStorageDir}`
+      : `-e NB_UID="$(id -u)" -e NB_GID="$(id -g)" -v ${neurodesktopStorageDir}`
   ];
 
   let launchArgs: string[] = [];
@@ -108,7 +111,7 @@ function createLaunchScript(
       '--buildDir ~/neurodesktop-storage/build',
       `--oci ${imageRegistry}`,
       `--forward ${strPort}`,
-      '--mount-rw ~/neurodesktop-storage:/neurodesktop-storage'
+      `--mount-rw ${neurodesktopStorageDir}`
     ];
   } else {
     launchArgs = [

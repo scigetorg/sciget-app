@@ -94,6 +94,10 @@
         {
           "from": "dist-resources/win/neurodeskapp.cmd",
           "to": "neurodeskapp.cmd"
+        },
+        {
+          "from": "tinyrange",
+          "to": "resources/app/tinyrange"
         }
       ]
     },
@@ -144,6 +148,10 @@
         {
           "from": "dist-resources/darwin/neurodeskapp.sh",
           "to": "app/neurodeskapp"
+        },
+        {
+          "from": "tinyrange",
+          "to": "app/tinyrange"
         }
       ]
     },

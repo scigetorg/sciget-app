@@ -327,12 +327,12 @@ FunctionEnd
 !endif
 
 
-;--- JupyterLab Custom Install Configuration ---
+;--- NeurodeskApp Custom Install Configuration ---
 
 !macro preInit
 	SetRegView 64
-	WriteRegExpandStr HKLM "${INSTALL_REGISTRY_KEY}" InstallLocation "C:\JupyterLab"
-	WriteRegExpandStr HKCU "${INSTALL_REGISTRY_KEY}" InstallLocation "C:\JupyterLab"
+	WriteRegExpandStr HKLM "${INSTALL_REGISTRY_KEY}" InstallLocation "C:\NeurodeskApp"
+	WriteRegExpandStr HKCU "${INSTALL_REGISTRY_KEY}" InstallLocation "C:\NeurodeskApp"
 !macroend
 
 !macro customInstall
