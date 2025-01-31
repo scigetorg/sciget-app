@@ -50,11 +50,11 @@ function createLaunchScript(
   const tag = config.ConfigToml.jupyter_neurodesk_version;
   let imageRegistry = `vnmd/neurodesktop:${tag}`;
   let additionalDir = '';
-  let neurodesktopStorageDir = isWin
-    ? 'neurodesktop-storage:/neurodesktop-storage'
-    : '~/neurodesktop-storage:/neurodesktop-storage';
   let isPodman = engineType === EngineType.Podman;
   let isTinyRange = engineType === EngineType.TinyRange;
+  let neurodesktopStorageDir = isWin
+    ? 'C:/neurodesktop-storage'
+    : '~/neurodesktop-storage';
   const isDev = process.env.NODE_ENV === 'development';
   console.log('isDev', isDev);
   const tinyrangePath = isDev
@@ -98,8 +98,8 @@ function createLaunchScript(
     `-p ${strPort}:${strPort}`,
     `-e NEURODESKTOP_VERSION=${tag}`,
     isWin
-      ? `-v ${neurodesktopStorageDir}`
-      : `-e NB_UID="$(id -u)" -e NB_GID="$(id -g)" -v ${neurodesktopStorageDir}`
+      ? `-v ${neurodesktopStorageDir}:/neurodesktop-storage`
+      : `-e NB_UID="$(id -u)" -e NB_GID="$(id -g)" -v ${neurodesktopStorageDir}:/neurodesktop-storage`
   ];
 
   let launchArgs: string[] = [];
@@ -111,7 +111,10 @@ function createLaunchScript(
       `--buildDir ${path.join(neurodesktopStorageDir, 'build')}`,
       `--oci ${imageRegistry}`,
       `--forward ${strPort}`,
-      `--mount-rw ${neurodesktopStorageDir}`
+      `--mount-rw ${neurodesktopStorageDir.replace(
+        'C:',
+        '/c'
+      )}:/neurodesktop-storage`
     ];
   } else {
     launchArgs = [
