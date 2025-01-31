@@ -516,7 +516,9 @@ export class SessionWindow implements IDisposable {
         let installEngineURL =
           this._engineType === 'docker'
             ? '<div class="message-row"><a href="https://docs.docker.com/engine/install/">Install Docker</a></div>'
-            : '<div class="message-row"><a href="https://podman.io/docs/installation">Install Podman</a></div>';
+            : this._engineType === 'podman'
+            ? '<div class="message-row"><a href="https://podman.io/docs/installation">Install Podman</a></div>'
+            : '<div class="message-row"><a href="https://www.neurodesk.org/docs/getting-started/local/neurodeskapp/#install-qemu-and-go">Install QEMU and Go</a></div>';
         let engineName =
           this._engineType.charAt(0).toUpperCase() + this._engineType.slice(1);
 
@@ -528,9 +530,10 @@ export class SessionWindow implements IDisposable {
           });
         } catch (error) {
           this._showProgressView(
-            'Failed to create session!',
+            `Failed to create session!\nCheck if ${
+              this._engineType === 'tinyrange' ? 'QEMU and Go' : engineName
+            } is running and try again.`,
             `
-            <div class="message-row">Check if ${engineName} is running and try again.</div>
             <div class="message-row">${error}</div>
             ${installEngineURL}
             <div class="message-row">
