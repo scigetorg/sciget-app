@@ -62,7 +62,7 @@ jobs:
       - name: Install TinyRange
         run: |
           echo $(ls)
-          curl -o tinyrange.zip -L https://github.com/tinyrange/tinyrange/releases/download/${{ steps.package-info.outputs.tinyrange_version}}/tinyrange-${{ matrix.cfg.tinyrange_os }}.zip
+          curl -o tinyrange.zip -L https://github.com/tinyrange/tinyrange/releases/download/v${{ steps.package-info.outputs.tinyrange_version}}/tinyrange-${{ matrix.cfg.tinyrange_os }}.zip
           unzip tinyrange.zip
           echo $(ls)
 
