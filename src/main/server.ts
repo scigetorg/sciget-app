@@ -111,7 +111,10 @@ function createLaunchScript(
       `--buildDir ${path.join(neurodesktopStorageDir, 'build')}`,
       `--oci ${imageRegistry}`,
       `--forward ${strPort}`,
-      `--mount-rw ${neurodesktopStorageDir.replace('C:', '')}:/neurodesktop-storage`
+      `--mount-rw ${neurodesktopStorageDir.replace(
+        'C:',
+        ''
+      )}:/neurodesktop-storage`
     ];
   } else {
     launchArgs = [
