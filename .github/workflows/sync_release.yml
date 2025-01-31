@@ -1,7 +1,6 @@
 name: Check for new Neurodesk releases
 
 on:
-  push:
   schedule:
     - cron: 30 17 * * *
   workflow_dispatch:
@@ -76,6 +75,14 @@ jobs:
                 -m "New TinyRange release [v${TINYRANGE_LATEST}](https://github.com/tinyrange/tinyrange/releases/tag/v${TINYRANGE_LATEST}) is available. Please review the lock file carefully.".
           fi
 
+      - name: Create a PR if needed
+        shell: bash
+        env:
+          GITHUB_USER: ${{ secrets.GITHUB_USER }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -eux
+          # if resulted in any change:
           export NEURODESK_LATEST=${{ env.neurodesk_latest }}
           if [[ ! -z "$(git status --porcelain neurodesktop.toml)" ]]; then
             export BRANCH_NAME=update-neurodesk-to-v${NEURODESK_LATEST}
