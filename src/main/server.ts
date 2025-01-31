@@ -111,6 +111,7 @@ function createLaunchScript(
       `--buildDir ${path.join(neurodesktopStorageDir, 'build')}`,
       `--oci ${imageRegistry}`,
       `--forward ${strPort}`,
+      '-m //lib/qemu:user',
       `--mount-rw ${neurodesktopStorageDir.replace(
         'C:',
         ''
