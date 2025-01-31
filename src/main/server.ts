@@ -108,7 +108,7 @@ function createLaunchScript(
       tinyrangePath,
       'login',
       '--verbose',
-      '--buildDir ~/neurodesktop-storage/build',
+      `--buildDir ${path.join(neurodesktopStorageDir, 'build')}`,
       `--oci ${imageRegistry}`,
       `--forward ${strPort}`,
       `--mount-rw ${neurodesktopStorageDir}`
