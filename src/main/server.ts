@@ -51,12 +51,12 @@ function createLaunchScript(
   let imageRegistry = `vnmd/neurodesktop:${tag}`;
   let additionalDir = '';
   let neurodesktopStorageDir = isWin
-    ? 'C:/neurodesktop-storage:/neurodesktop-storage'
+    ? 'neurodesktop-storage:/neurodesktop-storage'
     : '~/neurodesktop-storage:/neurodesktop-storage';
   let isPodman = engineType === EngineType.Podman;
   let isTinyRange = engineType === EngineType.TinyRange;
   const isDev = process.env.NODE_ENV === 'development';
-
+  console.log('isDev', isDev);
   const tinyrangePath = isDev
     ? path
         .join(
