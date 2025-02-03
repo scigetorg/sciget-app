@@ -22,7 +22,7 @@ import {
 import { randomBytes } from 'crypto';
 
 const SERVER_LAUNCH_TIMEOUT = 900000; // milliseconds
-const SERVER_RESTART_LIMIT = 0; // max server restarts
+const SERVER_RESTART_LIMIT = 1; // max server restarts
 
 function createTempFile(
   fileName = 'temp',
@@ -107,15 +107,11 @@ function createLaunchScript(
     launchArgs = [
       tinyrangePath,
       'login',
-      '--verbose',
       `--buildDir ${path.join(neurodesktopStorageDir, 'build')}`,
       `--oci ${imageRegistry}`,
       `--forward ${strPort}`,
       '-m //lib/qemu:user',
-      `--mount-rw ${neurodesktopStorageDir.replace(
-        'C:',
-        ''
-      )}:/neurodesktop-storage`
+      `--mount-rw ${neurodesktopStorageDir}:/neurodesktop-storage`
     ];
   } else {
     launchArgs = [
@@ -162,7 +158,7 @@ function createLaunchScript(
       : `${engineType} container exists neurodeskapp-${strPort} &> /dev/null && ${engineType} rm -f neurodeskapp-${strPort}`
   }`;
   let stopCmd = `${
-    isPodman ? `${removeCmd}` : `${engineType} rm -f neurodeskapp-${strPort}`
+    isPodman ? `${removeCmd}` : isTinyRange ? `` : `${engineType} rm -f neurodeskapp-${strPort}`
   }`;
   let script: string;
 
@@ -472,12 +468,22 @@ export class JupyterServer {
     this._stopServer = new Promise<void>((resolve, reject) => {
       if (this._nbServer !== undefined) {
         if (process.platform === 'win32') {
-          execFile(
-            `${this._info.engine} rm -f neurodeskapp-${this._info.port}`,
-            {
-              shell: 'cmd.exe'
-            }
-          );
+          if (this._info.engine === EngineType.TinyRange) {
+            execFile(
+              `${this._info.engine} rm -f neurodeskapp-${this._info.port}`,
+              {
+                shell: 'cmd.exe'
+              }
+            );
+          } else {
+            execFile(
+              'taskkill',
+              ['/IM', 'tinyrange', '/T', '/F'],
+              {
+                shell: 'cmd.exe'
+              }
+            );
+          }
           execFile(
             'taskkill',
             ['/PID', String(this._nbServer.pid), '/T', '/F'],
