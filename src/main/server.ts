@@ -53,7 +53,7 @@ function createLaunchScript(
   let isPodman = engineType === EngineType.Podman;
   let isTinyRange = engineType === EngineType.TinyRange;
   let neurodesktopStorageDir = isWin
-    ? 'C:/neurodesktop-storage'
+    ? 'C://neurodesktop-storage'
     : '~/neurodesktop-storage';
   const isDev = process.env.NODE_ENV === 'development';
   console.log('isDev', isDev);
@@ -104,10 +104,11 @@ function createLaunchScript(
 
   let launchArgs: string[] = [];
   if (isTinyRange) {
+    const buildDir = path.join(neurodesktopStorageDir, 'build');
     launchArgs = [
       tinyrangePath,
       'login',
-      `--buildDir ${path.join(neurodesktopStorageDir, 'build')}`,
+      `--buildDir ${buildDir.replace(/\\/g, '//')}`,
       `--oci ${imageRegistry}`,
       `--forward ${strPort}`,
       '-m //lib/qemu:user',
@@ -119,8 +120,7 @@ function createLaunchScript(
       ...commonLaunchArgs,
       isPodman
         ? `-v neurodesk-home:/home/jovyan --network bridge:ip=10.88.0.10,mac=88:75:56:ef:3e:d6`
-        : `--mount source=neurodesk-home,target=/home/jovyan --mac-address=88:75:56:ef:3e:d6`,
-      imageRegistry
+        : `--mount source=neurodesk-home,target=/home/jovyan --mac-address=88:75:56:ef:3e:d6`
     ];
   }
 
@@ -131,10 +131,13 @@ function createLaunchScript(
     }
     launchArgs.push(
       isTinyRange
-        ? `--mount-rw ${additionalDir}:/data`
+        ? `--mount-rw ${
+            isWin ? additionalDir.replace(/\\/g, '//') : additionalDir
+          }:/data`
         : ` --volume ${additionalDir}:/data`
     );
   }
+  launchArgs.push(imageRegistry);
 
   if (!serverInfo.overrideDefaultServerArgs) {
     launchArgs.push(
