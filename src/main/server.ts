@@ -384,12 +384,12 @@ export class JupyterServer {
         });
 
         this._nbServer.stdout.on('data', (data: string) => {
-          console.debug(`stdout: ${data}`);
+          // console.debug(`stdout: ${data}`);
           stdoutChunks = stdoutChunks.concat(data);
         });
 
         this._nbServer.stderr.on('data', (data: string) => {
-          console.debug(`stderr: ${data}`);
+          // console.debug(`stderr: ${data}`);
           if (data.includes('The input device is not a TTY.')) {
             console.error('The input device is not a TTY.');
             // Handle the error appropriately here
