@@ -158,7 +158,11 @@ function createLaunchScript(
       : `${engineType} container exists neurodeskapp-${strPort} &> /dev/null && ${engineType} rm -f neurodeskapp-${strPort}`
   }`;
   let stopCmd = `${
-    isPodman ? `${removeCmd}` : isTinyRange ? `` : `${engineType} rm -f neurodeskapp-${strPort}`
+    isPodman
+      ? `${removeCmd}`
+      : isTinyRange
+      ? ``
+      : `${engineType} rm -f neurodeskapp-${strPort}`
   }`;
   let script: string;
 
@@ -476,13 +480,9 @@ export class JupyterServer {
               }
             );
           } else {
-            execFile(
-              'taskkill',
-              ['/IM', 'tinyrange', '/T', '/F'],
-              {
-                shell: 'cmd.exe'
-              }
-            );
+            execFile('taskkill', ['/IM', 'tinyrange', '/T', '/F'], {
+              shell: 'cmd.exe'
+            });
           }
           execFile(
             'taskkill',

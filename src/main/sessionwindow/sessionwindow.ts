@@ -518,7 +518,7 @@ export class SessionWindow implements IDisposable {
             ? '<div class="message-row"><a href="https://docs.docker.com/engine/install/">Install Docker</a></div>'
             : this._engineType === 'podman'
             ? '<div class="message-row"><a href="https://podman.io/docs/installation">Install Podman</a></div>'
-            : '<div class="message-row"><a href="https://www.neurodesk.org/docs/getting-started/local/neurodeskapp/#install-qemu-and-go">Install QEMU and Go</a></div>';
+            : '<div class="message-row"><a href="https://www.neurodesk.org/docs/getting-started/local/neurodeskapp/#install-qemu">Install QEMU</a></div>';
         let engineName =
           this._engineType.charAt(0).toUpperCase() + this._engineType.slice(1);
 
