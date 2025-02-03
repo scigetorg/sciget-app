@@ -21,7 +21,7 @@ import {
 } from './config/settings';
 import { randomBytes } from 'crypto';
 
-const SERVER_LAUNCH_TIMEOUT = 900000; // milliseconds
+const SERVER_LAUNCH_TIMEOUT = 1200000; // milliseconds
 const SERVER_RESTART_LIMIT = 1; // max server restarts
 
 function createTempFile(
@@ -393,7 +393,8 @@ export class JupyterServer {
           if (data.includes('The input device is not a TTY.')) {
             console.error('The input device is not a TTY.');
             // Handle the error appropriately here
-          } else {
+          } else if (!data.includes('ERROR failed to dial vm port')) {
+            console.debug(`stderr: ${data}`);
             stderrChunks = stderrChunks.concat(data);
             // reject(new Error('Failed to launch Neurodesk from stderr ' + this._restartCount + this._info.port + stderrChunks + stdoutChunks));
           }
@@ -484,6 +485,9 @@ export class JupyterServer {
             );
           } else {
             execFile('taskkill', ['/IM', 'tinyrange', '/T', '/F'], {
+              shell: 'cmd.exe'
+            });
+            execFile('taskkill', ['/IM', 'qemu-system-x86_64', '/T', '/F'], {
               shell: 'cmd.exe'
             });
           }
