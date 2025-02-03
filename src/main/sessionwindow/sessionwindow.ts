@@ -531,7 +531,7 @@ export class SessionWindow implements IDisposable {
         } catch (error) {
           this._showProgressView(
             `Failed to create session!\nCheck if ${
-              this._engineType === 'tinyrange' ? 'QEMU and Go' : engineName
+              this._engineType === 'tinyrange' ? 'QEMU' : engineName
             } is running and try again.`,
             `
             <div class="message-row">${error}</div>
