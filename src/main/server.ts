@@ -131,10 +131,10 @@ function createLaunchScript(
     }
     launchArgs.push(
       isTinyRange
-        ? `--mount-rw ${
+        ? `--mount-rw "${
             isWin ? additionalDir.replace(/\\/g, '//') : additionalDir
-          }:/data`
-        : ` --volume ${additionalDir}:/data`
+          }":/data`
+        : ` --volume "${additionalDir}":/data`
     );
   }
   launchArgs.push(imageRegistry);
