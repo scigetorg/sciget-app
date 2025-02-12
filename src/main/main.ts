@@ -196,8 +196,8 @@ function setApplicationMenu() {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     if (item.role === 'reload' || item.role === 'forcereload') {
-      item.visible = false;
-      item.enabled = false;
+      item.visible = true;
+      item.enabled = true;
     }
   });
   Menu.setApplicationMenu(menu);
