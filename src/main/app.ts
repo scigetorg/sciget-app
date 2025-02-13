@@ -275,9 +275,9 @@ export class JupyterApplication implements IApplication, IDisposable {
     createNeurodesktopStorage();
 
     // create a server in advance
-    this._serverFactory.createFreeServer().catch(error => {
-      console.error('Failed to create free server', error);
-    });
+    // this._serverFactory.createFreeServer().catch(error => {
+    //   console.error('Failed to create free server', error);
+    // });
     this._registerListeners();
 
     if (

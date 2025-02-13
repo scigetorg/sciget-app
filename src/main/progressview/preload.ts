@@ -2,6 +2,7 @@ import { EventTypeMain, EventTypeRenderer } from '../eventtypes';
 
 const { contextBridge, ipcRenderer } = require('electron');
 
+type ShowChildProcressLogListener = (detail: string) => void;
 type ShowProgressListener = (
   title: string,
   detail: string,
@@ -12,6 +13,7 @@ type InstallBundledPythonEnvStatusListener = (
   message: string
 ) => void;
 
+let onChildProcessListener: ShowChildProcressLogListener;
 let onShowProgressListener: ShowProgressListener;
 let onInstallBundledPythonEnvStatusListener: InstallBundledPythonEnvStatusListener;
 
@@ -24,6 +26,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   isDarkTheme: () => {
     return ipcRenderer.invoke(EventTypeMain.IsDarkTheme);
   },
+  onGetChildProcressLog: (callback: ShowChildProcressLogListener) => {
+    onChildProcessListener = callback;
+  },
   onShowProgress: (callback: ShowProgressListener) => {
     onShowProgressListener = callback;
   },
@@ -34,6 +39,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
     callback: InstallBundledPythonEnvStatusListener
   ) => {
     onInstallBundledPythonEnvStatusListener = callback;
+  }
+});
+
+ipcRenderer.on(EventTypeRenderer.ShowChildProcressLog, (event, detail) => {
+  if (onChildProcessListener) {
+    onChildProcessListener(detail);
   }
 });
 

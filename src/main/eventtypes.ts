@@ -57,6 +57,7 @@ export enum EventTypeMain {
   SetServerEnvVars = 'set-server-env-vars',
   SetCtrlWBehavior = 'set-ctrl-w-behavior',
   ShowLogs = 'show-logs',
+  GetChildProcressLog = 'get-child-process-log',
   SetAuthDialogResponse = 'set-auth-dialog-response'
 }
 
@@ -64,6 +65,7 @@ export enum EventTypeMain {
 export enum EventTypeRenderer {
   WorkingDirectorySelected = 'working-directory-selected',
   InstallBundledPythonEnvStatus = 'install-bundled-python-env-status',
+  ShowChildProcressLog = 'show-child-process-log',
   CustomPythonPathSelected = 'custom-python-path-selected',
   ShowProgress = 'show-progress',
   SetCurrentPythonPath = 'set-current-python-path',

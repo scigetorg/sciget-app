@@ -49,11 +49,11 @@ export class ProgressView {
         }
         .progress-message-row {
           width: 100%;
-          height: 30%;
+          height: 50%;
           flex-direction: column;
           align-items: center;
         }
-        #progress-title, #progress-detail {
+        #progress-title, #progress-detail, #child-process-log {
           width: 80%;
           text-align: center;
         }
@@ -63,6 +63,13 @@ export class ProgressView {
         }
         #progress-detail {
           font-size: 14px;
+        }
+        #child-process-log {
+          border-top: 1px solid #e7e7e7;
+          padding-top: 20px;
+          font-size: 12px;
+          overflow-y: scroll;
+          max-height: 150px;
         }
         .message-row {
           padding-bottom: 10px;
@@ -76,6 +83,7 @@ export class ProgressView {
         <div class="row progress-message-row">
           <div id="progress-title"></div>
           <div id="progress-detail"></div>
+          <div id="child-process-log"></div>
         </div>
       </div>
 
@@ -83,9 +91,18 @@ export class ProgressView {
       const progressSvg = document.querySelector('#progress-logo svg');
       const progressTitle = document.getElementById('progress-title');
       const progressDetail = document.getElementById('progress-detail');
+      const childProcessLog = document.getElementById('child-process-log');
 
       function sendMessageToMain(message, ...args) {
         window.electronAPI.sendMessageToMain(message, ...args);
+      }
+
+      function showChildProcessLog(detail) {
+        if (!childProcessLog.innerHTML) {
+          childProcessLog.innerHTML = detail || '';
+        } else {
+          childProcessLog.innerHTML += '<br>' + detail || '';
+        }
       }
 
       function showProgress(title, detail, showAnimation) {
@@ -98,6 +115,10 @@ export class ProgressView {
           progressSvg.pauseAnimations();
         }
       }
+
+      window.electronAPI.onGetChildProcressLog((detail) => {
+        showChildProcessLog(detail);
+      });
 
       window.electronAPI.onShowProgress((title, detail, showAnimation) => {
         showProgress(title, detail, showAnimation);
@@ -153,6 +174,16 @@ export class ProgressView {
         title,
         detail,
         showAnimation
+      );
+    });
+  }
+
+  setChildProcessLog(detail: string) {
+    console.debug('setChildProcessLog', detail);
+    this._viewReady.then(() => {
+      this._view.view.webContents.send(
+        EventTypeRenderer.ShowChildProcressLog,
+        detail
       );
     });
   }

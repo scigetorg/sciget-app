@@ -20,6 +20,7 @@ import {
   WorkspaceSettings
 } from './config/settings';
 import { randomBytes } from 'crypto';
+import { ProgressView } from './progressview/progressview';
 
 const SERVER_LAUNCH_TIMEOUT = 1200000; // milliseconds
 const SERVER_RESTART_LIMIT = 1; // max server restarts
@@ -253,8 +254,13 @@ export async function waitUntilServerIsUp(url: URL): Promise<boolean> {
 }
 
 export class JupyterServer {
-  constructor(options: JupyterServer.IOptions, registry: IRegistry) {
+  constructor(
+    options: JupyterServer.IOptions,
+    registry: IRegistry,
+    progressView: ProgressView
+  ) {
     this._options = options;
+    this._progressView = progressView;
     const option: IPythonEnvironment = {
       name: 'python',
       path: 'C:\\',
@@ -386,6 +392,9 @@ export class JupyterServer {
         this._nbServer.stdout.on('data', (data: string) => {
           // console.debug(`stdout: ${data}`);
           stdoutChunks = stdoutChunks.concat(data);
+          if (this._progressView) {
+            this._progressView.setChildProcessLog(data);
+          }
         });
 
         this._nbServer.stderr.on('data', (data: string) => {
@@ -396,6 +405,11 @@ export class JupyterServer {
           } else if (!data.includes('ERROR failed to dial vm port')) {
             console.debug(`stderr: ${data}`);
             stderrChunks = stderrChunks.concat(data);
+            if (this._progressView) {
+              this._progressView.setChildProcessLog(data);
+            } else {
+              console.debug('no progress view');
+            }
             // reject(new Error('Failed to launch Neurodesk from stderr ' + this._restartCount + this._info.port + stderrChunks + stdoutChunks));
           }
         });
@@ -652,6 +666,7 @@ export class JupyterServer {
   };
   private _stopping: boolean = false;
   private _restartCount: number = 0;
+  private _progressView: ProgressView;
 }
 
 export namespace JupyterServer {
@@ -718,7 +733,8 @@ export interface IServerFactory {
    * @return the factory item.
    */
   createServer: (
-    opts?: JupyterServer.IOptions
+    opts?: JupyterServer.IOptions,
+    progressView?: ProgressView
   ) => Promise<JupyterServerFactory.IFactoryItem>;
 
   /**
@@ -801,7 +817,8 @@ export class JupyterServerFactory implements IServerFactory, IDisposable {
    * @param opts the Jupyter server options.
    */
   async createServer(
-    opts?: JupyterServer.IOptions
+    opts?: JupyterServer.IOptions,
+    progressView?: ProgressView
   ): Promise<JupyterServerFactory.IFactoryItem> {
     let item: JupyterServerFactory.IFactoryItem;
     let env: IPythonEnvironment = {
@@ -814,7 +831,9 @@ export class JupyterServerFactory implements IServerFactory, IDisposable {
     console.log('~ createServer', opts?.environment);
     opts = { ...opts, ...{ environment: env } };
 
-    item = (await this._findUnusedServer(opts)) || this._createServer(opts);
+    item =
+      (await this._findUnusedServer(opts)) ||
+      this._createServer(opts, progressView);
     item.used = true;
 
     item.server.start().catch(error => {
@@ -890,11 +909,12 @@ export class JupyterServerFactory implements IServerFactory, IDisposable {
   }
 
   private _createServer(
-    opts: JupyterServer.IOptions
+    opts: JupyterServer.IOptions,
+    progressView?: ProgressView
   ): JupyterServerFactory.IFactoryItem {
     let item: JupyterServerFactory.IFactoryItem = {
       factoryId: this._nextId++,
-      server: new JupyterServer(opts, this._registry),
+      server: new JupyterServer(opts, this._registry, progressView),
       closing: null,
       used: false
     };

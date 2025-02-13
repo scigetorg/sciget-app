@@ -146,7 +146,7 @@ export class SessionWindow implements IDisposable {
     return this._window;
   }
 
-  private async _createServerForSession() {
+  private async _createServerForSession(progressView?: ProgressView) {
     const serverOptions: JupyterServer.IOptions = {
       workingDirectory: this._sessionConfig.resolvedWorkingDirectory
     };
@@ -169,7 +169,10 @@ export class SessionWindow implements IDisposable {
     }
     console.debug('serverOptions ', serverOptions);
 
-    const server = await this.serverFactory.createServer(serverOptions);
+    const server = await this.serverFactory.createServer(
+      serverOptions,
+      progressView
+    );
     this._server = server;
     await server.server.started;
     const serverInfo = server.server.info;
@@ -523,7 +526,7 @@ export class SessionWindow implements IDisposable {
           this._engineType.charAt(0).toUpperCase() + this._engineType.slice(1);
 
         try {
-          await this._createServerForSession();
+          await this._createServerForSession(this._progressView);
           appData.addSessionToRecents({
             workingDirectory: this._sessionConfig.resolvedWorkingDirectory,
             filesToOpen: [...this._sessionConfig.filesToOpen]
@@ -1205,7 +1208,7 @@ export class SessionWindow implements IDisposable {
     // }
 
     this._sessionConfig = sessionConfig;
-    await this._createServerForSession();
+    await this._createServerForSession(this._progressView);
 
     this._contentViewType = ContentViewType.Lab;
     this._updateContentView();
@@ -1353,9 +1356,9 @@ export class SessionWindow implements IDisposable {
       showWelcome();
       this._sessionConfigChanged.emit();
       // keep a free server up
-      setTimeout(() => {
-        this._app.createFreeServersIfNeeded();
-      }, 200);
+      // setTimeout(() => {
+      //   this._app.createFreeServersIfNeeded();
+      // }, 200);
     });
   }
 
@@ -1396,7 +1399,7 @@ export class SessionWindow implements IDisposable {
   private _window: BrowserWindow;
   private _titleBarView: TitleBarView;
   private _welcomeView: WelcomeView;
-  private _progressView: ProgressView;
+  public _progressView: ProgressView;
   private _progressViewVisible: boolean = false;
   private _labView: LabView;
   private _contentViewType: ContentViewType = ContentViewType.Welcome;
