@@ -109,6 +109,14 @@ function copyAssests() {
       ),
       path.join(buildDir, 'linux_after_install.sh')
     );
+    fs.copySync(
+      path.join(
+        path.resolve('./'),
+        'electron-builder-scripts',
+        'linux_after_remove.sh'
+      ),
+      path.join(buildDir, 'linux_after_remove.sh')
+    );
   }
 
   console.log('done');
