@@ -336,9 +336,9 @@ FunctionEnd
 !macroend
 
 !macro customInstall
-	${EnvVarUpdate} $0 "PATH" "A" "HKLM" "$INSTDIR"
+	${EnvVarUpdate} $0 "PATH" "A" "HKCU" "$INSTDIR"
 !macroend
 
 !macro customUnInstall
-	${un.EnvVarUpdate} $0 "PATH" "R" "HKLM" "$INSTDIR"
+	${un.EnvVarUpdate} $0 "PATH" "R" "HKCU" "$INSTDIR"
 !macroend

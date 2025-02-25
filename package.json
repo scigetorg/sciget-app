@@ -112,6 +112,7 @@
       ]
     },
     "nsis": {
+      "oneClick": true,
       "artifactName": "${productName}-Setup.${ext}",
       "perMachine": false,
       "license": "LICENSE",

@@ -513,10 +513,7 @@ export class JupyterServer {
               }
             );
           } else {
-            execFile('taskkill', ['/IM', 'tinyrange', '/T', '/F'], {
-              shell: 'cmd.exe'
-            });
-            execFile('taskkill', ['/IM', 'qemu-system-x86_64', '/T', '/F'], {
+            execFile('taskkill', ['/IM', 'NeurodeskApp.exe', '/T', '/F'], {
               shell: 'cmd.exe'
             });
           }
