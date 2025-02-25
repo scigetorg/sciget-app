@@ -1,4 +1,4 @@
-import { ChildProcess, execFile, execSync } from 'child_process';
+import { ChildProcess, execFile } from 'child_process';
 import { IRegistry, SERVER_TOKEN_PREFIX } from './registry';
 import { dialog } from 'electron';
 import { ArrayExt } from '@lumino/algorithm';
@@ -53,7 +53,6 @@ function createLaunchScript(
   let additionalDir = '';
   let isPodman = engineType === EngineType.Podman;
   let isTinyRange = engineType === EngineType.TinyRange;
-  let isDocker = engineType === EngineType.Docker;
   let neurodesktopStorageDir = isWin
     ? 'C://neurodesktop-storage'
     : '~/neurodesktop-storage';
@@ -76,17 +75,6 @@ function createLaunchScript(
           isWin ? 'tinyrange.exe' : 'tinyrange'
         )
         .replace(/\\/g, '/'); // Production path
-  let osVersion = '';
-  if (os.platform() === 'linux') {
-    osVersion = execSync('lsb_release -a | grep Description')
-      .toString()
-      .split('Description:')[1]
-      .trim()
-      .split(' ')[1]
-      .split('.')
-      .join('')
-      .slice(0, 4);
-  }
 
   console.debug(`!!!..... ${strPort} engineType ${engineType}`);
 
@@ -133,10 +121,7 @@ function createLaunchScript(
       ...commonLaunchArgs,
       isPodman
         ? `-v neurodesk-home:/home/jovyan --network bridge:ip=10.88.0.10,mac=88:75:56:ef:3e:d6`
-        : `--mount source=neurodesk-home,target=/home/jovyan --mac-address=88:75:56:ef:3e:d6`,
-      parseInt(osVersion) >= 2310 && isDocker
-        ? '--security-opt apparmor=neurodeskapp'
-        : ''
+        : `--mount source=neurodesk-home,target=/home/jovyan --mac-address=88:75:56:ef:3e:d6`
     ];
   }
 
