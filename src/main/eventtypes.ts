@@ -44,6 +44,7 @@ export enum EventTypeMain {
   SetDefaultPythonPath = 'set-default-python-path',
   SetEngineType = 'set-engine-type',
   SetStartupMode = 'set-startup-mode',
+  SetCvmfsMode = 'set-cvmfs-mode',
   SetSyncJupyterLabTheme = 'set-sync-jupyterlab-theme',
   SetShowNewsFeed = 'set-show-news-feed',
   RestartApp = 'restart-app',

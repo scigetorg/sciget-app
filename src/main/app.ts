@@ -387,6 +387,7 @@ export class JupyterApplication implements IApplication, IDisposable {
         isDarkTheme: this._isDarkTheme,
         engineType: settings.getValue(SettingType.engineType),
         startupMode: settings.getValue(SettingType.startupMode),
+        cvmfsMode: settings.getValue(SettingType.cvmfsMode),
         theme: settings.getValue(SettingType.theme),
         // syncJupyterLabTheme: settings.getValue(SettingType.syncJupyterLabTheme),
         // showNewsFeed: settings.getValue(SettingType.showNewsFeed),
@@ -819,6 +820,13 @@ export class JupyterApplication implements IApplication, IDisposable {
       EventTypeMain.SetStartupMode,
       (_event, mode) => {
         userSettings.setValue(SettingType.startupMode, mode);
+      }
+    );
+
+    this._evm.registerEventHandler(
+      EventTypeMain.SetCvmfsMode,
+      (_event, mode) => {
+        userSettings.setValue(SettingType.cvmfsMode, mode);
       }
     );
 

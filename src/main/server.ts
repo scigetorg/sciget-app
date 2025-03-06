@@ -54,6 +54,7 @@ function createLaunchScript(
   let isPodman = engineType === EngineType.Podman;
   let isTinyRange = engineType === EngineType.TinyRange;
   let isDocker = engineType === EngineType.Docker;
+  let CVMFS_DISABLE = serverInfo.cvmfsMode == 'true'; // offline(1): CVMFS_DISABLE=true, online(0): CVMFS_DISABLE=false
   let neurodesktopStorageDir = isWin
     ? 'C://neurodesktop-storage'
     : '~/neurodesktop-storage';
@@ -110,6 +111,7 @@ function createLaunchScript(
     `--name neurodeskapp-${strPort}`,
     `-p ${strPort}:${strPort}`,
     `-e NEURODESKTOP_VERSION=${tag}`,
+    `-e CVMFS_DISABLE=${CVMFS_DISABLE}`,
     isWin
       ? `-v ${neurodesktopStorageDir}:/neurodesktop-storage`
       : `-e NB_UID="$(id -u)" -e NB_GID="$(id -g)" -v ${neurodesktopStorageDir}:/neurodesktop-storage`
@@ -134,13 +136,14 @@ function createLaunchScript(
       isPodman
         ? `-v neurodesk-home:/home/jovyan --network bridge:ip=10.88.0.10,mac=88:75:56:ef:3e:d6`
         : `--mount source=neurodesk-home,target=/home/jovyan --mac-address=88:75:56:ef:3e:d6`,
-      parseInt(osVersion) >= 2310 && isDocker
+      parseInt(osVersion) >= 2310 && isDocker     // use apparmor profile for ubuntu>=23.10
         ? '--security-opt apparmor=neurodeskapp'
         : ''
     ];
   }
 
   if (serverInfo.serverArgs) {
+    console.log("serverInfo.serverArgs", serverInfo.serverArgs)
     additionalDir = resolveWorkingDirectory(serverInfo.serverArgs);
     if (process.platform === 'linux') {
       fs.chmodSync(additionalDir, 0o777);
@@ -290,6 +293,7 @@ export class JupyterServer {
 
     const wsSettings = new WorkspaceSettings(workingDir);
     this._info.engine = wsSettings.getValue(SettingType.engineType);
+    this._info.cvmfsMode = wsSettings.getValue(SettingType.cvmfsMode);
     this._info.serverArgs = wsSettings.getValue(SettingType.serverArgs);
     this._info.overrideDefaultServerArgs = wsSettings.getValue(
       SettingType.overrideDefaultServerArgs
@@ -674,7 +678,8 @@ export class JupyterServer {
     serverArgs: '',
     overrideDefaultServerArgs: false,
     serverEnvVars: {},
-    version: null
+    version: null,
+    cvmfsMode: null
   };
   private _stopping: boolean = false;
   private _restartCount: number = 0;
@@ -702,6 +707,7 @@ export namespace JupyterServer {
     serverEnvVars?: KeyValueMap;
     version?: string;
     pageConfig?: any;
+    cvmfsMode: string;
   }
 }
 

@@ -26,6 +26,11 @@ export enum StartupMode {
   LastSessions = 'restore-sessions'
 }
 
+export enum CvmfsMode {
+  Online = 'false',
+  Offline = 'true'
+}
+
 export enum LogLevel {
   Error = 'error',
   Warn = 'warn',
@@ -50,7 +55,7 @@ export enum SettingType {
   theme = 'theme',
   syncJupyterLabTheme = 'syncJupyterLabTheme',
   showNewsFeed = 'showNewsFeed',
-
+  cvmfsMode = 'cvmfsMode',
   defaultWorkingDirectory = 'defaultWorkingDirectory',
   pythonPath = 'pythonPath',
   serverArgs = 'serverArgs',
@@ -145,7 +150,7 @@ export class UserSettings {
       serverEnvVars: new Setting<KeyValueMap>({}, { wsOverridable: true }),
       engineType: new Setting<EngineType>(EngineType.Docker),
       startupMode: new Setting<StartupMode>(StartupMode.WelcomePage),
-
+      cvmfsMode: new Setting<CvmfsMode>(CvmfsMode.Offline),
       ctrlWBehavior: new Setting<CtrlWBehavior>(CtrlWBehavior.CloseTab),
 
       logLevel: new Setting<string>(LogLevel.Warn)

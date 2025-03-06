@@ -43,6 +43,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   setStartupMode: (mode: string) => {
     ipcRenderer.send(EventTypeMain.SetStartupMode, mode);
   },
+  setCvmfsMode: (mode: string) => {
+    ipcRenderer.send(EventTypeMain.SetCvmfsMode, mode);
+  },
   setTheme: (theme: string) => {
     ipcRenderer.send(EventTypeMain.SetTheme, theme);
   },

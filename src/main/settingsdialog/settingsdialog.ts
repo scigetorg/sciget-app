@@ -8,6 +8,7 @@ import * as fs from 'fs';
 import { ThemedWindow } from '../dialog/themedwindow';
 import {
   CtrlWBehavior,
+  CvmfsMode,
   EngineType,
   // FrontEndMode,
   KeyValueMap,
@@ -33,6 +34,7 @@ export class SettingsDialog {
     const {
       engineType,
       startupMode,
+      cvmfsMode,
       theme,
       // syncJupyterLabTheme,
       // showNewsFeed,
@@ -198,6 +200,30 @@ export class SettingsDialog {
       #additional-server-env-vars.invalid::part(control) {
         border-color: red;
       }
+      .tooltip {
+        position: relative;
+        display: inline-block;
+        border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+      }
+
+      /* Tooltip text */
+      .tooltip .tooltiptext {
+        visibility: hidden;
+        width: 350px;
+        background-color: #424242;
+        color: #fff;
+        text-align: left;
+        padding: 5px 10px 5px 0;
+        border-radius: 6px;
+        /* Position the tooltip text - see examples below! */
+        position: absolute;
+        z-index: 1;
+      }
+
+      /* Show the tooltip text when you mouse over the tooltip container */
+      .tooltip:hover .tooltiptext {
+        visibility: visible;
+      }
       </style>
       <div id="container">
         <div id="content-area">
@@ -218,6 +244,21 @@ export class SettingsDialog {
               <jp-radio-group orientation="horizontal">
                 <label slot="label">On startup</label>
                 <jp-radio name="startup-mode" value="welcome-page" <%= startupMode === 'welcome-page' ? 'checked' : '' %>>Show welcome page</jp-radio>
+              </jp-radio-group>
+
+              <jp-radio-group orientation="horizontal">
+                <label slot="label">Container mode 
+                  <div class="tooltip">&#x1F6C8;
+                    <span class="tooltiptext">
+                    <ul>
+                      <li>Offline: Downloads containers when online and uses them when offline.</li>
+                      <li>Online: Always fetches the latest containers but requires an internet connection</li>
+                    </ul>
+                    </span>
+                  </div>
+                </label>
+                <jp-radio name="cvmfs-mode" value="true" <%= cvmfsMode === 'true' ? 'checked' : '' %>>Offline</jp-radio>
+                <jp-radio name="cvmfs-mode" value="false" <%= cvmfsMode === 'false' ? 'checked' : '' %>>Online</jp-radio>
               </jp-radio-group>
               
               <jp-radio-group orientation="horizontal">
@@ -386,6 +427,8 @@ export class SettingsDialog {
           window.electronAPI.setEngineType(engineType);
           const startupMode = document.querySelector('jp-radio[name="startup-mode"].checked').value;
           window.electronAPI.setStartupMode(startupMode);
+          const cvmfsMode = document.querySelector('jp-radio[name="cvmfs-mode"].checked').value;
+          window.electronAPI.setCvmfsMode(cvmfsMode);
           const theme = document.querySelector('jp-radio[name="theme"].checked').value;
           window.electronAPI.setTheme(theme);
 
@@ -419,6 +462,7 @@ export class SettingsDialog {
     this._pageBody = ejs.render(template, {
       engineType,
       startupMode,
+      cvmfsMode,
       theme,
       // syncJupyterLabTheme,
       // showNewsFeed,
@@ -462,6 +506,7 @@ export namespace SettingsDialog {
     isDarkTheme: boolean;
     engineType: EngineType;
     startupMode: StartupMode;
+    cvmfsMode: CvmfsMode;
     theme: ThemeType;
     // syncJupyterLabTheme: boolean;
     // showNewsFeed: boolean;
