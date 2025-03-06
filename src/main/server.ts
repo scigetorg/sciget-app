@@ -136,14 +136,13 @@ function createLaunchScript(
       isPodman
         ? `-v neurodesk-home:/home/jovyan --network bridge:ip=10.88.0.10,mac=88:75:56:ef:3e:d6`
         : `--mount source=neurodesk-home,target=/home/jovyan --mac-address=88:75:56:ef:3e:d6`,
-      parseInt(osVersion) >= 2310 && isDocker     // use apparmor profile for ubuntu>=23.10
+      parseInt(osVersion) >= 2310 && isDocker // use apparmor profile for ubuntu>=23.10
         ? '--security-opt apparmor=neurodeskapp'
         : ''
     ];
   }
 
   if (serverInfo.serverArgs) {
-    console.log("serverInfo.serverArgs", serverInfo.serverArgs)
     additionalDir = resolveWorkingDirectory(serverInfo.serverArgs);
     if (process.platform === 'linux') {
       fs.chmodSync(additionalDir, 0o777);
