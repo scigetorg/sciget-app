@@ -150,7 +150,7 @@ export class UserSettings {
       serverEnvVars: new Setting<KeyValueMap>({}, { wsOverridable: true }),
       engineType: new Setting<EngineType>(EngineType.Docker),
       startupMode: new Setting<StartupMode>(StartupMode.WelcomePage),
-      cvmfsMode: new Setting<CvmfsMode>(CvmfsMode.Offline),
+      cvmfsMode: new Setting<CvmfsMode>(CvmfsMode.Online),
       ctrlWBehavior: new Setting<CtrlWBehavior>(CtrlWBehavior.CloseTab),
 
       logLevel: new Setting<string>(LogLevel.Warn)

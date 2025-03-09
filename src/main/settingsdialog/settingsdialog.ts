@@ -248,7 +248,7 @@ export class SettingsDialog {
 
               <jp-radio-group orientation="horizontal">
                 <label slot="label">Container mode 
-                  <div class="tooltip">&#x1F6C8;
+                  <div class="tooltip">&#9432;
                     <span class="tooltiptext">
                     <ul>
                       <li>Offline: Downloads containers when online and uses them when offline.</li>
@@ -257,8 +257,8 @@ export class SettingsDialog {
                     </span>
                   </div>
                 </label>
-                <jp-radio name="cvmfs-mode" value="true" <%= cvmfsMode === 'true' ? 'checked' : '' %>>Offline</jp-radio>
                 <jp-radio name="cvmfs-mode" value="false" <%= cvmfsMode === 'false' ? 'checked' : '' %>>Online</jp-radio>
+                <jp-radio name="cvmfs-mode" value="true" <%= cvmfsMode === 'true' ? 'checked' : '' %>>Offline</jp-radio>
               </jp-radio-group>
               
               <jp-radio-group orientation="horizontal">
