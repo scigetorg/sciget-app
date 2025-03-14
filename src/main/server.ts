@@ -22,7 +22,7 @@ import {
 import { randomBytes } from 'crypto';
 import { ProgressView } from './progressview/progressview';
 
-const SERVER_LAUNCH_TIMEOUT = 1200000; // milliseconds
+const SERVER_LAUNCH_TIMEOUT = 1500000; // milliseconds
 const SERVER_RESTART_LIMIT = 1; // max server restarts
 
 function createTempFile(
