@@ -159,7 +159,9 @@ function createLaunchScript(
 
   if (!serverInfo.overrideDefaultServerArgs) {
     launchArgs.push(
-      isTinyRange ? `-E "chmod 777 /dev/fuse;NEURODESKTOP_VERSION=${tag};` : ''
+      isTinyRange
+        ? `-e NEURODESKTOP_VERSION=${tag} -e CVMFS_DISABLE=${CVMFS_DISABLE} -E "chmod 777 /dev/fuse;`
+        : ''
     );
     for (const arg of serverLaunchArgsDefault) {
       launchArgs.push(arg.replace('{token}', token).replace('{port}', strPort));
