@@ -84,7 +84,8 @@ export const serverLaunchArgsDefault = [
   '--expose-app-in-browser',
   `--ServerApp.token='{token}'`,
   `--ServerApp.port={port}`,
-  '--LabApp.quit_button=False'
+  '--LabApp.quit_button=False',
+  '--NotebookIntelligence.github_access_token=remember'
 ];
 
 export class Setting<T> {
