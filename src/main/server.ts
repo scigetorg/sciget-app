@@ -127,7 +127,9 @@ function createLaunchScript(
       `--oci ${imageRegistry}`,
       `--forward ${strPort}`,
       '-m //lib/qemu:user',
-      `--mount-rw ${neurodesktopStorageDir}:/neurodesktop-storage`
+      `--mount-rw ${neurodesktopStorageDir}:/neurodesktop-storage`,
+      `--volume neurodeskHome,${20 * 1024},/home,persist`,
+      '--auto-scale'
     ];
   } else {
     launchArgs = [
