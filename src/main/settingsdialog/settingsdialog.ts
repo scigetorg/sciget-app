@@ -251,14 +251,14 @@ export class SettingsDialog {
                   <div class="tooltip">&#9432;
                     <span class="tooltiptext">
                     <ul>
-                      <li>Offline: Downloads containers when online and uses them when offline.</li>
-                      <li>Online: Always fetches the latest containers but requires an internet connection</li>
+                      <li>Download: Downloads containers when there is internet connection and allow to use them when internet is disconnected.</li>
+                      <li>Stream: Always fetches the latest containers but requires an internet connection</li>
                     </ul>
                     </span>
                   </div>
                 </label>
-                <jp-radio name="cvmfs-mode" value="false" <%= cvmfsMode === 'false' ? 'checked' : '' %>>Online</jp-radio>
-                <jp-radio name="cvmfs-mode" value="true" <%= cvmfsMode === 'true' ? 'checked' : '' %>>Offline</jp-radio>
+                <jp-radio name="cvmfs-mode" value="false" <%= cvmfsMode === 'false' ? 'checked' : '' %>>Stream</jp-radio>
+                <jp-radio name="cvmfs-mode" value="true" <%= cvmfsMode === 'true' ? 'checked' : '' %>>Download</jp-radio>
               </jp-radio-group>
               
               <jp-radio-group orientation="horizontal">

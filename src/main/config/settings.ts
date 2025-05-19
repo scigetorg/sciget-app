@@ -27,8 +27,8 @@ export enum StartupMode {
 }
 
 export enum CvmfsMode {
-  Online = 'false',
-  Offline = 'true'
+  Stream = 'false',
+  Download = 'true'
 }
 
 export enum LogLevel {
@@ -151,7 +151,7 @@ export class UserSettings {
       serverEnvVars: new Setting<KeyValueMap>({}, { wsOverridable: true }),
       engineType: new Setting<EngineType>(EngineType.Docker),
       startupMode: new Setting<StartupMode>(StartupMode.WelcomePage),
-      cvmfsMode: new Setting<CvmfsMode>(CvmfsMode.Online),
+      cvmfsMode: new Setting<CvmfsMode>(CvmfsMode.Stream),
       ctrlWBehavior: new Setting<CtrlWBehavior>(CtrlWBehavior.CloseTab),
 
       logLevel: new Setting<string>(LogLevel.Warn)

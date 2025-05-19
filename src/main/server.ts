@@ -54,7 +54,7 @@ function createLaunchScript(
   let isPodman = engineType === EngineType.Podman;
   let isTinyRange = engineType === EngineType.TinyRange;
   let isDocker = engineType === EngineType.Docker;
-  let CVMFS_DISABLE = serverInfo.cvmfsMode == 'true'; // offline(1): CVMFS_DISABLE=true, online(0): CVMFS_DISABLE=false
+  let CVMFS_DISABLE = serverInfo.cvmfsMode == 'true'; // Download(1): CVMFS_DISABLE=true, Stream(0): CVMFS_DISABLE=false
   let neurodesktopStorageDir = isWin
     ? 'C://neurodesktop-storage'
     : '~/neurodesktop-storage';
