@@ -153,7 +153,7 @@
         },
         {
           "from": "tinyrange",
-          "filter": ["!**/tinyqemu${/*}"],
+          "filter": ["!**/tinyqemu/{qemu-system-aarch64,qemu-system-x86_64}"],
           "to": "app/tinyrange"
         }
       ]
