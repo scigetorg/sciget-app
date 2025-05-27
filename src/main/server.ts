@@ -179,15 +179,15 @@ function createLaunchScript(
   let launchCmd = launchArgs.join(' ');
   let removeCmd = `${
     isWin
-      ? `${engineType} container exists neurodeskapp-${strPort} >NUL 2>&1 && ${engineType} rm -f neurodeskapp-${strPort}`
-      : `${engineType} container exists neurodeskapp-${strPort} &> /dev/null && ${engineType} rm -f neurodeskapp-${strPort}`
+      ? `${engineType} container exists neurodeskapp-${strPort} >NUL 2>&1 && ${engineType} rm -f neurodeskapp-${strPort} >NUL 2>&1`
+      : `${engineType} container exists neurodeskapp-${strPort} &> /dev/null && ${engineType} rm -f neurodeskapp-${strPort} &> /dev/null`
   }`;
   let stopCmd = `${
     isPodman
       ? `${removeCmd}`
       : isTinyRange
       ? ``
-      : `${engineType} rm -f neurodeskapp-${strPort}`
+      : `${engineType} rm -f neurodeskapp-${strPort} &> /dev/null`
   }`;
   let script: string;
 
