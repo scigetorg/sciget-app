@@ -2,7 +2,7 @@
   "name": "neurodeskapp",
   "jlab_version": "4.0.0-1",
   "version": "1.12.3",
-  "tinyrange_version": "0.3.1",
+  "tinyrange_version": "0.3.2",
   "description": "Neurodesk App",
   "main": "./build/out/main/main.js",
   "scripts": {
@@ -153,7 +153,9 @@
         },
         {
           "from": "tinyrange",
-          "filter": ["!**/tinyqemu/{qemu-system-aarch64,qemu-system-x86_64}"],
+          "filter": [
+            "!**/tinyqemu/{qemu-system-aarch64,qemu-system-x86_64}"
+          ],
           "to": "app/tinyrange"
         }
       ]
