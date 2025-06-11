@@ -68,3 +68,17 @@ The client pull Jupyter Neurodesk image with `jupyter_neurodesk_version` tag in 
 Image tag is updated on schedule by Github Action with PR.
 
 Update Release version by changing `neurodesk_desktop_release` in neurodesktop.toml.
+
+## Update logo
+
+New logo needs to be saved as icon.svg in `src/assets` directory.
+
+Progress logo is saved at `src/assets/progress-logo.svg`.
+
+This file will be converted into .ico and .icns format and saved into `dist-resources` directory.
+
+Some website to handle the conversion:
+
+- From svg to ico: https://www.freeconvert.com/svg-to-ico (this one manages to keep appropriate size)
+
+- From png to icns: https://cloudconvert.com/
