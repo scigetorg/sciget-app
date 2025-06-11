@@ -48,7 +48,7 @@ rm -rf ~/.config/neurodeskapp
 sudo pacman -Rs neurodeskapp-bin
 ```
 
-### macOS
+## macOS
 
 Find the application installation `NeurodeskApp.app` in Finder (in /Applications or ~/Applications) and move to Trash by using `CMD + Delete`. Clean other application generated files using:
 
@@ -57,8 +57,19 @@ rm -rf ~/Library/neurodeskapp # to remove application cache
 rm -rf ~/Library/Application\ Support/neurodeskapp # to remove user data
 ```
 
-### Windows
+## Windows
 
 On Windows, go to `Windows Apps & Features` dialog using `Start Menu` -> `Settings` -> `Apps` and uninstall Neurodesk App application as shown below.
 
 In order to remove application cache, delete `C:\Users\<username>\AppData\Roaming\neurodeskapp` directory.
+
+# Clean Tinyrange build cache
+If you want to clean the Tinyrange build cache, you can use the following command:
+
+## Linux and macOS
+```bash
+rm -rf ~/neurodesktop-storage/build
+```
+
+## Windows
+Delete the `C:\Users\<username>\neurodesktop-storage\build` directory.
