@@ -72,4 +72,4 @@ rm -rf ~/neurodesktop-storage/build
 ```
 
 ## Windows
-Delete the `C:\Users\<username>\neurodesktop-storage\build` directory.
+Delete the `C:\neurodesktop-storage\build` directory.
