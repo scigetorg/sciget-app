@@ -64,12 +64,15 @@ On Windows, go to `Windows Apps & Features` dialog using `Start Menu` -> `Settin
 In order to remove application cache, delete `C:\Users\<username>\AppData\Roaming\neurodeskapp` directory.
 
 # Clean Tinyrange build cache
+
 If you want to clean the Tinyrange build cache, you can use the following command:
 
 ## Linux and macOS
+
 ```bash
 rm -rf ~/neurodesktop-storage/build
 ```
 
 ## Windows
+
 Delete the `C:\neurodesktop-storage\build` directory.
