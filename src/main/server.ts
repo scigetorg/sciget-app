@@ -187,6 +187,8 @@ function createLaunchScript(
       ? `${removeCmd}`
       : isTinyRange
       ? ``
+      : isWin
+      ? `${engineType} rm -f neurodeskapp-${strPort} >NUL 2>&1`
       : `${engineType} rm -f neurodeskapp-${strPort} &> /dev/null`
   }`;
   let script: string;
