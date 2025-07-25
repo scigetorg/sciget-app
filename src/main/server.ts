@@ -1,4 +1,4 @@
-import { ChildProcess, execFile } from 'child_process';
+import { ChildProcess, execFile, execSync } from 'child_process';
 import { IRegistry, SERVER_TOKEN_PREFIX } from './registry';
 import { dialog } from 'electron';
 import { ArrayExt } from '@lumino/algorithm';
@@ -20,7 +20,10 @@ import {
 } from './config/settings';
 import { randomBytes } from 'crypto';
 import { ProgressView } from './progressview/progressview';
-import { ImageConfigParser, VariableContext } from './config/imageConfigParser';
+import {
+  ContainerConfigParser,
+  VariableContext
+} from './config/imageConfigParser';
 
 const SERVER_LAUNCH_TIMEOUT = 40 * 60000; // milliseconds
 const SERVER_RESTART_LIMIT = 1; // max server restarts
@@ -42,21 +45,28 @@ function createTempFile(
 function createLaunchScript(
   serverInfo: JupyterServer.IInfo,
   engineType: EngineType,
+  containerConfigPath: string,
   port: number,
   token: string
 ): string {
   const isWin = process.platform === 'win32';
   const platform = isWin ? 'windows' : 'unix';
   const strPort = port.toString();
-  const configPath = path.join(__dirname, 'config/imageConfig.yml');
-  const parser = new ImageConfigParser(configPath);
+  const baseContainerConfigPath = path.join(
+    __dirname,
+    'config/baseContainerConfig.yml'
+  );
+  const parser = new ContainerConfigParser(
+    baseContainerConfigPath,
+    containerConfigPath
+  );
   const imageRegistry = parser.getImageRegistry();
   // Substitution variables
   let additionalDir = '';
 
   let isPodman = engineType === EngineType.Podman;
   let isTinyRange = engineType === EngineType.TinyRange;
-  // let isDocker = engineType === EngineType.Docker;
+  let isDocker = engineType === EngineType.Docker;
   let cvmfsDisable = serverInfo.cvmfsMode.toString(); // Download(1): CVMFS_DISABLE=true, Stream(0): CVMFS_DISABLE=false
   let neurodesktopStorageDir = isWin
     ? 'C://neurodesktop-storage'
@@ -86,17 +96,17 @@ function createLaunchScript(
           )
           .replace(/\\/g, '/'); // Production path
   }
-  // let osVersion = '';
-  // if (os.platform() === 'linux') {
-  //   osVersion = execSync('lsb_release -a | grep Description')
-  //     .toString()
-  //     .split('Description:')[1]
-  //     .trim()
-  //     .split(' ')[1]
-  //     .split('.')
-  //     .join('')
-  //     .slice(0, 4);
-  // }
+  let osVersion = '';
+  if (os.platform() === 'linux') {
+    osVersion = execSync('lsb_release -a | grep Description')
+      .toString()
+      .split('Description:')[1]
+      .trim()
+      .split(' ')[1]
+      .split('.')
+      .join('')
+      .slice(0, 4);
+  }
 
   console.debug(`!!!..... ${strPort} engineType ${engineType}`);
 
@@ -123,6 +133,12 @@ function createLaunchScript(
   console.debug(`context: ${JSON.stringify(context)}`);
   // Parse launch arguments
   let launchArgs = parser.parseArgs(engineType, context, platform);
+
+  // Use apparmor profile for ubuntu>=23.10
+  if (parseInt(osVersion) >= 2310 && isDocker) {
+    launchArgs.push('--security-opt apparmor=neurodeskapp');
+  }
+
   // Add additional directory configuration if specified
   if (serverInfo.serverArgs) {
     additionalDir = resolveWorkingDirectory(serverInfo.serverArgs);

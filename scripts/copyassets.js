@@ -61,9 +61,10 @@ function copyAssests() {
     path.join(dest, '../app-assets', 'neurodesk.svg')
   );
   fs.copySync(
-    'src/main/config/imageConfig.yml',
-    path.join(dest, 'main/config/imageConfig.yml')
+    'src/main/config/baseContainerConfig.yml',
+    path.join(dest, 'main/config/baseContainerConfig.yml')
   );
+  fs.copySync('container_installer/*', path.join(dest, 'container_installer'));
   fs.copySync('package.json', path.join(dest, 'package.json'));
 
   const toolkitPath = path.join(

@@ -1,5 +1,4 @@
 import * as fs from 'fs';
-import * as path from 'path';
 import * as yaml from 'js-yaml';
 import { EngineType } from './settings';
 
@@ -16,8 +15,7 @@ export interface VariableContext {
   volumeMount?: string;
 }
 
-export interface ImageConfig {
-  imageRegistry: string;
+export interface BaseContainerConfig {
   commonLaunchArgs: string[];
   engines: {
     [key: string]: {
@@ -43,28 +41,50 @@ export interface ImageConfig {
   defaultServerArgs?: string[];
 }
 
-export class ImageConfigParser {
-  private config: ImageConfig;
+export interface ContainerConfig {
+  name: string;
+  version: string;
+  registry: string;
+}
 
-  constructor(configPath?: string) {
-    this.config = this.loadConfig(configPath);
+export class ContainerConfigParser {
+  private baseContainerConfig: BaseContainerConfig;
+  private containerConfig: ContainerConfig;
+
+  constructor(baseContainerConfigPath?: string, containerConfigPath?: string) {
+    this.baseContainerConfig = this.loadBaseContainerConfig(
+      baseContainerConfigPath
+    );
+    this.containerConfig = this.loadContainerConfig(containerConfigPath);
   }
 
-  private loadConfig(configPath?: string): ImageConfig {
-    // Default path is neurodesk.yml in the project root
-    const defaultPath =
-      configPath || path.join(__dirname, '../../neurodesk.yml');
-
-    if (!fs.existsSync(defaultPath)) {
-      throw new Error(`Neurodesk config file not found at ${defaultPath}`);
+  private loadBaseContainerConfig(configPath?: string): BaseContainerConfig {
+    if (!fs.existsSync(configPath)) {
+      throw new Error(`Neurodesk config file not found at ${configPath}`);
     }
 
     try {
-      const configContent = fs.readFileSync(defaultPath, 'utf8');
-      const config = yaml.load(configContent) as ImageConfig;
+      const configContent = fs.readFileSync(configPath, 'utf8');
+      const config = yaml.load(configContent) as BaseContainerConfig;
       return config;
     } catch (error) {
       throw new Error(`Failed to parse neurodesk.yml: ${error}`);
+    }
+  }
+
+  private loadContainerConfig(containerConfigPath?: string): ContainerConfig {
+    if (!fs.existsSync(containerConfigPath)) {
+      throw new Error(
+        `ContainerConfig file not found at ${containerConfigPath}`
+      );
+    }
+
+    try {
+      const configContent = fs.readFileSync(containerConfigPath, 'utf8');
+      const config = yaml.load(configContent) as ContainerConfig;
+      return config;
+    } catch (error) {
+      throw new Error(`Failed to parse containerConfig.yml: ${error}`);
     }
   }
 
@@ -85,13 +105,14 @@ export class ImageConfigParser {
     const substitutions: { [key: string]: string } = {
       '{port}': context.port,
       '{token}': context.token,
-      '{tag}': this.config.imageRegistry.split(':')[1] || '',
+      '{tag}': this.containerConfig.version,
       '{cvmfsDisable}': context.cvmfsDisable,
       '{tinyrangePath}': context.tinyrangePath,
       '{buildDir}': context.buildDir || '',
       '{storageDir}': context.storageDir || '',
       '{additionalDir}': context.additionalDir || '',
-      '{imageRegistry}': this.config.imageRegistry
+      '{imageRegistry}':
+        this.containerConfig.registry + ':' + this.containerConfig.version
     };
 
     for (const [placeholder, value] of Object.entries(substitutions)) {
@@ -128,13 +149,13 @@ export class ImageConfigParser {
       if (arg === '{commonLaunchArgs}') {
         // Expand common launch args
         const commonArgs = this.substituteVariablesInArray(
-          this.config.commonLaunchArgs,
+          this.baseContainerConfig.commonLaunchArgs,
           context
         );
         expanded.push(...commonArgs);
       } else if (arg === '{base_cmd}') {
         // Get base command for the engine
-        const engineConfig = this.config.engines[engine];
+        const engineConfig = this.baseContainerConfig.engines[engine];
         if (engineConfig?.base_cmd) {
           expanded.push(
             this.substituteVariables(engineConfig.base_cmd, context)
@@ -142,7 +163,7 @@ export class ImageConfigParser {
         }
       } else if (arg === '{volume_mount}') {
         // Get volume mount for the engine
-        const engineConfig = this.config.engines[engine];
+        const engineConfig = this.baseContainerConfig.engines[engine];
         if (engineConfig?.volume_mount) {
           expanded.push(
             this.substituteVariables(engineConfig.volume_mount, context)
@@ -167,8 +188,10 @@ export class ImageConfigParser {
     const platformType = platform || this.getPlatform();
 
     // First, try to get from launchArgs matrix
-    if (this.config.launchArgs?.[engine]?.[platformType]) {
-      const launchConfig = this.config.launchArgs[engine][platformType];
+    if (this.baseContainerConfig.launchArgs?.[engine]?.[platformType]) {
+      const launchConfig = this.baseContainerConfig.launchArgs[engine][
+        platformType
+      ];
 
       // Update context with engine-specific volume mount
       if (launchConfig.volume_mount) {
@@ -185,7 +208,7 @@ export class ImageConfigParser {
     }
 
     // Fallback to engine base configuration
-    const engineConfig = this.config.engines[engine];
+    const engineConfig = this.baseContainerConfig.engines[engine];
     if (!engineConfig) {
       throw new Error(`Engine '${engine}' not found in configuration`);
     }
@@ -200,7 +223,7 @@ export class ImageConfigParser {
 
     // Add common launch args
     const commonArgs = this.substituteVariablesInArray(
-      this.config.commonLaunchArgs,
+      this.baseContainerConfig.commonLaunchArgs,
       context
     );
     args.push(...commonArgs);
@@ -224,7 +247,9 @@ export class ImageConfigParser {
     }
 
     // Add image registry
-    args.push(this.config.imageRegistry);
+    args.push(
+      this.containerConfig.registry + ':' + this.containerConfig.version
+    );
 
     return args;
   }
@@ -239,11 +264,15 @@ export class ImageConfigParser {
   ): string | null {
     const platformType = platform || this.getPlatform();
 
-    if (!this.config.additionalDirConfig?.[engine]?.[platformType]) {
+    if (
+      !this.baseContainerConfig.additionalDirConfig?.[engine]?.[platformType]
+    ) {
       return null;
     }
 
-    const template = this.config.additionalDirConfig[engine][platformType];
+    const template = this.baseContainerConfig.additionalDirConfig[engine][
+      platformType
+    ];
     return this.substituteVariables(template, {
       additionalDir:
         platformType === 'windows'
@@ -256,12 +285,12 @@ export class ImageConfigParser {
    * Get default server arguments
    */
   public getDefaultServerArgs(context: VariableContext): string[] {
-    if (!this.config.defaultServerArgs) {
+    if (!this.baseContainerConfig.defaultServerArgs) {
       return [];
     }
 
     return this.substituteVariablesInArray(
-      this.config.defaultServerArgs,
+      this.baseContainerConfig.defaultServerArgs,
       context
     );
   }
@@ -270,20 +299,20 @@ export class ImageConfigParser {
    * Get the image registry from config
    */
   public getImageRegistry(): string {
-    return this.config.imageRegistry;
+    return this.containerConfig.registry;
   }
 
   /**
    * Check if an engine is supported
    */
   public isEngineSupported(engine: EngineType): boolean {
-    return engine in this.config.engines;
+    return engine in this.baseContainerConfig.engines;
   }
 
   /**
    * Get all supported engines
    */
   public getSupportedEngines(): EngineType[] {
-    return Object.keys(this.config.engines) as EngineType[];
+    return Object.keys(this.baseContainerConfig.engines) as EngineType[];
   }
 }
