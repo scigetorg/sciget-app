@@ -1,4 +1,4 @@
-import { ChildProcess, execFile, execSync } from 'child_process';
+import { ChildProcess, execFile } from 'child_process';
 import { IRegistry, SERVER_TOKEN_PREFIX } from './registry';
 import { dialog } from 'electron';
 import { ArrayExt } from '@lumino/algorithm';
@@ -9,18 +9,18 @@ import * as path from 'path';
 import { request as httpRequest } from 'http';
 import { request as httpsRequest } from 'https';
 import { IDisposable, IEnvironmentType, IPythonEnvironment } from './tokens';
-import { Config, getFreePort, getUserDataDir, waitForDuration } from './utils';
+import { getFreePort, getUserDataDir, waitForDuration } from './utils';
 import {
   EngineType,
   KeyValueMap,
   resolveWorkingDirectory,
-  serverLaunchArgsDefault,
   SettingType,
   userSettings,
   WorkspaceSettings
 } from './config/settings';
 import { randomBytes } from 'crypto';
 import { ProgressView } from './progressview/progressview';
+import { ImageConfigParser, VariableContext } from './config/imageConfigParser';
 
 const SERVER_LAUNCH_TIMEOUT = 40 * 60000; // milliseconds
 const SERVER_RESTART_LIMIT = 1; // max server restarts
@@ -46,48 +46,57 @@ function createLaunchScript(
   token: string
 ): string {
   const isWin = process.platform === 'win32';
+  const platform = isWin ? 'windows' : 'unix';
   const strPort = port.toString();
-  const config = Config.loadConfig(path.join(__dirname, '..'));
-  const tag = config.ConfigToml.jupyter_neurodesk_version;
-  let imageRegistry = `vnmd/neurodesktop:${tag}`;
+  const configPath = path.join(__dirname, 'config/imageConfig.yml');
+  const parser = new ImageConfigParser(configPath);
+  const imageRegistry = parser.getImageRegistry();
+  // Substitution variables
   let additionalDir = '';
+
   let isPodman = engineType === EngineType.Podman;
   let isTinyRange = engineType === EngineType.TinyRange;
-  let isDocker = engineType === EngineType.Docker;
-  let CVMFS_DISABLE = serverInfo.cvmfsMode == 'true'; // Download(1): CVMFS_DISABLE=true, Stream(0): CVMFS_DISABLE=false
+  // let isDocker = engineType === EngineType.Docker;
+  let cvmfsDisable = serverInfo.cvmfsMode.toString(); // Download(1): CVMFS_DISABLE=true, Stream(0): CVMFS_DISABLE=false
   let neurodesktopStorageDir = isWin
     ? 'C://neurodesktop-storage'
     : '~/neurodesktop-storage';
+  const buildDir = path.join(neurodesktopStorageDir, 'build');
+
   const isDev = process.env.NODE_ENV === 'development';
-  console.log('isDev', isDev);
-  const tinyrangePath = isDev
-    ? path
-        .join(
-          __dirname,
-          '../../..',
-          'tinyrange',
-          isWin ? 'tinyrange.exe' : 'tinyrange'
-        )
-        .replace(/\\/g, '/') // Development path
-    : path
-        .join(
-          process.resourcesPath,
-          'app',
-          'tinyrange',
-          isWin ? 'tinyrange.exe' : 'tinyrange'
-        )
-        .replace(/\\/g, '/'); // Production path
-  let osVersion = '';
-  if (os.platform() === 'linux') {
-    osVersion = execSync('lsb_release -a | grep Description')
-      .toString()
-      .split('Description:')[1]
-      .trim()
-      .split(' ')[1]
-      .split('.')
-      .join('')
-      .slice(0, 4);
+  console.log('isDev', isDev, 'cvmfsDisable', cvmfsDisable);
+  let tinyrangePath = '';
+
+  if (engineType === EngineType.TinyRange) {
+    tinyrangePath = isDev
+      ? path
+          .join(
+            __dirname,
+            '../../..',
+            'tinyrange',
+            isWin ? 'tinyrange.exe' : 'tinyrange'
+          )
+          .replace(/\\/g, '/') // Development path
+      : path
+          .join(
+            process.resourcesPath,
+            'app',
+            'tinyrange',
+            isWin ? 'tinyrange.exe' : 'tinyrange'
+          )
+          .replace(/\\/g, '/'); // Production path
   }
+  // let osVersion = '';
+  // if (os.platform() === 'linux') {
+  //   osVersion = execSync('lsb_release -a | grep Description')
+  //     .toString()
+  //     .split('Description:')[1]
+  //     .trim()
+  //     .split(' ')[1]
+  //     .split('.')
+  //     .join('')
+  //     .slice(0, 4);
+  // }
 
   console.debug(`!!!..... ${strPort} engineType ${engineType}`);
 
@@ -102,73 +111,41 @@ function createLaunchScript(
   }`;
   let volumeCreate = `${isPodman ? `${volumeCheck}` : ''}`;
 
-  // Common launch arguments
-  let commonLaunchArgs = [
-    `--shm-size=1gb`,
-    `-it`,
-    `--privileged`,
-    `--user=root`,
-    `--name neurodeskapp-${strPort}`,
-    `-p ${strPort}:${strPort}`,
-    `-e NEURODESKTOP_VERSION=${tag}`,
-    `-e CVMFS_DISABLE=${CVMFS_DISABLE}`,
-    isWin
-      ? `-v ${neurodesktopStorageDir}:/neurodesktop-storage`
-      : `-e NB_UID="$(id -u)" -e NB_GID="$(id -g)" -v ${neurodesktopStorageDir}:/neurodesktop-storage`
-  ];
-
-  let launchArgs: string[] = [];
-  if (isTinyRange) {
-    const buildDir = path.join(neurodesktopStorageDir, 'build');
-    launchArgs = [
-      tinyrangePath,
-      'login',
-      `--buildDir ${buildDir.replace(/\\/g, '//')}`,
-      `--oci ${imageRegistry}`,
-      `--forward ${strPort}`,
-      '-m //lib/qemu:user',
-      `--mount-rw ${neurodesktopStorageDir}:/neurodesktop-storage`,
-      `--volume neurodeskHome,${20 * 1024},/home,persist`,
-      '--auto-scale'
-    ];
-  } else {
-    launchArgs = [
-      `${engineType} run -d --rm`,
-      ...commonLaunchArgs,
-      isPodman
-        ? `-v neurodesk-home:/home/jovyan --network bridge:ip=10.88.0.10,mac=88:75:56:ef:3e:d6`
-        : `--mount source=neurodesk-home,target=/home/jovyan --mac-address=88:75:56:ef:3e:d6`,
-      parseInt(osVersion) >= 2310 && isDocker // use apparmor profile for ubuntu>=23.10
-        ? '--security-opt apparmor=neurodeskapp'
-        : ''
-    ];
-  }
-
+  const context: VariableContext = {
+    port: strPort,
+    token: token,
+    cvmfsDisable,
+    tinyrangePath,
+    buildDir,
+    storageDir: neurodesktopStorageDir,
+    additionalDir
+  };
+  console.debug(`context: ${JSON.stringify(context)}`);
+  // Parse launch arguments
+  let launchArgs = parser.parseArgs(engineType, context, platform);
+  // Add additional directory configuration if specified
   if (serverInfo.serverArgs) {
     additionalDir = resolveWorkingDirectory(serverInfo.serverArgs);
     if (process.platform === 'linux') {
       fs.chmodSync(additionalDir, 0o777);
     }
-    launchArgs.push(
-      isTinyRange
-        ? `--mount-rw "${
-            isWin ? additionalDir.replace(/\\/g, '//') : additionalDir
-          }":/data`
-        : ` --volume "${additionalDir}":/data`
+    const additionalDirConfig = parser.getAdditionalDirConfig(
+      engineType,
+      serverInfo.serverArgs,
+      platform
     );
-  }
-  launchArgs.push(imageRegistry);
-
-  if (!serverInfo.overrideDefaultServerArgs) {
-    launchArgs.push(
-      isTinyRange
-        ? `-e NEURODESKTOP_VERSION=${tag} -e CVMFS_DISABLE=${CVMFS_DISABLE} -E "chmod 777 /dev/fuse;`
-        : ''
-    );
-    for (const arg of serverLaunchArgsDefault) {
-      launchArgs.push(arg.replace('{token}', token).replace('{port}', strPort));
+    if (additionalDirConfig) {
+      launchArgs.push(additionalDirConfig);
     }
-    launchArgs.push(isTinyRange ? '"' : '');
+  }
+
+  // Get default server args
+  const serverArgs = parser.getDefaultServerArgs(context);
+  if (serverArgs.length > 0) {
+    serverArgs.forEach((arg, index) => {
+      launchArgs.push(arg);
+    });
+    launchArgs.push(isTinyRange ? "'" : "''");
   }
 
   /**
@@ -864,7 +841,6 @@ export class JupyterServerFactory implements IServerFactory, IDisposable {
       this._removeFailedServer(item.factoryId);
     });
 
-    console.debug('~ createServer ~ ', item);
     return item;
   }
 
