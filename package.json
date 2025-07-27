@@ -1,7 +1,7 @@
 {
   "name": "scigetapp",
   "jlab_version": "4.0.0-1",
-  "version": "1.13.1",
+  "version": "0.0.1",
   "tinyrange_version": "0.3.2",
   "description": "Sciget App",
   "main": "./build/out/main/main.js",
