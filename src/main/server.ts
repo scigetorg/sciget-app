@@ -23,7 +23,7 @@ import { ProgressView } from './progressview/progressview';
 import {
   ContainerConfigParser,
   VariableContext
-} from './config/imageConfigParser';
+} from './config/containerConfigParser';
 
 const SERVER_LAUNCH_TIMEOUT = 40 * 60000; // milliseconds
 const SERVER_RESTART_LIMIT = 1; // max server restarts
@@ -55,6 +55,14 @@ function createLaunchScript(
   const baseContainerConfigPath = path.join(
     __dirname,
     'config/baseContainerConfig.yml'
+  );
+  containerConfigPath = path.join(
+    __dirname,
+    '../container_installer',
+    containerConfigPath + '.yml'
+  );
+  console.log(
+    `baseContainerConfigPath: ${baseContainerConfigPath}, containerConfigPath: ${containerConfigPath}`
   );
   const parser = new ContainerConfigParser(
     baseContainerConfigPath,
@@ -288,6 +296,7 @@ export class JupyterServer {
     const workingDir =
       this._options.workingDirectory || userSettings.resolvedWorkingDirectory;
     this._info.workingDirectory = workingDir;
+    this._info.containerConfigPath = this._options.containerConfigPath;
 
     const wsSettings = new WorkspaceSettings(workingDir);
     this._info.engine = wsSettings.getValue(SettingType.engineType);
@@ -341,6 +350,7 @@ export class JupyterServer {
         const launchScriptPath = createLaunchScript(
           this._info,
           this._info.engine,
+          this._info.containerConfigPath,
           this._info.port,
           this._info.token
         );
@@ -672,6 +682,7 @@ export class JupyterServer {
     port: null,
     token: null,
     workingDirectory: null,
+    containerConfigPath: null,
     environment: null,
     serverArgs: '',
     overrideDefaultServerArgs: false,
@@ -689,6 +700,7 @@ export namespace JupyterServer {
     port?: number;
     token?: string;
     workingDirectory?: string;
+    containerConfigPath?: string;
     environment?: IPythonEnvironment;
   }
 
@@ -700,6 +712,7 @@ export namespace JupyterServer {
     token: string;
     environment?: IPythonEnvironment;
     workingDirectory: string;
+    containerConfigPath?: string;
     serverArgs?: string;
     overrideDefaultServerArgs?: boolean;
     serverEnvVars?: KeyValueMap;

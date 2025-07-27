@@ -20,6 +20,7 @@ export interface INewsItem {
 export interface IRecentSession {
   workingDirectory?: string;
   filesToOpen?: string[];
+  containerConfigPath?: string;
   remoteURL?: string;
   persistSessionData?: boolean;
   partition?: string;

@@ -42,7 +42,7 @@ export interface BaseContainerConfig {
 }
 
 export interface ContainerConfig {
-  name: string;
+  title: string;
   version: string;
   registry: string;
 }

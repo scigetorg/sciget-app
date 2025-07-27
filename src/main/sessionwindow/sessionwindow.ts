@@ -148,7 +148,8 @@ export class SessionWindow implements IDisposable {
 
   private async _createServerForSession(progressView?: ProgressView) {
     const serverOptions: JupyterServer.IOptions = {
-      workingDirectory: this._sessionConfig.resolvedWorkingDirectory
+      workingDirectory: this._sessionConfig.resolvedWorkingDirectory,
+      containerConfigPath: this._sessionConfig.containerConfigPath
     };
 
     const pythonPath = this._wsSettings.getValue(SettingType.pythonPath);
@@ -500,7 +501,11 @@ export class SessionWindow implements IDisposable {
 
     this._evm.registerEventHandler(
       EventTypeMain.CreateNewSession,
-      async (event, type: 'notebook' | 'blank') => {
+      async (
+        event,
+        type: 'notebook' | 'blank',
+        containerConfigPath?: string
+      ) => {
         if (event.sender !== this.contentView?.webContents) {
           return;
         }
@@ -511,7 +516,14 @@ export class SessionWindow implements IDisposable {
           `
         );
 
-        const sessionConfig = SessionConfig.createLocal();
+        const sessionConfig = SessionConfig.createLocal(
+          undefined,
+          undefined,
+          containerConfigPath
+        );
+        console.debug(
+          `Creating new session of type: ${type}, containerConfigPath: ${containerConfigPath}`
+        );
         this._sessionConfig = sessionConfig;
         this._wsSettings = new WorkspaceSettings(
           sessionConfig.workingDirectory
@@ -1099,6 +1111,7 @@ export class SessionWindow implements IDisposable {
       this._createSessionForLocal(
         sessionConfig.workingDirectory,
         sessionConfig.filesToOpen,
+        sessionConfig.containerConfigPath,
         sessionConfig.pythonPath
       ).catch(error => {
         this._setProgress(
@@ -1141,7 +1154,8 @@ export class SessionWindow implements IDisposable {
       this._disposeSession().then(() => {
         this._createSessionForLocal(
           sessionConfig.workingDirectory,
-          sessionConfig.filesToOpen
+          sessionConfig.filesToOpen,
+          sessionConfig.containerConfigPath
         ).catch(error => {
           this._setProgress(
             'Failed to create session',
@@ -1159,6 +1173,7 @@ export class SessionWindow implements IDisposable {
   private async _createSessionForLocal(
     workingDirectory?: string,
     filesToOpen?: string[],
+    containerConfigPath?: string,
     pythonPath?: string,
     recentSessionIndex?: number,
     useDefaultPythonEnv?: boolean
@@ -1166,7 +1181,8 @@ export class SessionWindow implements IDisposable {
     const resolvedWorkingDirectory = resolveWorkingDirectory(workingDirectory);
     const sessionConfig = SessionConfig.createLocal(
       resolvedWorkingDirectory,
-      filesToOpen
+      filesToOpen,
+      containerConfigPath
     );
 
     this._showProgressView('Creating new session');
@@ -1321,6 +1337,7 @@ export class SessionWindow implements IDisposable {
       this._createSessionForLocal(
         recentSession.workingDirectory,
         recentSession.filesToOpen,
+        recentSession.containerConfigPath,
         undefined,
         sessionIndex,
         useDefaultPythonEnv

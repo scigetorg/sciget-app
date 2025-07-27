@@ -33,10 +33,21 @@ contextBridge.exposeInMainWorld('electronAPI', {
     return ipcRenderer.invoke(EventTypeMain.IsDarkTheme);
   },
   newSession: (
-    type: 'notebook' | 'blank' | 'open' | 'open-file' | 'open-folder' | 'remote'
+    type:
+      | 'notebook'
+      | 'blank'
+      | 'open'
+      | 'open-file'
+      | 'open-folder'
+      | 'remote',
+    containerConfigPath?: string
   ) => {
     if (type === 'notebook' || type === 'blank') {
-      ipcRenderer.send(EventTypeMain.CreateNewSession, type);
+      ipcRenderer.send(
+        EventTypeMain.CreateNewSession,
+        type,
+        containerConfigPath
+      );
     } else if (type === 'open') {
       ipcRenderer.send(EventTypeMain.OpenFileOrFolder);
     } else if (type === 'open-file') {

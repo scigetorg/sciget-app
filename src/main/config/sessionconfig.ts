@@ -22,6 +22,7 @@ export class SessionConfig {
   partition: string = '';
   workingDirectory: string = '';
   filesToOpen: string[] = [];
+  containerConfigPath: string = '';
   pythonPath: string = '';
   defaultKernel: string = '';
   lastOpened: Date = new Date();
@@ -34,6 +35,7 @@ export class SessionConfig {
   static createLocal(
     workingDirectory?: string,
     filesToOpen?: string[],
+    containerConfigPath?: string,
     pythonPath?: string
   ): SessionConfig {
     const sessionConfig = new SessionConfig();
@@ -43,6 +45,7 @@ export class SessionConfig {
     if (filesToOpen) {
       sessionConfig.setFilesToOpen(filesToOpen);
     }
+    sessionConfig.containerConfigPath = containerConfigPath || '';
     sessionConfig.pythonPath =
       pythonPath || userSettings.getValue(SettingType.pythonPath);
 

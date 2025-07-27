@@ -1,3 +1,5 @@
-name: neuroimaging
-version: 2025-06-10
+title: neuroimaging
+version: "2025-06-10"
 registry: vnmd/neurodesktop
+description: |
+  Neuroimaging tools and resources for neuroimaging research and analysis.
