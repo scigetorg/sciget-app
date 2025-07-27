@@ -125,7 +125,7 @@ export class SessionWindow implements IDisposable {
       minWidth: 400,
       minHeight: 300,
       show: false,
-      title: 'Neurodesk',
+      title: 'Sciget',
       titleBarStyle: 'hidden',
       frame: process.platform === 'darwin',
       backgroundColor: this._isDarkTheme ? DarkThemeBGColor : LightThemeBGColor,
@@ -1252,7 +1252,7 @@ export class SessionWindow implements IDisposable {
     persistSessionData: boolean,
     partition: string
   ) {
-    this._showProgressView('Connecting to Neurodesk Server');
+    this._showProgressView('Connecting to Sciget Server');
 
     try {
       const url = new URL(remoteURL);

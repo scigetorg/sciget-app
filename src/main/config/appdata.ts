@@ -321,6 +321,7 @@ export class ApplicationData {
       this.recentSessions.push({
         workingDirectory: session.workingDirectory,
         filesToOpen: filesToOpen,
+        containerConfigPath: session.containerConfigPath,
         remoteURL: session.remoteURL,
         persistSessionData: session.persistSessionData,
         partition: session.partition,

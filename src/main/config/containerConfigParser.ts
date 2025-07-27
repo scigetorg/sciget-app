@@ -4,6 +4,7 @@ import { EngineType } from './settings';
 
 export type PlatformType = 'windows' | 'unix';
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface VariableContext {
   port: string;
   token: string;
@@ -15,6 +16,7 @@ export interface VariableContext {
   volumeMount?: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface BaseContainerConfig {
   commonLaunchArgs: string[];
   engines: {
@@ -41,6 +43,7 @@ export interface BaseContainerConfig {
   defaultServerArgs?: string[];
 }
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface ContainerConfig {
   title: string;
   version: string;

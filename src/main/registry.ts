@@ -452,10 +452,7 @@ export class Registry implements IRegistry, IDisposable {
             resolve([]);
           })
           .catch(reason => {
-            console.debug(
-              `Failed to get running Neurodesk server list`,
-              reason
-            );
+            console.debug(`Failed to get running Sciget server list`, reason);
             resolve([]);
           });
       } else {

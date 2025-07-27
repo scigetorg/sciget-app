@@ -33,7 +33,7 @@ function createTempFile(
   data = '',
   encoding: BufferEncoding = 'utf8'
 ) {
-  const tempDirPath = path.join(os.tmpdir(), 'neurodesk_app');
+  const tempDirPath = path.join(os.tmpdir(), 'sciget_app');
   const tmpDir = fs.mkdtempSync(tempDirPath);
   const tmpFilePath = path.join(tmpDir, fileName);
 
@@ -144,7 +144,7 @@ function createLaunchScript(
 
   // Use apparmor profile for ubuntu>=23.10
   if (parseInt(osVersion) >= 2310 && isDocker) {
-    launchArgs.push('--security-opt apparmor=neurodeskapp');
+    launchArgs.push('--security-opt apparmor=scigetapp');
   }
 
   // Add additional directory configuration if specified
@@ -180,8 +180,8 @@ function createLaunchScript(
   let launchCmd = launchArgs.join(' ');
   let removeCmd = `${
     isWin
-      ? `${engineType} container exists neurodeskapp-${strPort} >NUL 2>&1 && ${engineType} rm -f neurodeskapp-${strPort} >NUL 2>&1`
-      : `${engineType} container exists neurodeskapp-${strPort} &> /dev/null && ${engineType} rm -f neurodeskapp-${strPort} &> /dev/null`
+      ? `${engineType} container exists scigetapp-${strPort} >NUL 2>&1 && ${engineType} rm -f scigetapp-${strPort} >NUL 2>&1`
+      : `${engineType} container exists scigetapp-${strPort} &> /dev/null && ${engineType} rm -f scigetapp-${strPort} &> /dev/null`
   }`;
   let stopCmd = `${
     isPodman
@@ -189,8 +189,8 @@ function createLaunchScript(
       : isTinyRange
       ? ``
       : isWin
-      ? `${engineType} rm -f neurodeskapp-${strPort} >NUL 2>&1`
-      : `${engineType} rm -f neurodeskapp-${strPort} &> /dev/null`
+      ? `${engineType} rm -f scigetapp-${strPort} >NUL 2>&1`
+      : `${engineType} rm -f scigetapp-${strPort} &> /dev/null`
   }`;
   let script: string;
 
@@ -207,7 +207,7 @@ function createLaunchScript(
         FOR /F "usebackq delims=" %%i IN (\`${engineType} image inspect ${imageRegistry} --format="exists" 2^>nul\`) DO SET IMAGE_EXISTS=%%i
         if "%IMAGE_EXISTS%"=="exists" (
             echo "Image exists"
-            FOR /F "usebackq delims=" %%i IN (\`${engineType} container inspect -f "{{.State.Status}}" neurodeskapp-${strPort}\`) DO SET CONTAINER_STATUS=%%i
+            FOR /F "usebackq delims=" %%i IN (\`${engineType} container inspect -f "{{.State.Status}}" scigetapp-${strPort}\`) DO SET CONTAINER_STATUS=%%i
               ${stopCmd} 
               ${volumeCreate}
               ${launchCmd}
@@ -519,13 +519,13 @@ export class JupyterServer {
         if (process.platform === 'win32') {
           if (this._info.engine === EngineType.TinyRange) {
             execFile(
-              `${this._info.engine} rm -f neurodeskapp-${this._info.port}`,
+              `${this._info.engine} rm -f scigetapp-${this._info.port}`,
               {
                 shell: 'cmd.exe'
               }
             );
           } else {
-            execFile('taskkill', ['/IM', 'NeurodeskApp.exe', '/T', '/F'], {
+            execFile('taskkill', ['/IM', 'ScigetApp.exe', '/T', '/F'], {
               shell: 'cmd.exe'
             });
           }
@@ -549,7 +549,7 @@ export class JupyterServer {
             });
           } else {
             execFile(
-              `${this._info.engine} rm -f neurodeskapp-${this._info.port}`,
+              `${this._info.engine} rm -f scigetapp-${this._info.port}`,
               {
                 shell: '/bin/bash'
               }

@@ -41,7 +41,7 @@ export async function connectAndGetServerInfo(
     }
 
     const browserOptions: Electron.BrowserWindowConstructorOptions = {
-      title: 'Neurodesk Server Connection',
+      title: 'Sciget Server Connection',
       show: options?.showDialog === true
     };
     if (options?.incognito) {
@@ -68,7 +68,7 @@ export async function connectAndGetServerInfo(
       }
       reject({
         type: 'timeout',
-        message: `Failed to connect to Neurodesk server in ${(
+        message: `Failed to connect to Sciget server in ${(
           timeout / 1000
         ).toFixed(1)} s`
       } as IConnectError);
@@ -126,7 +126,7 @@ export async function connectAndGetServerInfo(
               window.close();
               reject({
                 type: 'invalid-url',
-                message: 'Not a supported Neurodesk server found'
+                message: 'Not a supported Sciget server found'
               } as IConnectError);
               return;
             }

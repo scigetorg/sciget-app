@@ -595,14 +595,12 @@ export class JupyterApplication implements IApplication, IDisposable {
     this._evm.registerEventHandler(
       EventTypeMain.LaunchInstallerDownloadPage,
       () => {
-        shell.openExternal(
-          'https://github.com/NeuroDesk/neurodesk-app/releases'
-        );
+        shell.openExternal('https://github.com/scigetorg/sciget-app/releases');
       }
     );
 
     this._evm.registerEventHandler(EventTypeMain.LaunchAboutJupyterPage, () => {
-      shell.openExternal('https://neurodesk.org/');
+      shell.openExternal('https://sciget.org/');
     });
 
     this._evm.registerEventHandler(
@@ -969,7 +967,7 @@ export class JupyterApplication implements IApplication, IDisposable {
 
   checkForUpdates(showDialog: 'on-new-version' | 'always') {
     fetch(
-      'https://github.com/NeuroDesk/neurodesk-app/releases/latest/download/latest.yml'
+      'https://github.com/scigetorg/sciget-app/releases/latest/download/latest.yml'
     )
       .then(async response => {
         try {

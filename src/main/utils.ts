@@ -90,7 +90,7 @@ export function getOldUserConfigPath() {
 
 export function getBundledPythonEnvPath(): string {
   const userDataDir = getBundledPythonInstallDir();
-  let envPath = path.join(userDataDir, 'neurodesk _server');
+  let envPath = path.join(userDataDir, 'sciget_server');
 
   return envPath;
 }
@@ -275,12 +275,12 @@ export function getLogFilePath(processType: 'main' | 'renderer' = 'main') {
     case 'darwin':
       return path.join(
         getUserHomeDir(),
-        `/Library/Logs/neurodeskapp/${processType}.log`
+        `/Library/Logs/scigetapp/${processType}.log`
       );
     default:
       return path.join(
         getUserHomeDir(),
-        `/.config/neurodeskapp/logs/${processType}.log`
+        `/.config/scigetapp/logs/${processType}.log`
       );
   }
 }

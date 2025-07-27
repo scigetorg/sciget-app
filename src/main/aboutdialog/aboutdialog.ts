@@ -12,7 +12,7 @@ export class AboutDialog {
   constructor(options: AboutDialog.IOptions) {
     this._window = new ThemedWindow({
       isDarkTheme: options.isDarkTheme,
-      title: 'About Neurodesk Desktop',
+      title: 'About Sciget Desktop',
       width: 400,
       height: 275,
       preload: path.join(__dirname, './preload.js')
@@ -71,7 +71,7 @@ export class AboutDialog {
           </div>
           <div class="app-title-version">
             <div class="app-title">
-              Neurodesk App
+              Sciget App
             </div>
             <div class="app-version">
               Version <%= version %>
@@ -79,11 +79,11 @@ export class AboutDialog {
           </div>
         </div>
         <div class="row about-jupyter-row">
-          <a href="javascript:void(0)" onclick='handleAboutProjectJupyterLink(this);'>About Project Neurodesk</a>
+          <a href="javascript:void(0)" onclick='handleAboutProjectJupyterLink(this);'>About Project Sciget</a>
         </div>
 
         <div class="row copyright-row">
-          © 2020-<%= thisYear %>  Project Neurodesk Contributors
+          © 2020-<%= thisYear %>  Project Sciget Contributors
         </div>
 
         <script>

@@ -3,7 +3,7 @@ commonLaunchArgs:
   - "-it"
   - "--privileged"
   - "--user=root"
-  - "--name neurodeskapp-{port}"
+  - "--name scigetapp-{port}"
   - "-p {port}:{port}"
   - "-e NEURODESKTOP_VERSION={tag}"
   - "-e CVMFS_DISABLE={cvmfsDisable}"
