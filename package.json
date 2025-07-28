@@ -46,7 +46,7 @@
     "stylelint:check": "stylelint \"**/*.css\""
   },
   "build": {
-    "appId": "org.sciget.scigetapp",
+    "appId": "org.scigetorg.scigetapp",
     "productName": "ScigetApp",
     "artifactName": "${productName}.${ext}",
     "directories": {
