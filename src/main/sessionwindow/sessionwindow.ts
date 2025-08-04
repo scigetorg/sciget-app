@@ -149,7 +149,7 @@ export class SessionWindow implements IDisposable {
   private async _createServerForSession(progressView?: ProgressView) {
     const serverOptions: JupyterServer.IOptions = {
       workingDirectory: this._sessionConfig.resolvedWorkingDirectory,
-      containerConfigPath: this._sessionConfig.containerConfigPath
+      containerConfigName: this._sessionConfig.containerConfigName
     };
 
     const pythonPath = this._wsSettings.getValue(SettingType.pythonPath);
@@ -504,7 +504,7 @@ export class SessionWindow implements IDisposable {
       async (
         event,
         type: 'notebook' | 'blank',
-        containerConfigPath?: string
+        containerConfigName?: string
       ) => {
         if (event.sender !== this.contentView?.webContents) {
           return;
@@ -519,10 +519,10 @@ export class SessionWindow implements IDisposable {
         const sessionConfig = SessionConfig.createLocal(
           undefined,
           undefined,
-          containerConfigPath
+          containerConfigName
         );
         console.debug(
-          `Creating new session of type: ${type}, containerConfigPath: ${containerConfigPath}`
+          `Creating new session of type: ${type}, containerConfigName: ${containerConfigName}`
         );
         this._sessionConfig = sessionConfig;
         this._wsSettings = new WorkspaceSettings(
@@ -612,12 +612,15 @@ export class SessionWindow implements IDisposable {
 
     this._evm.registerEventHandler(
       EventTypeMain.CreateNewRemoteSession,
-      async event => {
+      async (
+        event,
+        remoteUrl: string
+      ) => {
         if (event.sender !== this.contentView?.webContents) {
           return;
         }
-
-        this._selectRemoteServerUrl();
+        console.debug("Creating new remote session with URL: ", remoteUrl);
+        this._selectRemoteServerUrl(remoteUrl);
       }
     );
 
@@ -1004,7 +1007,7 @@ export class SessionWindow implements IDisposable {
     });
   }
 
-  private async _selectRemoteServerUrl() {
+  private async _selectRemoteServerUrl(remoteUrl: string) {
     this._remoteServerSelectDialog = new RemoteServerSelectDialog({
       isDarkTheme: this._isDarkTheme,
       parent: this._window,
@@ -1013,12 +1016,11 @@ export class SessionWindow implements IDisposable {
     });
 
     this._remoteServerSelectDialog.load();
+    console.debug('Running servers: ', remoteUrl);
 
     // switched them from binderhub to jupyterhub so they don't required the "/v2/gh/neurodesk/neurodesktop/main"
     this._registry.getRunningServerList().then(runningServers => {
-      runningServers.push('https://play.neurodesk.cloud.edu.au/');
-      runningServers.push('https://play-america.neurodesk.org/');
-      runningServers.push('https://play-europe.neurodesk.org/');
+      runningServers.push(remoteUrl);
       this._remoteServerSelectDialog.setRunningServerList(runningServers);
     });
   }
@@ -1111,7 +1113,7 @@ export class SessionWindow implements IDisposable {
       this._createSessionForLocal(
         sessionConfig.workingDirectory,
         sessionConfig.filesToOpen,
-        sessionConfig.containerConfigPath,
+        sessionConfig.containerConfigName,
         sessionConfig.pythonPath
       ).catch(error => {
         this._setProgress(
@@ -1155,7 +1157,7 @@ export class SessionWindow implements IDisposable {
         this._createSessionForLocal(
           sessionConfig.workingDirectory,
           sessionConfig.filesToOpen,
-          sessionConfig.containerConfigPath
+          sessionConfig.containerConfigName
         ).catch(error => {
           this._setProgress(
             'Failed to create session',
@@ -1173,7 +1175,7 @@ export class SessionWindow implements IDisposable {
   private async _createSessionForLocal(
     workingDirectory?: string,
     filesToOpen?: string[],
-    containerConfigPath?: string,
+    containerConfigName?: string,
     pythonPath?: string,
     recentSessionIndex?: number,
     useDefaultPythonEnv?: boolean
@@ -1182,7 +1184,7 @@ export class SessionWindow implements IDisposable {
     const sessionConfig = SessionConfig.createLocal(
       resolvedWorkingDirectory,
       filesToOpen,
-      containerConfigPath
+      containerConfigName
     );
 
     this._showProgressView('Creating new session');
@@ -1337,7 +1339,7 @@ export class SessionWindow implements IDisposable {
       this._createSessionForLocal(
         recentSession.workingDirectory,
         recentSession.filesToOpen,
-        recentSession.containerConfigPath,
+        recentSession.containerConfigName,
         undefined,
         sessionIndex,
         useDefaultPythonEnv

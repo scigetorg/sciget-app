@@ -20,7 +20,7 @@ export interface INewsItem {
 export interface IRecentSession {
   workingDirectory?: string;
   filesToOpen?: string[];
-  containerConfigPath?: string;
+  containerConfigName?: string;
   remoteURL?: string;
   persistSessionData?: boolean;
   partition?: string;
@@ -321,7 +321,7 @@ export class ApplicationData {
       this.recentSessions.push({
         workingDirectory: session.workingDirectory,
         filesToOpen: filesToOpen,
-        containerConfigPath: session.containerConfigPath,
+        containerConfigName: session.containerConfigName,
         remoteURL: session.remoteURL,
         persistSessionData: session.persistSessionData,
         partition: session.partition,

@@ -54,11 +54,11 @@ export class ContainerConfigParser {
   private baseContainerConfig: BaseContainerConfig;
   private containerConfig: ContainerConfig;
 
-  constructor(baseContainerConfigPath?: string, containerConfigPath?: string) {
+  constructor(baseContainerConfigPath?: string, containerConfigName?: string) {
     this.baseContainerConfig = this.loadBaseContainerConfig(
       baseContainerConfigPath
     );
-    this.containerConfig = this.loadContainerConfig(containerConfigPath);
+    this.containerConfig = this.loadContainerConfig(containerConfigName);
   }
 
   private loadBaseContainerConfig(configPath?: string): BaseContainerConfig {
@@ -75,15 +75,15 @@ export class ContainerConfigParser {
     }
   }
 
-  private loadContainerConfig(containerConfigPath?: string): ContainerConfig {
-    if (!fs.existsSync(containerConfigPath)) {
+  private loadContainerConfig(containerConfigName?: string): ContainerConfig {
+    if (!fs.existsSync(containerConfigName)) {
       throw new Error(
-        `ContainerConfig file not found at ${containerConfigPath}`
+        `ContainerConfig file not found at ${containerConfigName}`
       );
     }
 
     try {
-      const configContent = fs.readFileSync(containerConfigPath, 'utf8');
+      const configContent = fs.readFileSync(containerConfigName, 'utf8');
       const config = yaml.load(configContent) as ContainerConfig;
       return config;
     } catch (error) {

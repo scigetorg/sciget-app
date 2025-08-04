@@ -40,13 +40,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
       | 'open-file'
       | 'open-folder'
       | 'remote',
-    containerConfigPath?: string
+    containerConfigName?: string,
+    remoteUrl?: string
   ) => {
     if (type === 'notebook' || type === 'blank') {
       ipcRenderer.send(
         EventTypeMain.CreateNewSession,
         type,
-        containerConfigPath
+        containerConfigName
       );
     } else if (type === 'open') {
       ipcRenderer.send(EventTypeMain.OpenFileOrFolder);
@@ -55,7 +56,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     } else if (type === 'open-folder') {
       ipcRenderer.send(EventTypeMain.OpenFolder);
     } else if (type === 'remote') {
-      ipcRenderer.send(EventTypeMain.CreateNewRemoteSession);
+      ipcRenderer.send(EventTypeMain.CreateNewRemoteSession, remoteUrl);
     }
   },
   openRecentSession(sessionIndex: number) {

@@ -27,7 +27,7 @@ interface IContainerConfig {
   version?: string;
   registry?: string;
   description: string;
-  url?: string;
+  remoteUrl?: string;
   tags?: string[];
   author?: string;
 }
@@ -38,29 +38,29 @@ interface IMiniApp {
   description: string;
   version?: string;
   registry?: string;
-  url?: string;
+  remoteUrl?: string;
   tags?: string[];
 }
 
 // Function to read container installer YAML files and create mini apps
 function loadMiniAppsFromContainerInstaller(): IMiniApp[] {
-  const containerConfigPath = path.join(__dirname, '../../container_installer');
+  const containerConfigName = path.join(__dirname, '../../container_installer');
   const miniApps: IMiniApp[] = [];
 
-  console.log('Loading mini apps from:', containerConfigPath);
+  console.log('Loading mini apps from:', containerConfigName);
 
   try {
     // Check if the directory exists
-    // if (!fs.existsSync(containerConfigPath)) {
+    // if (!fs.existsSync(containerConfigName)) {
     //   console.warn(
     //     'Container installer directory not found:',
-    //     containerConfigPath
+    //     containerConfigName
     //   );
     //   return getDefaultMiniApps();
     // }
 
     // Read all files in the container_installer directory
-    const files = fs.readdirSync(containerConfigPath);
+    const files = fs.readdirSync(containerConfigName);
     console.log('Found files in container installer:', files);
 
     // Filter for YAML files
@@ -77,7 +77,7 @@ function loadMiniAppsFromContainerInstaller(): IMiniApp[] {
 
     for (const yamlFile of yamlFiles) {
       try {
-        const filePath = path.join(containerConfigPath, yamlFile);
+        const filePath = path.join(containerConfigName, yamlFile);
         const fileContent = fs.readFileSync(filePath, 'utf8');
         const config = yaml.load(fileContent) as IContainerConfig;
 
@@ -87,7 +87,8 @@ function loadMiniAppsFromContainerInstaller(): IMiniApp[] {
           const app: IMiniApp = {
             id: config.title.toLowerCase().replace(/[^a-z0-9]/g, '-'),
             title: config.title,
-            description: config.description.trim()
+            description: config.description.trim(),
+            remoteUrl: config.remoteUrl || ''
           };
 
           // Add optional properties if they exist
@@ -110,7 +111,7 @@ function loadMiniAppsFromContainerInstaller(): IMiniApp[] {
             }
           }
           if (config.registry) app.registry = config.registry;
-          if (config.url) app.url = config.url;
+          if (config.remoteUrl) app.remoteUrl = config.remoteUrl;
           if (config.tags) app.tags = config.tags;
 
           miniApps.push(app);
@@ -274,6 +275,7 @@ export class WelcomeView {
               transition: all 0.3s ease;
               position: relative;
               overflow: hidden;
+              justtify-content: space-between;
           }
 
           .app-card:hover {
@@ -483,7 +485,7 @@ export class WelcomeView {
                               Launch Local
                           </button>
                           <button class="launch-btn remote-btn" 
-                                  onclick="handleNewSessionClick('remote', '\$\{app.title\}');location.href='javascript:void(0)'">
+                                  onclick="handleNewRemoteSessionClick('remote', '\$\{app.remoteUrl\}');location.href='javascript:void(0)'">
                               Launch Remote
                           </button>
                       </div>
@@ -601,8 +603,12 @@ export class WelcomeView {
             window.electronAPI.openDroppedFiles(files);
           });
 
-          function handleNewSessionClick(type, containerTitle) {
-            window.electronAPI.newSession(type, containerTitle);
+          function handleNewSessionClick(type, containerConfigName) {
+            window.electronAPI.newSession(type, containerConfigName);
+          }
+
+          function handleNewRemoteSessionClick(type, remoteUrl) {
+            window.electronAPI.newSession(type, undefined, remoteUrl);
           }
 
           function handleRecentSessionClick(event) {

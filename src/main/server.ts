@@ -45,7 +45,7 @@ function createTempFile(
 function createLaunchScript(
   serverInfo: JupyterServer.IInfo,
   engineType: EngineType,
-  containerConfigPath: string,
+  containerConfigName: string,
   port: number,
   token: string
 ): string {
@@ -56,17 +56,17 @@ function createLaunchScript(
     __dirname,
     'config/baseContainerConfig.yml'
   );
-  containerConfigPath = path.join(
+  containerConfigName = path.join(
     __dirname,
     '../container_installer',
-    containerConfigPath + '.yml'
+    containerConfigName + '.yml'
   );
   console.log(
-    `baseContainerConfigPath: ${baseContainerConfigPath}, containerConfigPath: ${containerConfigPath}`
+    `baseContainerConfigPath: ${baseContainerConfigPath}, containerConfigName: ${containerConfigName}`
   );
   const parser = new ContainerConfigParser(
     baseContainerConfigPath,
-    containerConfigPath
+    containerConfigName
   );
   const imageRegistry = parser.getImageRegistry();
   // Substitution variables
@@ -296,7 +296,7 @@ export class JupyterServer {
     const workingDir =
       this._options.workingDirectory || userSettings.resolvedWorkingDirectory;
     this._info.workingDirectory = workingDir;
-    this._info.containerConfigPath = this._options.containerConfigPath;
+    this._info.containerConfigName = this._options.containerConfigName;
 
     const wsSettings = new WorkspaceSettings(workingDir);
     this._info.engine = wsSettings.getValue(SettingType.engineType);
@@ -350,7 +350,7 @@ export class JupyterServer {
         const launchScriptPath = createLaunchScript(
           this._info,
           this._info.engine,
-          this._info.containerConfigPath,
+          this._info.containerConfigName,
           this._info.port,
           this._info.token
         );
@@ -682,7 +682,7 @@ export class JupyterServer {
     port: null,
     token: null,
     workingDirectory: null,
-    containerConfigPath: null,
+    containerConfigName: null,
     environment: null,
     serverArgs: '',
     overrideDefaultServerArgs: false,
@@ -700,7 +700,7 @@ export namespace JupyterServer {
     port?: number;
     token?: string;
     workingDirectory?: string;
-    containerConfigPath?: string;
+    containerConfigName?: string;
     environment?: IPythonEnvironment;
   }
 
@@ -712,7 +712,7 @@ export namespace JupyterServer {
     token: string;
     environment?: IPythonEnvironment;
     workingDirectory: string;
-    containerConfigPath?: string;
+    containerConfigName?: string;
     serverArgs?: string;
     overrideDefaultServerArgs?: boolean;
     serverEnvVars?: KeyValueMap;
