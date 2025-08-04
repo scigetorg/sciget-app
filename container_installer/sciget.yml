@@ -1,0 +1,6 @@
+title: sciget
+version: "2025-06-10"
+registry: vnmd/neurodesktop
+description: |
+  Sciget is a tool for managing and deploying scientific containers, providing a streamlined interface for users to access and run various scientific applications.
+remoteUrl: http://play-australia.sciget.org

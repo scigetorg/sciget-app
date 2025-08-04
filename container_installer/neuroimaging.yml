@@ -3,3 +3,4 @@ version: "2025-06-10"
 registry: vnmd/neurodesktop
 description: |
   Neuroimaging tools and resources for neuroimaging research and analysis.
+remoteUrl: https://play.neurodesk.cloud.edu.au/

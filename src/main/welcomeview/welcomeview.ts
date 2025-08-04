@@ -482,6 +482,10 @@ export class WelcomeView {
                                   onclick="handleNewSessionClick('notebook', '\$\{app.title\}');location.href='javascript:void(0)'">
                               Launch Local
                           </button>
+                          <button class="launch-btn remote-btn" 
+                                  onclick="handleNewSessionClick('remote', '\$\{app.title\}');location.href='javascript:void(0)'">
+                              Launch Remote
+                          </button>
                       </div>
                   </div>
               \`;
