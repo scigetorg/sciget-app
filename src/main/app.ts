@@ -244,19 +244,6 @@ namespace SessionWindowManager {
   }
 }
 
-function createNeurodesktopStorage() {
-  const storagePath =
-    process.platform === 'win32'
-      ? 'C:/neurodesktop-storage'
-      : path.join(app.getPath('home'), 'neurodesktop-storage');
-  if (!fs.existsSync(storagePath)) {
-    fs.mkdirSync(storagePath, { recursive: true });
-    if (process.platform === 'linux') {
-      fs.chmodSync(storagePath, 0o777);
-    }
-  }
-}
-
 export class JupyterApplication implements IApplication, IDisposable {
   /**
    * Construct the Jupyter application
@@ -271,8 +258,6 @@ export class JupyterApplication implements IApplication, IDisposable {
       registry: this._registry,
       serverFactory: this._serverFactory
     });
-
-    createNeurodesktopStorage();
 
     // create a server in advance
     // this._serverFactory.createFreeServer().catch(error => {

@@ -48,6 +48,7 @@ export interface ContainerConfig {
   title: string;
   version: string;
   registry: string;
+  storageDir: string;
   volumeMount: string;
 }
 
@@ -297,6 +298,13 @@ export class ContainerConfigParser {
    */
   public getImageRegistry(): string {
     return this.containerConfig.registry;
+  }
+
+  /**
+   * Get the storage directory from config
+   */
+  public getStorageDir(): string {
+    return this.containerConfig.storageDir;
   }
 
   /**

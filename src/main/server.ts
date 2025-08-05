@@ -24,9 +24,27 @@ import {
   ContainerConfigParser,
   VariableContext
 } from './config/containerConfigParser';
+import { getUserHomeDir } from './utils';
 
 const SERVER_LAUNCH_TIMEOUT = 40 * 60000; // milliseconds
 const SERVER_RESTART_LIMIT = 1; // max server restarts
+
+/**
+ * Create the storage directory to be mounted for the container.
+ */
+function createStorageDir(storageDir: string) {
+  const home = getUserHomeDir();
+  const storagePath =
+    process.platform === 'win32'
+      ? `C://${storageDir}`
+      : path.join(home, storageDir);
+  if (!fs.existsSync(storagePath)) {
+    fs.mkdirSync(storagePath, { recursive: true });
+    if (process.platform === 'linux') {
+      fs.chmodSync(storagePath, 0o777);
+    }
+  }
+}
 
 function createTempFile(
   fileName = 'temp',
@@ -70,6 +88,11 @@ function createLaunchScript(
   );
   const imageRegistry = parser.getImageRegistry();
   const volumeMount = parser.getVolumeMount();
+  let storageDir = parser.getStorageDir() || 'neurodesktop-storage';
+
+  // create storage directory for mounting the container
+  createStorageDir(storageDir);
+
   // Substitution variables
   let additionalDir = '';
 
@@ -77,10 +100,7 @@ function createLaunchScript(
   let isTinyRange = engineType === EngineType.TinyRange;
   let isDocker = engineType === EngineType.Docker;
   let cvmfsDisable = serverInfo.cvmfsMode.toString(); // Download(1): CVMFS_DISABLE=true, Stream(0): CVMFS_DISABLE=false
-  let neurodesktopStorageDir = isWin
-    ? 'C://neurodesktop-storage'
-    : '~/neurodesktop-storage';
-  const buildDir = path.join(neurodesktopStorageDir, 'build');
+  const buildDir = path.join(storageDir, 'build');
 
   const isDev = process.env.NODE_ENV === 'development';
   console.log('isDev', isDev, 'cvmfsDisable', cvmfsDisable);
@@ -136,7 +156,7 @@ function createLaunchScript(
     cvmfsDisable,
     tinyrangePath,
     buildDir,
-    storageDir: neurodesktopStorageDir,
+    storageDir: storageDir,
     additionalDir,
     volumeMount
   };
@@ -217,7 +237,7 @@ function createLaunchScript(
             echo "Image does not exist"
             ${stopCmd} 
             ${volumeCreate}            
-            ${engineType} pull docker.io/${imageRegistry}
+            ${engineType} pull ${imageRegistry}
             ${launchCmd}
         )
       `;
@@ -230,7 +250,7 @@ function createLaunchScript(
         else
           ${stopCmd}
           ${volumeCreate}
-          ${engineType} pull docker.io/${imageRegistry}
+          ${engineType} pull ${imageRegistry}
           ${launchCmd}
         fi
         `;

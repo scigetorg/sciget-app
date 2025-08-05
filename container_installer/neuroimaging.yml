@@ -1,6 +1,7 @@
 title: neuroimaging
 version: "2025-06-10"
-registry: vnmd/neurodesktop
+registry: docker.io/vnmd/neurodesktop
+storageDir: "neurodesktop-storage"
 volumeMount: neurodesk-home
 description: |
   Neuroimaging tools and resources for neuroimaging research and analysis.
