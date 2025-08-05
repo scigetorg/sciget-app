@@ -1,6 +1,4 @@
 title: sciget
-version: "2025-08-03"
-registry: ghcr.io/scigetorg/scidesktop
 storageDir: "scidesktop-storage"
 volumeMount: sciget-home
 description: |

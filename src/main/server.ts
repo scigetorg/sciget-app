@@ -89,6 +89,7 @@ function createLaunchScript(
   const imageRegistry = parser.getImageRegistry();
   const volumeMount = parser.getVolumeMount();
   let storageDir = parser.getStorageDir() || 'neurodesktop-storage';
+  let imageVersion = parser.getImageVersion();
 
   // create storage directory for mounting the container
   createStorageDir(storageDir);
@@ -226,7 +227,7 @@ function createLaunchScript(
               echo "${engineType} command not found, running ${launchCmd}"
               ${launchCmd}
           )
-        FOR /F "usebackq delims=" %%i IN (\`${engineType} image inspect ${imageRegistry} --format="exists" 2^>nul\`) DO SET IMAGE_EXISTS=%%i
+        FOR /F "usebackq delims=" %%i IN (\`${engineType} image inspect ${imageRegistry}:${imageVersion} --format="exists" 2^>nul\`) DO SET IMAGE_EXISTS=%%i
         if "%IMAGE_EXISTS%"=="exists" (
             echo "Image exists"
             FOR /F "usebackq delims=" %%i IN (\`${engineType} container inspect -f "{{.State.Status}}" scigetapp-${strPort}\`) DO SET CONTAINER_STATUS=%%i
@@ -243,14 +244,14 @@ function createLaunchScript(
       `;
   } else {
     script = `
-        if [[ "$(${engineType} image inspect ${imageRegistry} --format='exists' 2> /dev/null)" == "exists" ]]; then 
+        if [[ "$(${engineType} image inspect ${imageRegistry}:${imageVersion} --format='exists' 2> /dev/null)" == "exists" ]]; then 
           ${stopCmd} 
           ${volumeCreate}
           ${launchCmd}
         else
           ${stopCmd}
           ${volumeCreate}
-          ${engineType} pull ${imageRegistry}
+          ${engineType} pull ${imageRegistry}:${imageVersion}
           ${launchCmd}
         fi
         `;

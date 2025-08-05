@@ -313,4 +313,11 @@ export class ContainerConfigParser {
   public getVolumeMount(): string | undefined {
     return this.containerConfig.volumeMount;
   }
+
+  /**
+   * Get the image version from config
+   */
+  public getImageVersion(): string {
+    return this.containerConfig.version;
+  }
 }

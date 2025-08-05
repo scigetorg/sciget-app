@@ -474,20 +474,46 @@ export class WelcomeView {
 
           // Function to create app card HTML
           function createAppCard(app) {
+              // Check if local launch is available (requires version and registry)
+              const hasLocalLaunch = app.version && app.registry;
+              
+              // Check if remote launch is available (requires remoteUrl)
+              const hasRemoteLaunch = app.remoteUrl && app.remoteUrl.length > 0;
+              
+              // Generate buttons based on availability
+              let buttonsHTML = '';
+              
+              if (hasLocalLaunch) {
+                  buttonsHTML += \`
+                      <button class="launch-btn local-btn" 
+                              onclick="handleNewSessionClick('notebook', '\$\{app.title\}');location.href='javascript:void(0)'">
+                          Launch Local
+                      </button>\`;
+              }
+              
+              if (hasRemoteLaunch) {
+                  buttonsHTML += \`
+                      <button class="launch-btn remote-btn" 
+                              onclick="handleNewRemoteSessionClick('remote', '\$\{app.remoteUrl\}');location.href='javascript:void(0)'">
+                          Launch Remote
+                      </button>\`;
+              }
+              
+              // If no launch options are available, show a disabled message
+              if (!hasLocalLaunch && !hasRemoteLaunch) {
+                  buttonsHTML = \`
+                      <div style="text-align: center; color: #a0aec0; font-style: italic; padding: 12px;">
+                          No launch options available
+                      </div>\`;
+              }
+
               return \`
                   <div class="app-card" id="\$\{app.id\}">
                       <h3 class="app-title">\$\{app.title\}</h3>
                       <p class="app-description">\$\{app.description\}</p>
 
                       <div class="launch-buttons">
-                          <button class="launch-btn local-btn" 
-                                  onclick="handleNewSessionClick('notebook', '\$\{app.title\}');location.href='javascript:void(0)'">
-                              Launch Local
-                          </button>
-                          <button class="launch-btn remote-btn" 
-                                  onclick="handleNewRemoteSessionClick('remote', '\$\{app.remoteUrl\}');location.href='javascript:void(0)'">
-                              Launch Remote
-                          </button>
+                          \$\{buttonsHTML\}
                       </div>
                   </div>
               \`;
