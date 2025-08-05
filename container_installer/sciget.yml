@@ -1,6 +1,7 @@
 title: sciget
 version: "2025-08-03"
 registry: ghcr.io/scigetorg/scidesktop
+volumeMount: sciget-home
 description: |
   Sciget provides a streamlined interface for users to access and run various scientific applications.
 remoteUrl: 

@@ -48,6 +48,7 @@ export interface ContainerConfig {
   title: string;
   version: string;
   registry: string;
+  volumeMount: string;
 }
 
 export class ContainerConfigParser {
@@ -115,7 +116,8 @@ export class ContainerConfigParser {
       '{storageDir}': context.storageDir || '',
       '{additionalDir}': context.additionalDir || '',
       '{imageRegistry}':
-        this.containerConfig.registry + ':' + this.containerConfig.version
+        this.containerConfig.registry + ':' + this.containerConfig.version,
+      '{volume_mount}': context.volumeMount || ''
     };
 
     for (const [placeholder, value] of Object.entries(substitutions)) {
@@ -162,14 +164,6 @@ export class ContainerConfigParser {
         if (engineConfig?.base_cmd) {
           expanded.push(
             this.substituteVariables(engineConfig.base_cmd, context)
-          );
-        }
-      } else if (arg === '{volume_mount}') {
-        // Get volume mount for the engine
-        const engineConfig = this.baseContainerConfig.engines[engine];
-        if (engineConfig?.volume_mount) {
-          expanded.push(
-            this.substituteVariables(engineConfig.volume_mount, context)
           );
         }
       } else {
@@ -306,16 +300,9 @@ export class ContainerConfigParser {
   }
 
   /**
-   * Check if an engine is supported
+   * Get the volume mount for the image
    */
-  public isEngineSupported(engine: EngineType): boolean {
-    return engine in this.baseContainerConfig.engines;
-  }
-
-  /**
-   * Get all supported engines
-   */
-  public getSupportedEngines(): EngineType[] {
-    return Object.keys(this.baseContainerConfig.engines) as EngineType[];
+  public getVolumeMount(): string | undefined {
+    return this.containerConfig.volumeMount;
   }
 }

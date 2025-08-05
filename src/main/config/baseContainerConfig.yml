@@ -13,7 +13,6 @@ engines:
   # Base configurations for each engine
   podman: &podman_base
     base_cmd: "podman run -d --rm"
-    volume_mount: "-v neurodesk-home:/home/jovyan"
     
   docker: &docker_base
     base_cmd: "docker run -d --rm"
@@ -43,7 +42,7 @@ launchArgs:
         - "{base_cmd}"
         - "{commonLaunchArgs}"
         - "-v C://neurodesktop-storage:/neurodesktop-storage"
-        - "{volume_mount}"
+        - "-v {volume_mount}:/home/jovyan"
         - "--network bridge:ip=10.88.0.10,mac=88:75:56:ef:3e:d6"
         - "{imageRegistry}"
     unix:
@@ -52,7 +51,7 @@ launchArgs:
         - "{base_cmd}"
         - "{commonLaunchArgs}"
         - "-e NB_UID=\"$(id -u)\" -e NB_GID=\"$(id -g)\" -v ~/neurodesktop-storage:/neurodesktop-storage"
-        - "{volume_mount}"
+        - "-v {volume_mount}:/home/jovyan"
         - "--network bridge:ip=10.88.0.10,mac=88:75:56:ef:3e:d6"
         - "{imageRegistry}"
   
@@ -63,7 +62,7 @@ launchArgs:
         - "{base_cmd}"
         - "{commonLaunchArgs}"
         - "-v C://neurodesktop-storage:/neurodesktop-storage"
-        - "--mount source=neurodesk-home,target=/home/jovyan --mac-address=88:75:56:ef:3e:d6"
+        - "--mount source={volume_mount},target=/home/jovyan --mac-address=88:75:56:ef:3e:d6"
         - "{imageRegistry}"
     unix:
       <<: *docker_base
@@ -71,7 +70,7 @@ launchArgs:
         - "{base_cmd}"
         - "{commonLaunchArgs}"
         - "-e NB_UID=\"$(id -u)\" -e NB_GID=\"$(id -g)\" -v ~/neurodesktop-storage:/neurodesktop-storage"
-        - "--mount source=neurodesk-home,target=/home/jovyan --mac-address=88:75:56:ef:3e:d6"
+        - "--mount source={volume_mount},target=/home/jovyan --mac-address=88:75:56:ef:3e:d6"
         - "{imageRegistry}"
   
   tinyrange:

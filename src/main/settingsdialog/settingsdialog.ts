@@ -247,21 +247,6 @@ export class SettingsDialog {
               </jp-radio-group>
 
               <jp-radio-group orientation="horizontal">
-                <label slot="label">Container mode 
-                  <div class="tooltip">&#9432;
-                    <span class="tooltiptext">
-                    <ul>
-                      <li>Download: Downloads containers when there is internet connection and allow to use them when internet is disconnected.</li>
-                      <li>Stream: Always fetches the latest containers but requires an internet connection</li>
-                    </ul>
-                    </span>
-                  </div>
-                </label>
-                <jp-radio name="cvmfs-mode" value="false" <%= cvmfsMode === 'false' ? 'checked' : '' %>>Stream</jp-radio>
-                <jp-radio name="cvmfs-mode" value="true" <%= cvmfsMode === 'true' ? 'checked' : '' %>>Download</jp-radio>
-              </jp-radio-group>
-              
-              <jp-radio-group orientation="horizontal">
                 <label slot="label">Theme</label>
                 <jp-radio name="theme" value="light" <%= theme === 'light' ? 'checked' : '' %>>Light</jp-radio>
                 <jp-radio name="theme" value="dark" <%= theme === 'dark' ? 'checked' : '' %>>Dark</jp-radio>

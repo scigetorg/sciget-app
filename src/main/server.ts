@@ -69,6 +69,7 @@ function createLaunchScript(
     containerConfigName
   );
   const imageRegistry = parser.getImageRegistry();
+  const volumeMount = parser.getVolumeMount();
   // Substitution variables
   let additionalDir = '';
 
@@ -124,8 +125,8 @@ function createLaunchScript(
   // removed once jupyter_server requires traitlets>5.0
   let volumeCheck = `${
     isWin
-      ? `${engineType} volume inspect neurodesk-home >NUL 2>&1 || ${engineType} volume create neurodesk-home`
-      : `${engineType} volume exists neurodesk-home &> /dev/null || ${engineType} volume create neurodesk-home`
+      ? `${engineType} volume inspect ${volumeMount} >NUL 2>&1 || ${engineType} volume create ${volumeMount}`
+      : `${engineType} volume exists ${volumeMount} &> /dev/null || ${engineType} volume create ${volumeMount}`
   }`;
   let volumeCreate = `${isPodman ? `${volumeCheck}` : ''}`;
 
@@ -136,7 +137,8 @@ function createLaunchScript(
     tinyrangePath,
     buildDir,
     storageDir: neurodesktopStorageDir,
-    additionalDir
+    additionalDir,
+    volumeMount
   };
   console.debug(`context: ${JSON.stringify(context)}`);
   // Parse launch arguments
