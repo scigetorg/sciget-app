@@ -15,7 +15,7 @@ export class RemoteServerSelectDialog {
       isDarkTheme: options.isDarkTheme,
       parent: options.parent,
       modal: options.modal,
-      title: 'Connect to existing Neurodesk Server',
+      title: 'Connect to existing server',
       width: 700,
       height: 400,
       preload: path.join(__dirname, './preload.js')
