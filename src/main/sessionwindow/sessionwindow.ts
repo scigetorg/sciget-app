@@ -612,15 +612,12 @@ export class SessionWindow implements IDisposable {
 
     this._evm.registerEventHandler(
       EventTypeMain.CreateNewRemoteSession,
-      async (
-        event,
-        remoteUrl: string
-      ) => {
+      async (event, remoteUrls: string[]) => {
         if (event.sender !== this.contentView?.webContents) {
           return;
         }
-        console.debug("Creating new remote session with URL: ", remoteUrl);
-        this._selectRemoteServerUrl(remoteUrl);
+        console.debug('Creating new remote session with URL: ', remoteUrls);
+        this._selectRemoteServerUrl(remoteUrls);
       }
     );
 
@@ -1007,7 +1004,7 @@ export class SessionWindow implements IDisposable {
     });
   }
 
-  private async _selectRemoteServerUrl(remoteUrl: string) {
+  private async _selectRemoteServerUrl(remoteUrls: string[]) {
     this._remoteServerSelectDialog = new RemoteServerSelectDialog({
       isDarkTheme: this._isDarkTheme,
       parent: this._window,
@@ -1016,11 +1013,11 @@ export class SessionWindow implements IDisposable {
     });
 
     this._remoteServerSelectDialog.load();
-    console.debug('Running servers: ', remoteUrl);
+    console.debug('Running servers: ', remoteUrls);
 
     // switched them from binderhub to jupyterhub so they don't required the "/v2/gh/neurodesk/neurodesktop/main"
     this._registry.getRunningServerList().then(runningServers => {
-      runningServers.push(remoteUrl);
+      runningServers.push(...remoteUrls);
       this._remoteServerSelectDialog.setRunningServerList(runningServers);
     });
   }

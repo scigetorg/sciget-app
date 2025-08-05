@@ -27,7 +27,7 @@ interface IContainerConfig {
   version?: string;
   registry?: string;
   description: string;
-  remoteUrl?: string;
+  remoteUrl?: string[];
   tags?: string[];
   author?: string;
 }
@@ -38,7 +38,7 @@ interface IMiniApp {
   description: string;
   version?: string;
   registry?: string;
-  remoteUrl?: string;
+  remoteUrl?: string[];
   tags?: string[];
 }
 
@@ -88,7 +88,7 @@ function loadMiniAppsFromContainerInstaller(): IMiniApp[] {
             id: config.title.toLowerCase().replace(/[^a-z0-9]/g, '-'),
             title: config.title,
             description: config.description.trim(),
-            remoteUrl: config.remoteUrl || ''
+            remoteUrl: config.remoteUrl || []
           };
 
           // Add optional properties if they exist
@@ -608,7 +608,9 @@ export class WelcomeView {
           }
 
           function handleNewRemoteSessionClick(type, remoteUrl) {
-            window.electronAPI.newSession(type, undefined, remoteUrl);
+            // Parse the comma-separated string back to array
+            const remoteUrlArray = typeof remoteUrl === 'string' ? remoteUrl.split(',') : remoteUrl;
+            window.electronAPI.newSession(type, undefined, remoteUrlArray);
           }
 
           function handleRecentSessionClick(event) {

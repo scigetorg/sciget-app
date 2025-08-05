@@ -3,4 +3,5 @@ version: "2025-08-03"
 registry: ghcr.io/scigetorg/scidesktop
 description: |
   Sciget is a tool for managing and deploying scientific containers, providing a streamlined interface for users to access and run various scientific applications.
-remoteUrl: http://play-australia.sciget.org
+remoteUrl: 
+  - http://play-australia.sciget.org

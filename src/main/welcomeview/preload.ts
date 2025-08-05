@@ -41,7 +41,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
       | 'open-folder'
       | 'remote',
     containerConfigName?: string,
-    remoteUrl?: string
+    remoteUrl?: string[]
   ) => {
     if (type === 'notebook' || type === 'blank') {
       ipcRenderer.send(
